@@ -1,0 +1,20 @@
+{
+  "name": "ugh-study",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "build:mobile": "npm run build && cd cordova_app && npx cordova prepare"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "playcanvas": "^2.14.3"
+  }
+}
