@@ -8,7 +8,7 @@ export class Joystick {
     private currentX: number = 0;
     private currentY: number = 0;
     private maxRadius: number = 50;
-    
+
     public value = { x: 0, y: 0 };
 
     constructor() {
@@ -22,7 +22,7 @@ export class Joystick {
         this.container.style.zIndex = '100';
         this.container.style.userSelect = 'none';
         this.container.style.touchAction = 'none';
-        
+
         this.base = document.createElement('div');
         this.base.style.width = '100%';
         this.base.style.height = '100%';
@@ -46,8 +46,8 @@ export class Joystick {
 
         this.container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
         this.container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-        this.container.addEventListener('touchend', this.onTouchEnd.bind(this));
-        
+        this.container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
+
         // Mouse support for testing
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
         window.addEventListener('mousemove', this.onMouseMove.bind(this));
@@ -103,7 +103,7 @@ export class Joystick {
         const dx = x - this.startX;
         const dy = y - this.startY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (distance > this.maxRadius) {
             const angle = Math.atan2(dy, dx);
             this.currentX = Math.cos(angle) * this.maxRadius;
@@ -124,11 +124,11 @@ export class Joystick {
 
     private updateKnob() {
         this.knob.style.transform = `translate(calc(-50% + ${this.currentX}px), calc(-50% + ${this.currentY}px))`;
-        
+
         // Normalized output (-1 to 1)
         this.value.x = this.currentX / this.maxRadius;
         // Invert Y because screen Y is down, but typically we want "Up" to be positive or handled by the controller
         // Let's leave it as screen space (Up is negative) and handle inversion in the controller
-        this.value.y = this.currentY / this.maxRadius; 
+        this.value.y = this.currentY / this.maxRadius;
     }
 }

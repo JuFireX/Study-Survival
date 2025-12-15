@@ -21,4 +21,4 @@ window.addEventListener('resize', () => app.resizeCanvas());
 // Initialize Game Manager
 new GameManager(app);
 
-console.log("Game Started with Manager");
+console.log("Game Started with Manager - v1.1");
