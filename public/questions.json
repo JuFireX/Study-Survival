@@ -30,5 +30,21 @@
     "text": "Which is a poem?",
     "options": ["Code", "Li Bai", "Math", "English"],
     "correct": 1
+  },
+  {
+    "id": 5,
+    "subject": "general",
+    "difficulty": 1,
+    "text": "What is the capital of France?",
+    "type": "fill",
+    "answer": "Paris"
+  },
+  {
+    "id": 6,
+    "subject": "math",
+    "difficulty": 2,
+    "text": "10 / 2 = ?",
+    "type": "fill",
+    "answer": "5"
   }
 ]

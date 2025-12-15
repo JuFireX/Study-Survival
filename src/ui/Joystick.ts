@@ -16,7 +16,7 @@ export class Joystick {
         this.container.id = 'joystick-container';
         this.container.style.position = 'absolute';
         this.container.style.bottom = '50px';
-        this.container.style.left = '50px';
+        this.container.style.right = '50px';
         this.container.style.width = '120px';
         this.container.style.height = '120px';
         this.container.style.zIndex = '100';

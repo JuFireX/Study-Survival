@@ -26,3 +26,5 @@ dist-ssr
 .trae/
 .vscode/
 .idea/
+
+www/

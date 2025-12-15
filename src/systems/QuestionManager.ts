@@ -31,10 +31,17 @@ export class QuestionManager {
         // Pick random question (TODO: Use weights based on player stats)
         const q = this.questions[Math.floor(Math.random() * this.questions.length)];
         
-        this.ui.show(q, (answerIdx) => {
+        this.ui.show(q, (answer) => {
             this.app.timeScale = 1; // Resume
             
-            if (answerIdx === q.correct) {
+            let isCorrect = false;
+            if (typeof answer === 'number') {
+                isCorrect = answer === q.correct;
+            } else if (typeof answer === 'string') {
+                isCorrect = answer.toLowerCase() === (q.answer || '').toLowerCase();
+            }
+            
+            if (isCorrect) {
                 console.log("Correct!");
                 // TODO: Trigger Upgrade System
                 // Flash Green?
