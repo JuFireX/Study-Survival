@@ -1,24 +1,15 @@
-import * as pc from 'playcanvas';
+import { GameApplication } from './core/GameApplication';
 import { GameManager } from './systems/GameManager';
 
-// Create the application and start the update loop
-const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
-const app = new pc.Application(canvas, {
-    mouse: new pc.Mouse(document.body),
-    touch: new pc.TouchDevice(document.body),
-    elementInput: new pc.ElementInput(canvas),
-});
+// 启动游戏
+// 1. 初始化 Application 封装
+const gameApp = new GameApplication();
 
-app.start();
+// 2. 启动 PlayCanvas 引擎
+gameApp.start();
 
-// Fill the available space at full resolution
-app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-app.setCanvasResolution(pc.RESOLUTION_AUTO);
+// 3. 初始化游戏管理器
+// GameManager 会从 GameContext 中获取 App 实例，因此不需要显式传递
+new GameManager();
 
-// Ensure canvas is resized when window changes size
-window.addEventListener('resize', () => app.resizeCanvas());
-
-// Initialize Game Manager
-new GameManager(app);
-
-console.log("Game Started with Manager - v1.1");
+console.log("Game Started with Modular Architecture - v2.0");

@@ -1,3 +1,7 @@
+/**
+ * 虚拟摇杆
+ * 提供触摸和鼠标输入的模拟摇杆，用于控制角色移动。
+ */
 export class Joystick {
     private container: HTMLElement;
     private knob: HTMLElement;
@@ -9,9 +13,11 @@ export class Joystick {
     private currentY: number = 0;
     private maxRadius: number = 50;
 
+    // 对外暴露的输入值 (-1 到 1)
     public value = { x: 0, y: 0 };
 
     constructor() {
+        // 创建 DOM 元素
         this.container = document.createElement('div');
         this.container.id = 'joystick-container';
         this.container.style.position = 'absolute';
@@ -23,6 +29,7 @@ export class Joystick {
         this.container.style.userSelect = 'none';
         this.container.style.touchAction = 'none';
 
+        // 摇杆底座
         this.base = document.createElement('div');
         this.base.style.width = '100%';
         this.base.style.height = '100%';
@@ -31,6 +38,7 @@ export class Joystick {
         this.base.style.border = '2px solid rgba(255, 255, 255, 0.3)';
         this.container.appendChild(this.base);
 
+        // 摇杆头部
         this.knob = document.createElement('div');
         this.knob.style.width = '50px';
         this.knob.style.height = '50px';
@@ -44,11 +52,12 @@ export class Joystick {
 
         document.body.appendChild(this.container);
 
+        // 绑定触摸事件
         this.container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
         this.container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
         this.container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
 
-        // Mouse support for testing
+        // 绑定鼠标事件（用于桌面测试）
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
         window.addEventListener('mousemove', this.onMouseMove.bind(this));
         window.addEventListener('mouseup', this.onMouseUp.bind(this));
@@ -125,10 +134,8 @@ export class Joystick {
     private updateKnob() {
         this.knob.style.transform = `translate(calc(-50% + ${this.currentX}px), calc(-50% + ${this.currentY}px))`;
 
-        // Normalized output (-1 to 1)
+        // 归一化输出 (-1 到 1)
         this.value.x = this.currentX / this.maxRadius;
-        // Invert Y because screen Y is down, but typically we want "Up" to be positive or handled by the controller
-        // Let's leave it as screen space (Up is negative) and handle inversion in the controller
         this.value.y = this.currentY / this.maxRadius;
     }
 }

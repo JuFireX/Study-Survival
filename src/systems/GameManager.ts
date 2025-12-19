@@ -1,142 +1,160 @@
 import * as pc from 'playcanvas';
+import { GameContext } from '../core/GameContext';
+import { SceneBuilder } from '../core/SceneBuilder';
+import { EventBus } from '../core/EventBus';
+import { IGameSystem } from './IGameSystem';
+
 import { Joystick } from '../ui/Joystick';
+import { SpawnSystem } from './SpawnSystem';
+import { QuizSystem } from './QuizSystem';
+import { CombatSystem } from './CombatSystem';
+import { FeedbackSystem } from './FeedbackSystem';
+
 import { PlayerController } from '../scripts/components/PlayerController';
 import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
 import { WeaponController } from '../scripts/components/WeaponController';
 import { BulletBehavior } from '../scripts/components/BulletBehavior';
-import { FloatingTextManager } from '../ui/FloatingTextManager';
-import { QuestionManager } from './QuizSystem';
 
+/**
+ * 游戏管理器 (GameManager)
+ * 核心循环的指挥者，负责初始化系统、编排流程和状态管理。
+ */
 export class GameManager {
-    app: pc.Application;
-    joystick: Joystick;
-    player: pc.Entity;
-    floatingText: FloatingTextManager;
-    questionManager: QuestionManager;
-    spawnTimer: number = 0;
-    questionTimer: number = 0;
+    private app: pc.Application;
+    private context: GameContext;
+    private eventBus: EventBus;
+    private systems: IGameSystem[] = [];
+    private joystick: Joystick;
 
-    constructor(app: pc.Application) {
+    constructor() {
+        this.context = GameContext.getInstance();
+        this.app = this.context.getApp();
+        this.eventBus = EventBus.getInstance();
+
+        // 将自身暴露给 window 方便调试（不建议在正式逻辑中使用）
         (window as any).gameManager = this;
-        this.app = app;
+
         this.registerScripts();
+        
+        // 1. 初始化场景
+        const sceneBuilder = new SceneBuilder();
+        const camera = sceneBuilder.buildScene();
+        this.context.setCamera(camera);
 
+        // 2. 创建玩家
         this.joystick = new Joystick();
-        this.floatingText = new FloatingTextManager(app);
+        this.createPlayer();
 
-        this.player = this.createPlayer();
-        this.setupScene();
-        this.questionManager = new QuestionManager(app);
+        // 3. 初始化各子系统
+        this.initializeSystems();
+
+        // 4. 绑定事件
+        this.bindEvents();
+
+        // 5. 启动更新循环
         this.app.on('update', this.update, this);
     }
 
-    registerScripts() {
+    /**
+     * 注册 PlayCanvas 脚本组件
+     */
+    private registerScripts() {
         pc.registerScript(PlayerController, 'playerController');
         pc.registerScript(EnemyBehavior, 'enemyBehavior');
         pc.registerScript(WeaponController, 'weaponController');
         pc.registerScript(BulletBehavior, 'bulletBehavior');
     }
 
-    createPlayer() {
+    /**
+     * 创建玩家实体
+     */
+    private createPlayer() {
         const player = new pc.Entity('Player');
         player.addComponent('model', { type: 'capsule' });
 
-        // Add script component
+        // 添加脚本组件
         player.addComponent('script');
-        // Create the script instance
-        const scriptInstance = player.script!.create('playerController', {
-            attributes: {
-                // If we had attributes
-            }
-        }) as PlayerController;
-
-        // Setup dependency
-        if (scriptInstance) {
-            scriptInstance.setup(this.joystick);
+        
+        // 创建 PlayerController 实例并注入 Joystick
+        const controller = player.script!.create('playerController') as PlayerController;
+        if (controller) {
+            controller.setup(this.joystick);
         }
 
-        // Add Weapon
+        // 添加武器
         player.script!.create('weaponController');
 
         player.setPosition(0, 1, 0);
         this.app.root.addChild(player);
-        return player;
-    }
+        
+        // 注册到 Context
+        this.context.setPlayer(player);
 
-    setupScene() {
-        // 地面
-        const ground = new pc.Entity('Ground');
-        ground.addComponent('model', { type: 'plane' });
-        ground.setLocalScale(50, 1, 50);
-        this.app.root.addChild(ground);
-
-        // 主摄像机
-        const camera = new pc.Entity('Camera');
-        camera.addComponent('camera', {
-            clearColor: new pc.Color(0.2, 0.2, 0.2)
-        });
-        this.app.root.addChild(camera);
-        this.floatingText.setCamera(camera);
-
-        // 环境光
-        const light = new pc.Entity('Light');
-        light.addComponent('light', {
-            type: pc.LIGHTTYPE_DIRECTIONAL,
-            intensity: 1
-        });
-        light.setEulerAngles(45, 45, 0);
-        this.app.root.addChild(light);
-
-        // 摄像机跟随玩家
-        this.app.on('update', () => {
-            const pos = this.player.getPosition();
-            // 摄像机位置固定在玩家位置的 (0, 20, 15) 偏移量
-            camera.setPosition(pos.x, 20, pos.z + 15);
-            camera.lookAt(pos.x, 0, pos.z);
-        });
-    }
-
-    update(dt: number) {
-        this.spawnTimer += dt;
-        if (this.spawnTimer > 2) {
-            this.spawnEnemy();
-            this.spawnTimer = 0;
-        }
-
-        this.questionTimer += dt;
-        if (this.questionTimer > 10) {
-            this.questionManager.triggerQuestion();
-            this.questionTimer = 0;
+        // 摄像机跟随逻辑
+        const camera = this.context.getCamera();
+        if (camera) {
+            this.app.on('update', () => {
+                const pos = player.getPosition();
+                camera.setPosition(pos.x, 20, pos.z + 15);
+                camera.lookAt(pos.x, 0, pos.z);
+            });
         }
     }
 
-    spawnEnemy() {
-        const enemy = new pc.Entity('Enemy');
-        enemy.addComponent('model', { type: 'box' });
+    /**
+     * 初始化系统列表
+     */
+    private initializeSystems() {
+        // 按依赖顺序添加系统
+        this.systems.push(new FeedbackSystem()); // 优先初始化反馈系统
+        this.systems.push(new SpawnSystem());
+        this.systems.push(new CombatSystem());
+        this.systems.push(new QuizSystem());
+        // this.systems.push(new SkillSystem()); 
+        // this.systems.push(new AchievementSystem());
 
-        // Random pos around player
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 10 + Math.random() * 5;
-        const playerPos = this.player.getPosition();
-        const x = playerPos.x + Math.cos(angle) * dist;
-        const z = playerPos.z + Math.sin(angle) * dist;
+        // 执行初始化
+        this.systems.forEach(sys => sys.initialize());
+    }
 
-        enemy.setPosition(x, 1, z);
+    /**
+     * 绑定全局事件监听
+     */
+    private bindEvents() {
+        this.eventBus.on('quiz:start', this.onQuizStart, this);
+        this.eventBus.on('quiz:end', this.onQuizEnd, this);
+    }
 
-        enemy.addComponent('script');
-        const script = enemy.script!.create('enemyBehavior') as EnemyBehavior;
-        if (script) {
-            script.setup(this.player);
+    /**
+     * 主更新循环
+     */
+    private update(dt: number) {
+        // 如果游戏暂停（timeScale = 0），部分系统可能仍需运行（如 Quiz UI）
+        // 但这里我们只更新 Gameplay 相关的 Systems
+        if (this.app.timeScale === 0) {
+            // QuizSystem 内部自己处理暂停时的 UI 逻辑，或者它是 DOM 驱动的，不受 loop 影响
+            // 如果 QuizSystem 需要在暂停时 update，可以单独调用
+            return; 
         }
 
-        // Set Color Red
-        const material = new pc.StandardMaterial();
-        material.diffuse.set(1, 0, 0);
-        material.update();
-        if (enemy.model) {
-            enemy.model.material = material;
+        for (const sys of this.systems) {
+            sys.update(dt);
         }
+    }
 
-        this.app.root.addChild(enemy);
+    /**
+     * 暂停游戏
+     */
+    private onQuizStart() {
+        this.app.timeScale = 0;
+        console.log("Game Paused for Quiz");
+    }
+
+    /**
+     * 恢复游戏
+     */
+    private onQuizEnd(result: boolean) {
+        this.app.timeScale = 1;
+        console.log("Game Resumed. Result:", result);
     }
 }

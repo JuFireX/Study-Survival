@@ -1,6 +1,10 @@
 import * as pc from 'playcanvas';
 import { BulletBehavior } from './BulletBehavior';
 
+/**
+ * 武器控制器
+ * 负责寻找最近的敌人并自动射击。
+ */
 export class WeaponController extends pc.ScriptType {
     range: number = 10;
     cooldown: number = 0.5;
@@ -15,7 +19,11 @@ export class WeaponController extends pc.ScriptType {
         }
     }
 
+    /**
+     * 执行射击逻辑
+     */
     shoot() {
+        // 简单遍历场景图寻找敌人（性能较差，生产环境建议使用空间分区或列表管理）
         const children = this.app.root.children;
         let closest: pc.Entity | null = null;
         let minDst = Infinity;
@@ -36,13 +44,17 @@ export class WeaponController extends pc.ScriptType {
         }
     }
 
+    /**
+     * 生成子弹
+     * @param target 目标实体
+     */
     spawnProjectile(target: pc.Entity) {
         const bullet = new pc.Entity('Bullet');
         bullet.addComponent('model', { type: 'sphere' });
         bullet.setLocalScale(0.2, 0.2, 0.2);
         bullet.setPosition(this.entity.getPosition());
 
-        // Yellow color
+        // 设置黄色材质
         const material = new pc.StandardMaterial();
         material.emissive.set(1, 1, 0);
         material.update();
@@ -50,7 +62,7 @@ export class WeaponController extends pc.ScriptType {
 
         this.app.root.addChild(bullet);
 
-        // Add Bullet Script
+        // 添加子弹脚本
         bullet.addComponent('script');
         const script = bullet.script!.create('bulletBehavior') as BulletBehavior;
         if (script) {
@@ -59,5 +71,3 @@ export class WeaponController extends pc.ScriptType {
         }
     }
 }
-
-
