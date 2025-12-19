@@ -64,13 +64,13 @@ export class GameManager {
     }
 
     setupScene() {
-        // Ground
+        // 地面
         const ground = new pc.Entity('Ground');
         ground.addComponent('model', { type: 'plane' });
         ground.setLocalScale(50, 1, 50);
         this.app.root.addChild(ground);
 
-        // Camera following player
+        // 主摄像机
         const camera = new pc.Entity('Camera');
         camera.addComponent('camera', {
             clearColor: new pc.Color(0.2, 0.2, 0.2)
@@ -78,7 +78,7 @@ export class GameManager {
         this.app.root.addChild(camera);
         this.floatingText.setCamera(camera);
 
-        // Light
+        // 环境光
         const light = new pc.Entity('Light');
         light.addComponent('light', {
             type: pc.LIGHTTYPE_DIRECTIONAL,
@@ -87,10 +87,10 @@ export class GameManager {
         light.setEulerAngles(45, 45, 0);
         this.app.root.addChild(light);
 
-        // Update loop for camera follow
+        // 摄像机跟随玩家
         this.app.on('update', () => {
             const pos = this.player.getPosition();
-            // Smooth follow or fixed offset
+            // 摄像机位置固定在玩家位置的 (0, 20, 15) 偏移量
             camera.setPosition(pos.x, 20, pos.z + 15);
             camera.lookAt(pos.x, 0, pos.z);
         });

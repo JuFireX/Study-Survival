@@ -9,7 +9,7 @@ src/
  ├── config/                  # 静态配置与数据
  │   ├── questions.json       # 题库（科目、难度、选项）
  │   ├── weapons.json         # 武器数值、升级路径与合成配方
- │   └── game-config.ts       # 全局常量（生成速率、EXP 表、速度）
+ │   └── config.ts            # 全局常量（生成速率、EXP 表、速度）
  │
  ├── core/                    # 引擎抽象与核心逻辑
  │   ├── EventBus.ts          # 全局事件系统（解耦 UI、Systems 与 ECS）
@@ -42,10 +42,10 @@ src/
  ├── ui/                      # 基于 DOM 的 UI 覆盖层
  │   ├── Joystick.ts          # 虚拟摇杆（触控/鼠标输入）
  │   ├── QuestionPanel.ts     # Quiz 弹窗（HTML 覆盖层）
- │   ├── SkillSelectPanel.ts  # 升级 3 选 1 弹窗
+ │   ├── SkillSelectPanel.ts  # 升级 3 选 1 弹窗（HTML 覆盖层）
  │   ├── HUD.ts               # HUD（HP、EXP、击杀数）
  │   ├── FloatingText.ts      # 伤害数字与提示
- │   └──Evolution-tree.json
+ │   └── Evolution-tree.json  # 升级树（JSON 格式）
  │
  ├── utils/                   # 通用工具
  │   └── ObjectPool.ts        # 内存优化（复用 Bullet/Enemy）
@@ -68,9 +68,9 @@ src/
 我们采用混合方案：
 
 - **ECS（PlayCanvas Scripts）**：用于必须在世界中具有物理实体的内容（移动、碰撞、渲染）。
-  - *示例*：`PlayerController` 根据 `Joystick` 输入移动实体。
+  - _示例_：`PlayerController` 根据 `Joystick` 输入移动实体。
 - **Systems（纯逻辑）**：用于全局规则与数据处理。
-  - *示例*：`CombatSystem` 计算伤害。bullet 的碰撞事件（ECS）触发一个 `Damage` 事件，`CombatSystem` 捕获后扣减 HP。
+  - _示例_：`CombatSystem` 计算伤害。bullet 的碰撞事件（ECS）触发一个 `Damage` 事件，`CombatSystem` 捕获后扣减 HP。
 
 ### 3. 事件驱动通信
 
