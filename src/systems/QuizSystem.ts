@@ -3,6 +3,7 @@ import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
+import questionsData from '../config/questions.json';
 
 /**
  * 答题系统
@@ -21,7 +22,7 @@ export class QuizSystem implements IGameSystem {
         this.app = GameContext.getInstance().getApp();
         this.eventBus = EventBus.getInstance();
         this.ui = new QuestionUI();
-        void this.loadQuestions();
+        this.loadQuestions();
     }
 
     initialize() {
@@ -53,24 +54,18 @@ export class QuizSystem implements IGameSystem {
         this.ui.show(question, (answer) => {
             const ok = this.checkAnswer(question, answer);
             this.onResult(ok);
-            
+
             this.active = false;
             // 通知 GameManager 恢复游戏
             this.eventBus.fire('quiz:end', ok);
         });
     }
 
-    private async loadQuestions() {
-        try {
-            const res = await fetch('/questions.json', { cache: 'no-store' });
-            if (!res.ok) throw new Error(`Failed to load questions.json: ${res.status}`);
-            const json: unknown = await res.json();
-            if (this.isQuestionArray(json) && json.length > 0) {
-                this.questions = json;
-            } else {
-                this.questions = this.getFallbackQuestions();
-            }
-        } catch {
+    private loadQuestions() {
+        if (questionsData && Array.isArray(questionsData) && questionsData.length > 0) {
+            // 类型断言，确保 JSON 数据符合 QuestionData 接口
+            this.questions = questionsData as unknown as QuestionData[];
+        } else {
             this.questions = this.getFallbackQuestions();
         }
     }
@@ -130,10 +125,6 @@ export class QuizSystem implements IGameSystem {
 
     private normalizeText(s: string): string {
         return s.trim().toLowerCase();
-    }
-
-    private isQuestionArray(x: unknown): x is QuestionData[] {
-        return Array.isArray(x) && x.every((q) => typeof q === 'object' && q !== null && 'text' in q);
     }
 
     private getFallbackQuestions(): QuestionData[] {
