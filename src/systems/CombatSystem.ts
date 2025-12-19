@@ -32,17 +32,33 @@ export class CombatSystem implements IGameSystem {
      * @param pos 命中位置
      */
     private onHit(target: pc.Entity, damage: number, pos: pc.Vec3) {
-        // 这里可以获取 target 的 stats 组件进行 HP 扣减
-        // 目前简单处理：直接判定为受到伤害
+        // Check for PlayerStats
+        if (target.script && target.script.has('playerStats')) {
+            (target.script as any).playerStats.takeDamage(damage);
+            return;
+        }
 
-        // 广播伤害发生事件（供 UI 显示）
-        this.eventBus.fire('combat:damage', damage, pos, 'yellow');
+        // Check for BaseEnemy (or specific enemy scripts)
+        // Since we have inheritance, checking for 'baseEnemy' might work if registered as such?
+        // PlayCanvas script inheritance doesn't automatically register base names.
+        // We registered 'fastEnemy' and 'tankEnemy'.
+        
+        let enemyScript: any = null;
+        if (target.script) {
+            if (target.script.has('fastEnemy')) enemyScript = (target.script as any).fastEnemy;
+            else if (target.script.has('tankEnemy')) enemyScript = (target.script as any).tankEnemy;
+            else if (target.script.has('enemyBehavior')) enemyScript = (target.script as any).enemyBehavior; // Legacy
+        }
 
-        // 简单死亡逻辑
-        // 实际项目中应该检查 HP <= 0
-        if (target && target.destroy) {
-            target.destroy();
-            this.eventBus.fire('combat:kill', target);
+        if (enemyScript && enemyScript.takeDamage) {
+            enemyScript.takeDamage(damage);
+        } else {
+            // Fallback for simple objects
+             this.eventBus.fire('combat:damage', damage, pos, 'yellow');
+             if (target && target.destroy) {
+                 target.destroy();
+                 this.eventBus.fire('combat:kill', target);
+             }
         }
     }
 }

@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+// import * as pc from 'playcanvas';
 import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
@@ -10,16 +10,16 @@ import questionsData from '../config/questions.json';
  * 管理题目加载、触发、UI 显示和答案校验。
  */
 export class QuizSystem implements IGameSystem {
-    private app: pc.Application;
+    // private app: pc.Application;
     private ui: QuestionUI;
     private questions: QuestionData[] = [];
     private active = false;
-    private timer: number = 0;
-    private interval: number = 10; // 每10秒触发一次
+    // private timer: number = 0;
+    // private interval: number = 10; // 每10秒触发一次
     private eventBus: EventBus;
 
     constructor() {
-        this.app = GameContext.getInstance().getApp();
+        // this.app = GameContext.getInstance().getApp();
         this.eventBus = EventBus.getInstance();
         this.ui = new QuestionUI();
         this.loadQuestions();
@@ -27,10 +27,13 @@ export class QuizSystem implements IGameSystem {
 
     initialize() {
         console.log("QuizSystem initialized");
+        this.eventBus.on('quiz:request', this.forceTriggerQuestion, this);
     }
 
     update(dt: number) {
-        // 如果正在答题，暂停计时
+        void dt;
+        // Auto-trigger disabled for now to focus on Level Up mechanism
+        /*
         if (this.active) return;
 
         this.timer += dt;
@@ -38,7 +41,16 @@ export class QuizSystem implements IGameSystem {
             this.triggerQuestion();
             this.timer = 0;
         }
+        */
     }
+
+    /**
+     * 外部触发答题
+     */
+    private forceTriggerQuestion() {
+        this.triggerQuestion();
+    }
+
 
     /**
      * 触发答题
