@@ -3,6 +3,7 @@ import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
+import questionsData from '../config/questions.json';
 
 /**
  * 答题系统
@@ -21,7 +22,7 @@ export class QuizSystem implements IGameSystem {
         this.app = GameContext.getInstance().getApp();
         this.eventBus = EventBus.getInstance();
         this.ui = new QuestionUI();
-        void this.loadQuestions();
+        this.loadQuestions();
     }
 
     initialize() {
@@ -53,24 +54,18 @@ export class QuizSystem implements IGameSystem {
         this.ui.show(question, (answer) => {
             const ok = this.checkAnswer(question, answer);
             this.onResult(ok);
-            
+
             this.active = false;
             // 通知 GameManager 恢复游戏
             this.eventBus.fire('quiz:end', ok);
         });
     }
 
-    private async loadQuestions() {
-        try {
-            const res = await fetch('/questions.json', { cache: 'no-store' });
-            if (!res.ok) throw new Error(`Failed to load questions.json: ${res.status}`);
-            const json: unknown = await res.json();
-            if (this.isQuestionArray(json) && json.length > 0) {
-                this.questions = json;
-            } else {
-                this.questions = this.getFallbackQuestions();
-            }
-        } catch {
+    private loadQuestions() {
+        if (questionsData && Array.isArray(questionsData) && questionsData.length > 0) {
+            // 类型断言，确保 JSON 数据符合 QuestionData 接口
+            this.questions = questionsData as unknown as QuestionData[];
+        } else {
             this.questions = this.getFallbackQuestions();
         }
     }
@@ -85,6 +80,15 @@ export class QuizSystem implements IGameSystem {
                 ...q,
                 type: 'fill',
                 answer: (q.answer ?? '').toString()
+            };
+        }
+
+        if (q.type === 'multi-choice') {
+            return {
+                ...q,
+                type: 'multi-choice',
+                options: (q.options ?? []).map((x) => x.toString()),
+                correct: Array.isArray(q.correct) ? q.correct : [typeof q.correct === 'number' ? q.correct : 0]
             };
         }
 
@@ -103,11 +107,24 @@ export class QuizSystem implements IGameSystem {
         };
     }
 
-    private checkAnswer(question: QuestionData, answer: number | string): boolean {
+    private checkAnswer(question: QuestionData, answer: number | string | number[]): boolean {
         if (question.type === 'fill') {
             const expected = this.normalizeText(question.answer ?? '');
             const got = this.normalizeText(typeof answer === 'string' ? answer : String(answer));
             return expected.length > 0 && expected === got;
+        }
+
+        if (question.type === 'multi-choice') {
+            if (!Array.isArray(answer) || !Array.isArray(question.correct)) return false;
+            // Sort and compare arrays
+            const ans = answer.sort((a, b) => a - b);
+            const corr = question.correct.sort((a, b) => a - b);
+
+            if (ans.length !== corr.length) return false;
+            for (let i = 0; i < ans.length; i++) {
+                if (ans[i] !== corr[i]) return false;
+            }
+            return true;
         }
 
         if (typeof answer !== 'number') return false;
@@ -130,10 +147,6 @@ export class QuizSystem implements IGameSystem {
 
     private normalizeText(s: string): string {
         return s.trim().toLowerCase();
-    }
-
-    private isQuestionArray(x: unknown): x is QuestionData[] {
-        return Array.isArray(x) && x.every((q) => typeof q === 'object' && q !== null && 'text' in q);
     }
 
     private getFallbackQuestions(): QuestionData[] {
