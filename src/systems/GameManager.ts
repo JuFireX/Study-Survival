@@ -9,9 +9,14 @@ import { SpawnSystem } from './SpawnSystem';
 import { QuizSystem } from './QuizSystem';
 import { CombatSystem } from './CombatSystem';
 import { FeedbackSystem } from './FeedbackSystem';
+import { ProgressionSystem } from './ProgressionSystem';
+import { DropSystem } from './DropSystem';
 
 import { PlayerController } from '../scripts/components/PlayerController';
+import { PlayerStats } from '../scripts/components/PlayerStats';
 import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
+import { FastEnemy } from '../scripts/enemies/FastEnemy';
+import { TankEnemy } from '../scripts/enemies/TankEnemy';
 import { WeaponController } from '../scripts/components/WeaponController';
 import { BulletBehavior } from '../scripts/components/BulletBehavior';
 
@@ -35,7 +40,7 @@ export class GameManager {
         (window as any).gameManager = this;
 
         this.registerScripts();
-        
+
         // 1. 初始化场景
         const sceneBuilder = new SceneBuilder();
         const camera = sceneBuilder.buildScene();
@@ -60,7 +65,10 @@ export class GameManager {
      */
     private registerScripts() {
         pc.registerScript(PlayerController, 'playerController');
+        pc.registerScript(PlayerStats, 'playerStats');
         pc.registerScript(EnemyBehavior, 'enemyBehavior');
+        pc.registerScript(FastEnemy, 'fastEnemy');
+        pc.registerScript(TankEnemy, 'tankEnemy');
         pc.registerScript(WeaponController, 'weaponController');
         pc.registerScript(BulletBehavior, 'bulletBehavior');
     }
@@ -74,7 +82,7 @@ export class GameManager {
 
         // 添加脚本组件
         player.addComponent('script');
-        
+
         // 创建 PlayerController 实例并注入 Joystick
         const controller = player.script!.create('playerController') as PlayerController;
         if (controller) {
@@ -86,7 +94,7 @@ export class GameManager {
 
         player.setPosition(0, 1, 0);
         this.app.root.addChild(player);
-        
+
         // 注册到 Context
         this.context.setPlayer(player);
 
@@ -110,6 +118,8 @@ export class GameManager {
         this.systems.push(new SpawnSystem());
         this.systems.push(new CombatSystem());
         this.systems.push(new QuizSystem());
+        this.systems.push(new ProgressionSystem());
+        this.systems.push(new DropSystem());
         // this.systems.push(new SkillSystem()); 
         // this.systems.push(new AchievementSystem());
 
@@ -134,7 +144,7 @@ export class GameManager {
         if (this.app.timeScale === 0) {
             // QuizSystem 内部自己处理暂停时的 UI 逻辑，或者它是 DOM 驱动的，不受 loop 影响
             // 如果 QuizSystem 需要在暂停时 update，可以单独调用
-            return; 
+            return;
         }
 
         for (const sys of this.systems) {

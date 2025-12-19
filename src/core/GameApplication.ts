@@ -11,13 +11,13 @@ export class GameApplication {
 
     constructor() {
         this.canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
-        
+
         // 创建 PlayCanvas 应用实例
         this.app = new pc.Application(this.canvas, {
             mouse: new pc.Mouse(document.body),
             touch: new pc.TouchDevice(document.body),
             elementInput: new pc.ElementInput(this.canvas),
-            // keyboard: new pc.Keyboard(window) // 如果需要键盘输入
+            keyboard: new pc.Keyboard(window)
         });
 
         // 注册到 Context

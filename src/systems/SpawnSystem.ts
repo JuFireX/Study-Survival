@@ -1,7 +1,9 @@
 import * as pc from 'playcanvas';
 import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
-import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
+// import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
+import { FastEnemy } from '../scripts/enemies/FastEnemy';
+import { TankEnemy } from '../scripts/enemies/TankEnemy';
 
 /**
  * 敌人生成系统
@@ -36,7 +38,15 @@ export class SpawnSystem implements IGameSystem {
         if (!player) return;
 
         const enemy = new pc.Entity('Enemy');
-        enemy.addComponent('model', { type: 'box' });
+
+        // Randomly choose enemy type
+        const type = Math.random() < 0.7 ? 'fast' : 'tank';
+
+        if (type === 'fast') {
+            enemy.addComponent('model', { type: 'sphere' }); // Visual distinction
+        } else {
+            enemy.addComponent('model', { type: 'box' });
+        }
 
         // 在玩家周围随机生成
         const angle = Math.random() * Math.PI * 2;
@@ -49,17 +59,13 @@ export class SpawnSystem implements IGameSystem {
 
         // 添加脚本
         enemy.addComponent('script');
-        const script = enemy.script!.create('enemyBehavior') as EnemyBehavior;
-        if (script) {
-            script.setup(player);
-        }
 
-        // 设置颜色（红色）
-        const material = new pc.StandardMaterial();
-        material.diffuse.set(1, 0, 0);
-        material.update();
-        if (enemy.model) {
-            enemy.model.material = material;
+        if (type === 'fast') {
+            const script = enemy.script!.create('fastEnemy') as FastEnemy;
+            if (script) script.setup(player);
+        } else {
+            const script = enemy.script!.create('tankEnemy') as TankEnemy;
+            if (script) script.setup(player);
         }
 
         this.app.root.addChild(enemy);

@@ -22,10 +22,30 @@ export class PlayerController extends pc.ScriptType {
     }
 
     update(dt: number) {
-        if (!this.joystick) return;
+        let x = 0;
+        let y = 0;
 
-        const x = this.joystick.value.x;
-        const y = this.joystick.value.y; // 屏幕 Y 轴（向下为正）
+        // Joystick Input
+        if (this.joystick) {
+            x += this.joystick.value.x;
+            y += this.joystick.value.y;
+        }
+
+        // Keyboard Input (WASD / Arrows)
+        if (this.app.keyboard) {
+            if (this.app.keyboard.isPressed(pc.KEY_LEFT) || this.app.keyboard.isPressed(pc.KEY_A)) {
+                x -= 1;
+            }
+            if (this.app.keyboard.isPressed(pc.KEY_RIGHT) || this.app.keyboard.isPressed(pc.KEY_D)) {
+                x += 1;
+            }
+            if (this.app.keyboard.isPressed(pc.KEY_UP) || this.app.keyboard.isPressed(pc.KEY_W)) {
+                y -= 1;
+            }
+            if (this.app.keyboard.isPressed(pc.KEY_DOWN) || this.app.keyboard.isPressed(pc.KEY_S)) {
+                y += 1;
+            }
+        }
 
         if (Math.abs(x) > 0.1 || Math.abs(y) > 0.1) {
             // 映射输入到世界坐标：
@@ -41,9 +61,8 @@ export class PlayerController extends pc.ScriptType {
             move.mulScalar(this.speed * dt);
             this.entity.translate(move);
 
-            // 如果需要，可以让角色朝向移动方向
-            // const targetAngle = Math.atan2(x, y) * pc.math.RAD_TO_DEG;
-            // this.entity.setEulerAngles(0, targetAngle, 0);
+            // 简单的朝向控制
+            // this.entity.lookAt(this.entity.getPosition().clone().add(move));
         }
     }
 }
