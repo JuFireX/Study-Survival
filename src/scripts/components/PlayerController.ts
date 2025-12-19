@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { Joystick } from '../ui/Joystick';
+import { Joystick } from '../../ui/Joystick';
 
 export class PlayerController extends pc.ScriptType {
     joystick: Joystick | null = null;
