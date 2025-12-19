@@ -9,6 +9,7 @@ src/
  ├── config/                  # 静态配置与数据
  │   ├── questions.json       # 题库（科目、难度、选项）
  │   ├── weapons.json         # 武器数值、升级路径与合成配方
+ │   ├── evolution-tree.json  # 升级树（JSON 格式）
  │   └── config.ts            # 全局常量（生成速率、EXP 表、速度）
  │
  ├── core/                    # 引擎抽象与核心逻辑
@@ -39,13 +40,13 @@ src/
  │   ├── AchievementSystem.ts # 里程碑事件监听（击杀、等级）
  │   └── FeedbackSystem.ts    # 音效、震动、屏幕震动管理
  │
- ├── ui/                      # 基于 DOM 的 UI 覆盖层
- │   ├── Joystick.ts          # 虚拟摇杆（触控/鼠标输入）
- │   ├── QuestionPanel.ts     # Quiz 弹窗（HTML 覆盖层）
- │   ├── SkillSelectPanel.ts  # 升级 3 选 1 弹窗（HTML 覆盖层）
- │   ├── HUD.ts               # HUD（HP、EXP、击杀数）
- │   ├── FloatingText.ts      # 伤害数字与提示
- │   └── Evolution-tree.json  # 升级树（JSON 格式）
+ ├── ui/                        # 基于 DOM 的 UI 覆盖层
+ │   ├── Joystick.ts            # 虚拟摇杆（触控/鼠标输入）
+ │   ├── QuestionUI.ts          # Quiz 弹窗（HTML 覆盖层）
+ │   ├── SkillSelectUI.ts       # 升级 3 选 1 弹窗（HTML 覆盖层）
+ │   ├── HUD.ts                 # HUD（HP、EXP、击杀数）
+ │   ├── FloatingTextManager.ts # 伤害数字与提示
+ │   └── Attributes.ts          # 里程碑事件弹窗（HTML 覆盖层）
  │
  ├── utils/                   # 通用工具
  │   └── ObjectPool.ts        # 内存优化（复用 Bullet/Enemy）
