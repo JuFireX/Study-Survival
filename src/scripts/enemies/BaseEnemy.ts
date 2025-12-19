@@ -67,19 +67,35 @@ export class BaseEnemy extends pc.ScriptType {
         this.healthBarFill = new pc.Entity('HealthBarFill');
         this.healthBarFill.addComponent('element', {
             type: 'image',
-            anchor: new pc.Vec4(0, 0.5, 0, 0.5), // Anchor Left-Center to respect height
-            pivot: new pc.Vec2(0, 0.5),
-            width: width - 0.04, // Margin
+            anchor: new pc.Vec4(0.5, 0.5, 0.5, 0.5), // Center anchor
+            pivot: new pc.Vec2(0, 0.5), // Left-Center pivot
+            width: width - 0.04, // Initial width
             height: height - 0.04,
             color: new pc.Color(1, 0, 0, 1),
             useInput: false
         });
 
-        this.healthBarBg.addChild(this.healthBarFill);
-        this.entity.addChild(this.healthBarBg);
-        this.healthBarBg.setPosition(0, 1.5, 0); // Position above head
+        // Explicitly position to the left edge + margin
+        // Background width is 0.8, center is 0. Left edge is -0.4.
+        // Margin is 0.02. So start at -0.38.
+        this.healthBarFill.setLocalPosition(-width / 2 + 0.02, 0, 0);
 
-        // Ensure it faces camera (Billboard) - implemented in update
+        this.healthBarBg.addChild(this.healthBarFill);
+
+        // Add to root instead of entity to avoid scale inheritance and rotation issues
+        const app = pc.Application.getApplication();
+        if (app) {
+            app.root.addChild(this.healthBarBg);
+        }
+
+        // Ensure cleanup when this entity is destroyed
+        this.on('destroy', () => {
+            if (this.healthBarBg) {
+                this.healthBarBg.destroy();
+            }
+        });
+
+        this.updateHealthBarPosition();
     }
 
     setup(player: pc.Entity, stats?: Partial<EnemyStats>) {
@@ -109,14 +125,25 @@ export class BaseEnemy extends pc.ScriptType {
             // Ideally handled by CombatSystem, but we can do simple tick damage here
         }
 
-        // Update Health Bar Rotation
-        // Use global app reference instead of casting this.app
+        this.updateHealthBarPosition();
+    }
+
+    updateHealthBarPosition() {
+        if (!this.healthBarBg) return;
+
+        // Update Health Bar Position
+        const pos = this.entity.getPosition();
+        // Adjust height based on enemy scale or fixed value
+        // Using a fixed height above pivot usually works best for diverse enemies
+        this.healthBarBg.setPosition(pos.x, pos.y + 2.0, pos.z);
+
+        // Billboard logic
         const app = pc.Application.getApplication();
         if (app) {
-            const cameraEntity = app.root.findByName('Camera'); // Assuming 'Camera' is the main camera
+            const cameraEntity = app.root.findByName('Camera');
             if (cameraEntity) {
                 this.healthBarBg.lookAt(cameraEntity.getPosition());
-                this.healthBarBg.rotateLocal(0, 180, 0); // Fix text/UI orientation
+                this.healthBarBg.rotateLocal(0, 180, 0);
             }
         }
     }
