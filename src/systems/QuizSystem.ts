@@ -83,6 +83,15 @@ export class QuizSystem implements IGameSystem {
             };
         }
 
+        if (q.type === 'multi-choice') {
+            return {
+                ...q,
+                type: 'multi-choice',
+                options: (q.options ?? []).map((x) => x.toString()),
+                correct: Array.isArray(q.correct) ? q.correct : [typeof q.correct === 'number' ? q.correct : 0]
+            };
+        }
+
         const options = (q.options ?? []).map((x) => x.toString());
         const correct = typeof q.correct === 'number' ? q.correct : 0;
 
@@ -98,11 +107,24 @@ export class QuizSystem implements IGameSystem {
         };
     }
 
-    private checkAnswer(question: QuestionData, answer: number | string): boolean {
+    private checkAnswer(question: QuestionData, answer: number | string | number[]): boolean {
         if (question.type === 'fill') {
             const expected = this.normalizeText(question.answer ?? '');
             const got = this.normalizeText(typeof answer === 'string' ? answer : String(answer));
             return expected.length > 0 && expected === got;
+        }
+
+        if (question.type === 'multi-choice') {
+            if (!Array.isArray(answer) || !Array.isArray(question.correct)) return false;
+            // Sort and compare arrays
+            const ans = answer.sort((a, b) => a - b);
+            const corr = question.correct.sort((a, b) => a - b);
+
+            if (ans.length !== corr.length) return false;
+            for (let i = 0; i < ans.length; i++) {
+                if (ans[i] !== corr[i]) return false;
+            }
+            return true;
         }
 
         if (typeof answer !== 'number') return false;

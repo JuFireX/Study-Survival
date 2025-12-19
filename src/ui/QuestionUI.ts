@@ -3,9 +3,9 @@ export interface QuestionData {
     subject: string;
     difficulty: number;
     text: string;
-    type?: 'choice' | 'fill';
+    type?: 'choice' | 'fill' | 'multi-choice';
     options?: string[];
-    correct?: number; // Index for choice
+    correct?: number | number[]; // Index or indices for choice
     answer?: string; // String answer for fill
 }
 
@@ -13,7 +13,7 @@ export class QuestionUI {
     container: HTMLElement;
     text: HTMLElement;
     optionsContainer: HTMLElement;
-    callback: ((answer: number | string) => void) | null = null;
+    callback: ((answer: number | string | number[]) => void) | null = null;
 
     constructor() {
         this.container = document.createElement('div');
@@ -43,7 +43,7 @@ export class QuestionUI {
         document.body.appendChild(this.container);
     }
 
-    show(question: QuestionData, onAnswer: (answer: number | string) => void) {
+    show(question: QuestionData, onAnswer: (answer: number | string | number[]) => void) {
         this.text.textContent = `[${question.subject.toUpperCase()}] ${question.text}`;
         this.optionsContainer.innerHTML = '';
         this.callback = onAnswer;
@@ -77,8 +77,73 @@ export class QuestionUI {
 
             // Auto focus
             setTimeout(() => input.focus(), 100);
+        } else if (question.type === 'multi-choice') {
+            const selected = new Set<number>();
+            (question.options || []).forEach((opt, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.alignItems = 'center';
+                wrapper.style.gap = '10px';
+                wrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                wrapper.style.padding = '10px';
+                wrapper.style.cursor = 'pointer';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.style.transform = 'scale(1.5)';
+
+                const label = document.createElement('span');
+                label.textContent = opt;
+                label.style.flex = '1';
+
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+
+                wrapper.onclick = (e) => {
+                    // Toggle checkbox if clicked on wrapper (but not if clicked directly on checkbox)
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    if (checkbox.checked) {
+                        selected.add(idx);
+                        wrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    } else {
+                        selected.delete(idx);
+                        wrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    }
+                };
+
+                // Sync checkbox click
+                checkbox.onclick = (e) => {
+                    e.stopPropagation();
+                    if (checkbox.checked) {
+                        selected.add(idx);
+                        wrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    } else {
+                        selected.delete(idx);
+                        wrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    }
+                }
+
+                this.optionsContainer.appendChild(wrapper);
+            });
+
+            const btn = document.createElement('button');
+            btn.textContent = 'Submit';
+            btn.style.padding = '10px';
+            btn.style.marginTop = '10px';
+            btn.style.fontSize = '16px';
+            btn.style.cursor = 'pointer';
+            btn.onclick = () => {
+                if (selected.size === 0) return; // Must select at least one
+
+                btn.onclick = null;
+                this.hide();
+                if (this.callback) this.callback(Array.from(selected).sort());
+            };
+            this.optionsContainer.appendChild(btn);
         } else {
-            // Default to choice
+            // Default to single choice
             (question.options || []).forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.textContent = opt;

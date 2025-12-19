@@ -46,5 +46,14 @@
     "text": "10 / 2 = ?",
     "type": "fill",
     "answer": "5"
+  },
+  {
+    "id": 7,
+    "subject": "general",
+    "difficulty": 2,
+    "text": "Which of the following are fruits?",
+    "type": "multi-choice",
+    "options": ["Apple", "Carrot", "Banana", "Potato"],
+    "correct": [0, 2]
   }
 ]
