@@ -97,31 +97,31 @@ export class QuizSystem implements IGameSystem {
         }
     }
 
-    private async loadQuestionsAsync() {
-        try {
-            const mod = await import('../config/questions.json');
-            const data = mod.default ?? mod;
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('questions.json empty or not an array');
-            }
+    // private async loadQuestionsAsync() {
+    //     try {
+    //         const mod = await import('../config/questions.json');
+    //         const data = mod.default ?? mod;
+    //         if (!Array.isArray(data) || data.length === 0) {
+    //             throw new Error('questions.json empty or not an array');
+    //         }
 
-            this.questions = data.map((q: any) => {
-                return {
-                    id: Number(q.id ?? 0),
-                    subject: String(q.subject ?? 'general'),
-                    difficulty: Number(q.difficulty ?? 1),
-                    text: String(q.text ?? ''),
-                    type: q.type === 'fill' ? 'fill' : q.type === 'multi-choice' ? 'multi-choice' : 'choice',
-                    options: Array.isArray(q.options) ? q.options.map((o: any) => String(o)) : [],
-                    correct: Array.isArray(q.correct) ? q.correct.map((n: any) => Number(n)) : (typeof q.correct === 'number' ? q.correct : undefined),
-                    answer: q.answer !== undefined ? String(q.answer) : undefined
-                } as QuestionData;
-            });
-        } catch (e) {
-            console.error('Failed to load questions asynchronously:', e);
-            this.questions = this.getFallbackQuestions();
-        }
-    }
+    //         this.questions = data.map((q: any) => {
+    //             return {
+    //                 id: Number(q.id ?? 0),
+    //                 subject: String(q.subject ?? 'general'),
+    //                 difficulty: Number(q.difficulty ?? 1),
+    //                 text: String(q.text ?? ''),
+    //                 type: q.type === 'fill' ? 'fill' : q.type === 'multi-choice' ? 'multi-choice' : 'choice',
+    //                 options: Array.isArray(q.options) ? q.options.map((o: any) => String(o)) : [],
+    //                 correct: Array.isArray(q.correct) ? q.correct.map((n: any) => Number(n)) : (typeof q.correct === 'number' ? q.correct : undefined),
+    //                 answer: q.answer !== undefined ? String(q.answer) : undefined
+    //             } as QuestionData;
+    //         });
+    //     } catch (e) {
+    //         console.error('Failed to load questions asynchronously:', e);
+    //         this.questions = this.getFallbackQuestions();
+    //     }
+    // }
 
     private pickQuestion(): QuestionData {
         const list = this.questions.length > 0 ? this.questions : this.getFallbackQuestions();

@@ -97,3 +97,5 @@ src/
 - `HUD` 与 `Joystick` 始终可见。
 - 面板（`QuestionPanel`、`SkillSelectPanel`）是模态覆盖层。
 - `FloatingText` 是基于 DOM 的，用于显示伤害数字。
+
+> 我觉得项目结构还得改. 现在有点过于复杂了
