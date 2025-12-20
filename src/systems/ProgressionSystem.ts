@@ -1,11 +1,15 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 import { Cards } from '../config/cards';
 import { Card } from '../data/types';
 import { PlayerStats } from '../scripts/components/PlayerStats';
+
+/**
+ 升级->技能选择->答题->增益
+ */
 
 export class ProgressionSystem implements IGameSystem {
     private app: pc.Application;

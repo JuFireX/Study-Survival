@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { FloatingTextManager } from '../ui/FloatingTextManager';

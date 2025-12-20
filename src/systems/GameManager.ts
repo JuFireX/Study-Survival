@@ -2,11 +2,11 @@ import * as pc from 'playcanvas';
 import { GameContext } from '../core/GameContext';
 import { SceneBuilder } from '../core/SceneBuilder';
 import { EventBus } from '../core/EventBus';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 
 import { Joystick } from '../ui/Joystick';
 import { SpawnSystem } from './SpawnSystem';
-import { QuizSystem } from './QuizSystem';
+import { QuizSystem } from './QuestionSystem';
 import { CombatSystem } from './CombatSystem';
 import { FeedbackSystem } from './FeedbackSystem';
 import { DebugSystem } from './DebugSystem';

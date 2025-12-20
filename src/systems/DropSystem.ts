@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 import { EventBus } from '../core/EventBus';
 import { GameContext } from '../core/GameContext';
 import { ExpOrb } from '../scripts/components/ExpOrb';

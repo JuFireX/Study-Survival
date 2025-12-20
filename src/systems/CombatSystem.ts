@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 
@@ -42,7 +42,7 @@ export class CombatSystem implements IGameSystem {
         // Since we have inheritance, checking for 'baseEnemy' might work if registered as such?
         // PlayCanvas script inheritance doesn't automatically register base names.
         // We registered 'fastEnemy' and 'tankEnemy'.
-        
+
         let enemyScript: any = null;
         if (target.script) {
             if (target.script.has('fastEnemy')) enemyScript = (target.script as any).fastEnemy;
@@ -54,11 +54,11 @@ export class CombatSystem implements IGameSystem {
             enemyScript.takeDamage(damage);
         } else {
             // Fallback for simple objects
-             this.eventBus.fire('combat:damage', damage, pos, 'yellow');
-             if (target && target.destroy) {
-                 target.destroy();
-                 this.eventBus.fire('combat:kill', target);
-             }
+            this.eventBus.fire('combat:damage', damage, pos, 'yellow');
+            if (target && target.destroy) {
+                target.destroy();
+                this.eventBus.fire('combat:kill', target);
+            }
         }
     }
 }

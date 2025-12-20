@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from './IGameSystem';
+import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 
@@ -10,7 +10,7 @@ import { EventBus } from '../core/EventBus';
 export class DebugSystem implements IGameSystem {
     private eventBus: EventBus;
     private app: pc.Application | null = null;
-    private pDown = false;
+    private wasLDown = false;
     private autoLog = false; // 连续打印开关
     private lastLog = 0;
     private logInterval = 500; // ms
@@ -39,14 +39,12 @@ export class DebugSystem implements IGameSystem {
         if (!this.app || !this.app.keyboard) return;
         // 使用 L 键切换自动连续打印（节流）
         const isL = this.app.keyboard.isPressed(pc.KEY_L);
-        if (isL && !this.autoLog) {
-            this.autoLog = true;
-            console.log('DebugSystem: autoLog ON');
-        } else if (isL && this.autoLog) {
-            // 当检测到 L 被按下且之前已开启时，这里也会再次触发；用简单方式切换状态
-            this.autoLog = false;
-            console.log('DebugSystem: autoLog OFF');
+        if (isL && !this.wasLDown) {
+            // 只有在“当前按下”且“上一帧没按下”时才切换
+            this.autoLog = !this.autoLog;
+            console.log(`DebugSystem: autoLog ${this.autoLog ? 'ON' : 'OFF'}`);
         }
+        this.wasLDown = isL;
 
         if (this.autoLog) {
             const now = Date.now();
