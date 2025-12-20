@@ -9,6 +9,7 @@ import { SpawnSystem } from './SpawnSystem';
 import { QuizSystem } from './QuizSystem';
 import { CombatSystem } from './CombatSystem';
 import { FeedbackSystem } from './FeedbackSystem';
+import { DebugSystem } from './DebugSystem';
 import { ProgressionSystem } from './ProgressionSystem';
 import { DropSystem } from './DropSystem';
 
@@ -83,6 +84,9 @@ export class GameManager {
         // 添加脚本组件
         player.addComponent('script');
 
+        // 添加 PlayerStats 脚本实例（确保其它系统能通过 player.script.get('playerStats') 访问到）
+        player.script!.create('playerStats');
+
         // 创建 PlayerController 实例并注入 Joystick
         const controller = player.script!.create('playerController') as PlayerController;
         if (controller) {
@@ -115,6 +119,7 @@ export class GameManager {
     private initializeSystems() {
         // 按依赖顺序添加系统
         this.systems.push(new FeedbackSystem()); // 优先初始化反馈系统
+        this.systems.push(new DebugSystem());
         this.systems.push(new SpawnSystem());
         this.systems.push(new CombatSystem());
         this.systems.push(new QuizSystem());
