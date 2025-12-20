@@ -1,4 +1,6 @@
-[
+import { QuestionData } from '../ui/QuestionUI';
+
+export const questions: QuestionData[] = [
   {
     "id": 1,
     "subject": "math",

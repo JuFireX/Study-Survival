@@ -10,7 +10,7 @@ import { EventBus } from '../core/EventBus';
 export class DebugSystem implements IGameSystem {
     private eventBus: EventBus;
     private app: pc.Application | null = null;
-    private pDown = false;
+    // private pDown = false;
     private autoLog = false; // 连续打印开关
     private lastLog = 0;
     private logInterval = 500; // ms

@@ -13,13 +13,13 @@ import { DebugSystem } from './DebugSystem';
 import { ProgressionSystem } from './ProgressionSystem';
 import { DropSystem } from './DropSystem';
 
-import { PlayerController } from '../scripts/components/PlayerController';
-import { PlayerStats } from '../scripts/components/PlayerStats';
-import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
-import { FastEnemy } from '../scripts/enemies/FastEnemy';
-import { TankEnemy } from '../scripts/enemies/TankEnemy';
-import { WeaponController } from '../scripts/components/WeaponController';
-import { BulletBehavior } from '../scripts/components/BulletBehavior';
+import { PlayerController } from '../entities/characters/share/PlayerController';
+import { PlayerStats } from '../entities/characters/share/PlayerStats';
+import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
+import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
+import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
+import { WeaponController } from '../entities/weapons/share/WeaponController';
+import { BulletBehavior } from '../entities/weapons/share/BulletBehavior';
 
 /**
  * 游戏管理器 (GameManager)

@@ -1,4 +1,4 @@
-import { LevelConfig } from '../data/types';
+import { LevelConfig } from './types';
 
 export const GameConfig = {
     // 经验值配置 (简单的指数增长示例)
