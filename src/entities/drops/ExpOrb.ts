@@ -1,11 +1,12 @@
 import * as pc from 'playcanvas';
 import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
+import { GameplayConfig } from '../../config/gameplay';
 
 export class ExpOrb extends pc.ScriptType {
-    public value: number = 10;
+    public value: number = GameplayConfig.Drops.ExpOrb.Value;
     private player!: pc.Entity;
-    private moveSpeed: number = 8;
+    private moveSpeed: number = GameplayConfig.Drops.ExpOrb.MoveSpeed;
     private isCollecting: boolean = false;
 
     initialize() {
@@ -21,7 +22,7 @@ export class ExpOrb extends pc.ScriptType {
 
         // Magnet range (hardcoded or from stats)
         // We can get pickupRange from PlayerStats if we want to be precise
-        const pickupRange = 3.0;
+        const pickupRange = GameplayConfig.Drops.ExpOrb.PickupRange;
 
         if (dist < pickupRange) {
             this.isCollecting = true;

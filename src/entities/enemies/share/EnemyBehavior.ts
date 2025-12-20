@@ -1,4 +1,5 @@
 import * as pc from 'playcanvas';
+import { GameplayConfig } from '../../../config/gameplay';
 
 /**
  * 敌人行为脚本
@@ -6,7 +7,7 @@ import * as pc from 'playcanvas';
  */
 export class EnemyBehavior extends pc.ScriptType {
     player: pc.Entity | null = null;
-    speed: number = 3;
+    speed: number = GameplayConfig.Enemy.BaseSpeed;
 
     initialize() {
     }

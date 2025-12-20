@@ -5,7 +5,7 @@ import { EventBus } from '../core/EventBus';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 import { Cards } from '../config/cards';
 import { Card } from '../config/types';
-import { PlayerStats } from '../scripts/components/PlayerStats';
+import { PlayerStats } from '../entities/characters/share/PlayerStats';
 
 export class ProgressionSystem implements IGameSystem {
     private app: pc.Application;

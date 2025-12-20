@@ -1,15 +1,16 @@
 import * as pc from 'playcanvas';
 import { BulletBehavior } from './BulletBehavior';
+import { GameplayConfig } from '../../../config/gameplay';
 
 /**
  * 武器控制器
  * 负责寻找最近的敌人并自动射击。
  */
 export class WeaponController extends pc.ScriptType {
-    range: number = 10;
-    cooldown: number = 0.5;
+    range: number = GameplayConfig.Weapon.Default.Range;
+    cooldown: number = GameplayConfig.Weapon.Default.Cooldown;
     timer: number = 0;
-    damage: number = 10;
+    damage: number = GameplayConfig.Weapon.Default.Damage;
 
     update(dt: number) {
         this.timer += dt;

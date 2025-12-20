@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
-import { Joystick } from '../../ui/Joystick';
+import { Joystick } from '../../../ui/Joystick';
+import { GameplayConfig } from '../../../config/gameplay';
 
 /**
  * 玩家控制器
@@ -7,7 +8,7 @@ import { Joystick } from '../../ui/Joystick';
  */
 export class PlayerController extends pc.ScriptType {
     joystick: Joystick | null = null;
-    speed: number = 10;
+    speed: number = GameplayConfig.Player.Speed;
 
     initialize() {
         // 初始化逻辑
