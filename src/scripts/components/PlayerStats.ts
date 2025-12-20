@@ -1,6 +1,6 @@
 import * as pc from 'playcanvas';
-import { GameConfig } from '../../config/config';
-import { PlayerStats as IPlayerStats, Card, CardEffect } from '../../data/types';
+import { GameConfig } from '../../config/evolution';
+import { PlayerStats as IPlayerStats, Card, CardEffect } from '../../config/types';
 import { EventBus } from '../../core/EventBus';
 
 export class PlayerStats extends pc.ScriptType {

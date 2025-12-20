@@ -16,8 +16,8 @@ import { DropSystem } from './DropSystem';
 import { PlayerController } from '../scripts/components/PlayerController';
 import { PlayerStats } from '../scripts/components/PlayerStats';
 import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
-import { FastEnemy } from '../scripts/enemies/FastEnemy';
-import { TankEnemy } from '../scripts/enemies/TankEnemy';
+import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
+import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
 import { WeaponController } from '../scripts/components/WeaponController';
 import { BulletBehavior } from '../scripts/components/BulletBehavior';
 

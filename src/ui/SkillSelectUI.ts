@@ -1,4 +1,4 @@
-import { Card } from '../data/types';
+import { Card } from '../config/types';
 
 export class SkillSelectUI {
     private container!: HTMLElement;

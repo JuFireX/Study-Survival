@@ -1,4 +1,4 @@
-import { Card, CardType, CardRarity } from '../data/types';
+import { Card, CardType, CardRarity } from './types';
 
 export const Cards: Card[] = [
     // 增益卡

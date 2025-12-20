@@ -2,8 +2,8 @@ import * as pc from 'playcanvas';
 import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
 // import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
-import { FastEnemy } from '../scripts/enemies/FastEnemy';
-import { TankEnemy } from '../scripts/enemies/TankEnemy';
+import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
+import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
 
 /**
  * 敌人生成系统

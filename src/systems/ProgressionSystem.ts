@@ -4,7 +4,7 @@ import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 import { Cards } from '../config/cards';
-import { Card } from '../data/types';
+import { Card } from '../config/types';
 import { PlayerStats } from '../scripts/components/PlayerStats';
 
 export class ProgressionSystem implements IGameSystem {

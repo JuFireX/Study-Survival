@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { BaseEnemy } from './BaseEnemy';
+import { BaseEnemy } from '../share/BaseEnemy';
 
 export class TankEnemy extends BaseEnemy {
     initialize() {
