@@ -3,7 +3,7 @@ import { IGameSystem } from './IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
-import questionsData from '../config/questions.json';
+import { questions } from '../config/questions';
 
 /**
  * 答题系统
@@ -12,7 +12,7 @@ import questionsData from '../config/questions.json';
 export class QuizSystem implements IGameSystem {
     // private app: pc.Application;
     private ui: QuestionUI;
-    private questions: QuestionData[] = [];
+    private questions: QuestionData[] = questions;
     private active = false;
     // private timer: number = 0;
     // private interval: number = 10; // 每10秒触发一次
@@ -75,11 +75,11 @@ export class QuizSystem implements IGameSystem {
 
     private loadQuestions() {
         try {
-            if (!Array.isArray(questionsData) || questionsData.length === 0) {
-                throw new Error('questions.json empty or not an array');
+            if (!Array.isArray(questions) || questions.length === 0) {
+                throw new Error('questions.ts empty or not an array');
             }
 
-            this.questions = questionsData.map((q: any) => {
+            this.questions = questions.map((q: any) => {
                 return {
                     id: Number(q.id ?? 0),
                     subject: String(q.subject ?? 'general'),

@@ -1,8 +1,4 @@
-# Ugh-Study 游戏架构
-
-本文档概述 Ugh-Study 项目的架构：在保留原有 PlayCanvas 结构的同时，融合模块化的 ECS 风格设计。
-
-## 📂 目录结构
+# 目录结构
 
 ```text
 src/
