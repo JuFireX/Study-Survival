@@ -4,8 +4,8 @@ import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 import { Cards } from '../config/cards';
-import { Card } from '../data/types';
-import { PlayerStats } from '../scripts/components/PlayerStats';
+import { Card } from '../config/types';
+import { PlayerStats } from '../entities/characters/share/PlayerStats';
 
 /**
  升级->技能选择->答题->增益

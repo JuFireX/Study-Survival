@@ -1,9 +1,10 @@
 import * as pc from 'playcanvas';
 import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
-// import { EnemyBehavior } from '../scripts/components/EnemyBehavior';
-import { FastEnemy } from '../scripts/enemies/FastEnemy';
-import { TankEnemy } from '../scripts/enemies/TankEnemy';
+import { GameplayConfig } from '../config/gameplay';
+// import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
+import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
+import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
 
 /**
  * 敌人生成系统
@@ -12,7 +13,7 @@ import { TankEnemy } from '../scripts/enemies/TankEnemy';
 export class SpawnSystem implements IGameSystem {
     private app: pc.Application;
     private timer: number = 0;
-    private spawnInterval: number = 2; // 每2秒生成一个敌人
+    private spawnInterval: number = GameplayConfig.Enemy.SpawnInterval; // 每2秒生成一个敌人
 
     constructor() {
         this.app = GameContext.getInstance().getApp();

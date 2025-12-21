@@ -1,6 +1,6 @@
 import * as pc from 'playcanvas';
-import { EnemyStats } from '../../data/types';
-import { EventBus } from '../../core/EventBus';
+import { EnemyStats } from '../../../config/types';
+import { EventBus } from '../../../core/EventBus';
 // import { PlayerController } from '../components/PlayerController';
 
 export class BaseEnemy extends pc.ScriptType {

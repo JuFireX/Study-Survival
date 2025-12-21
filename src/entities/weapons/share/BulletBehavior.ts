@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
-import { EventBus } from '../../core/EventBus';
+import { EventBus } from '../../../core/EventBus';
+import { GameplayConfig } from '../../../config/gameplay';
 
 /**
  * 子弹行为脚本
@@ -7,9 +8,9 @@ import { EventBus } from '../../core/EventBus';
  */
 export class BulletBehavior extends pc.ScriptType {
     target: pc.Entity | null = null;
-    speed: number = 20;
-    damage: number = 10;
-    
+    speed: number = GameplayConfig.Weapon.Default.BulletSpeed;
+    damage: number = GameplayConfig.Weapon.Default.Damage;
+
     // 缓存 EventBus 实例
     private eventBus: EventBus | null = null;
 

@@ -3,7 +3,7 @@ import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
-import questionsData from '../config/questions.json';
+import { questions } from '../config/questions';
 
 /**
  * 答题系统
@@ -12,7 +12,7 @@ import questionsData from '../config/questions.json';
 export class QuizSystem implements IGameSystem {
     // private app: pc.Application;
     private ui: QuestionUI;
-    private questions: QuestionData[] = [];
+    private questions: QuestionData[] = questions;
     private active = false;
     // private timer: number = 0;
     // private interval: number = 10; // 每10秒触发一次
@@ -75,11 +75,11 @@ export class QuizSystem implements IGameSystem {
 
     private loadQuestions() {
         try {
-            if (!Array.isArray(questionsData) || questionsData.length === 0) {
-                throw new Error('questions.json empty or not an array');
+            if (!Array.isArray(questions) || questions.length === 0) {
+                throw new Error('questions.ts empty or not an array');
             }
 
-            this.questions = questionsData.map((q: any) => {
+            this.questions = questions.map((q: any) => {
                 return {
                     id: Number(q.id ?? 0),
                     subject: String(q.subject ?? 'general'),
@@ -97,31 +97,31 @@ export class QuizSystem implements IGameSystem {
         }
     }
 
-    private async loadQuestionsAsync() {
-        try {
-            const mod = await import('../config/questions.json');
-            const data = mod.default ?? mod;
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('questions.json empty or not an array');
-            }
+    // private async loadQuestionsAsync() {
+    //     try {
+    //         const mod = await import('../config/questions.json');
+    //         const data = mod.default ?? mod;
+    //         if (!Array.isArray(data) || data.length === 0) {
+    //             throw new Error('questions.json empty or not an array');
+    //         }
 
-            this.questions = data.map((q: any) => {
-                return {
-                    id: Number(q.id ?? 0),
-                    subject: String(q.subject ?? 'general'),
-                    difficulty: Number(q.difficulty ?? 1),
-                    text: String(q.text ?? ''),
-                    type: q.type === 'fill' ? 'fill' : q.type === 'multi-choice' ? 'multi-choice' : 'choice',
-                    options: Array.isArray(q.options) ? q.options.map((o: any) => String(o)) : [],
-                    correct: Array.isArray(q.correct) ? q.correct.map((n: any) => Number(n)) : (typeof q.correct === 'number' ? q.correct : undefined),
-                    answer: q.answer !== undefined ? String(q.answer) : undefined
-                } as QuestionData;
-            });
-        } catch (e) {
-            console.error('Failed to load questions asynchronously:', e);
-            this.questions = this.getFallbackQuestions();
-        }
-    }
+    //         this.questions = data.map((q: any) => {
+    //             return {
+    //                 id: Number(q.id ?? 0),
+    //                 subject: String(q.subject ?? 'general'),
+    //                 difficulty: Number(q.difficulty ?? 1),
+    //                 text: String(q.text ?? ''),
+    //                 type: q.type === 'fill' ? 'fill' : q.type === 'multi-choice' ? 'multi-choice' : 'choice',
+    //                 options: Array.isArray(q.options) ? q.options.map((o: any) => String(o)) : [],
+    //                 correct: Array.isArray(q.correct) ? q.correct.map((n: any) => Number(n)) : (typeof q.correct === 'number' ? q.correct : undefined),
+    //                 answer: q.answer !== undefined ? String(q.answer) : undefined
+    //             } as QuestionData;
+    //         });
+    //     } catch (e) {
+    //         console.error('Failed to load questions asynchronously:', e);
+    //         this.questions = this.getFallbackQuestions();
+    //     }
+    // }
 
     private pickQuestion(): QuestionData {
         const list = this.questions.length > 0 ? this.questions : this.getFallbackQuestions();
