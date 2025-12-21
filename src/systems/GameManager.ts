@@ -5,6 +5,7 @@ import { EventBus } from '../core/EventBus';
 import { IGameSystem } from './share/IGameSystem';
 
 import { Joystick } from '../ui/Joystick';
+import { HUD } from '../ui/HUD';
 import { SpawnSystem } from './SpawnSystem';
 import { QuizSystem } from './QuestionSystem';
 import { CombatSystem } from './CombatSystem';
@@ -51,6 +52,7 @@ export class GameManager {
         // 2. 创建玩家
         this.joystick = new Joystick();
         this.createPlayer();
+        new HUD();
 
         // 3. 初始化各子系统
         this.initializeSystems();
