@@ -11,6 +11,7 @@ export class DebugSystem implements IGameSystem {
     private eventBus: EventBus;
     private app: pc.Application | null = null;
     private wasLDown = false;
+    private wasHDown = false;
     private autoLog = false; // 连续打印开关
     private lastLog = 0;
     private logInterval = 500; // ms
@@ -45,6 +46,15 @@ export class DebugSystem implements IGameSystem {
             console.log(`DebugSystem: autoLog ${this.autoLog ? 'ON' : 'OFF'}`);
         }
         this.wasLDown = isL;
+
+        const isH = this.app.keyboard.isPressed(pc.KEY_H);
+        if (isH && !this.wasHDown) {
+            const player = GameContext.getInstance().getPlayer();
+            if (player) {
+                this.eventBus.fire('combat:hit', player, 1, player.getPosition().clone());
+            }
+        }
+        this.wasHDown = isH;
 
         if (this.autoLog) {
             const now = Date.now();
