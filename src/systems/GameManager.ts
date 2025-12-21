@@ -15,6 +15,7 @@ import { DropSystem } from './DropSystem';
 
 import { PlayerController } from '../entities/characters/share/PlayerController';
 import { PlayerStats } from '../entities/characters/share/PlayerStats';
+import { AAA } from '../entities/characters/c_AAA/AAA';
 import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
 import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
 import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
@@ -67,6 +68,7 @@ export class GameManager {
     private registerScripts() {
         pc.registerScript(PlayerController, 'playerController');
         pc.registerScript(PlayerStats, 'playerStats');
+        pc.registerScript(AAA, 'aaa');
         pc.registerScript(EnemyBehavior, 'enemyBehavior');
         pc.registerScript(FastEnemy, 'fastEnemy');
         pc.registerScript(TankEnemy, 'tankEnemy');
@@ -83,6 +85,9 @@ export class GameManager {
 
         // 添加脚本组件
         player.addComponent('script');
+
+        // 添加角色外观/逻辑（AAA）
+        player.script!.create('aaa');
 
         // 添加 PlayerStats 脚本实例（确保其它系统能通过 player.script.get('playerStats') 访问到）
         player.script!.create('playerStats');
