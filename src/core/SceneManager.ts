@@ -5,7 +5,7 @@ import { GameContext } from './GameContext';
  * 场景构建器
  * 负责初始化 3D 场景，包括灯光、地面、摄像机等环境元素。
  */
-export class SceneBuilder {
+export class SceneManager {
     private app: pc.Application;
     private context: GameContext;
 

@@ -2,7 +2,7 @@ import * as pc from 'playcanvas';
 import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
-import { SkillSelectUI } from '../ui/SkillSelectUI';
+import { UIManager } from '../core/UIManager';
 import { Cards } from '../config/cards';
 import { Card } from '../config/types';
 import { PlayerStats } from '../entities/characters/share/PlayerStats';
@@ -14,13 +14,13 @@ import { PlayerStats } from '../entities/characters/share/PlayerStats';
 export class ProgressionSystem implements IGameSystem {
     private app: pc.Application;
     private eventBus: EventBus;
-    private skillSelectUI: SkillSelectUI;
+    private ui: UIManager;
     private pendingCard: Card | null = null;
 
-    constructor() {
+    constructor(ui: UIManager) {
         this.app = GameContext.getInstance().getApp();
         this.eventBus = EventBus.getInstance();
-        this.skillSelectUI = new SkillSelectUI();
+        this.ui = ui;
     }
 
     initialize() {
@@ -40,13 +40,11 @@ export class ProgressionSystem implements IGameSystem {
         // Pick 3 random cards
         const options = this.getRandomCards(3);
 
-        this.skillSelectUI.show(options, (selectedCard) => {
+        this.ui.showSkillSelect(options, (selectedCard) => {
             if (selectedCard) {
                 this.pendingCard = selectedCard;
-                // Trigger Quiz
                 this.eventBus.fire('quiz:request');
             } else {
-                // Skip
                 this.app.timeScale = 1;
             }
         });

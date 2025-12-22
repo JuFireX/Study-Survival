@@ -1,30 +1,22 @@
 import * as pc from 'playcanvas';
 import { IGameSystem } from './share/IGameSystem';
-import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
-import { FloatingTextManager } from '../ui/FloatingTextManager';
+import { UIManager } from '../core/UIManager';
 
 /**
  * 反馈系统
  * 管理视觉和听觉反馈，如飘字、屏幕震动、音效等。
  */
 export class FeedbackSystem implements IGameSystem {
-    private app: pc.Application;
     private eventBus: EventBus;
-    private floatingText: FloatingTextManager;
+    private ui: UIManager;
 
-    constructor() {
-        this.app = GameContext.getInstance().getApp();
+    constructor(ui: UIManager) {
         this.eventBus = EventBus.getInstance();
-        this.floatingText = new FloatingTextManager(this.app);
+        this.ui = ui;
     }
 
     initialize() {
-        const camera = GameContext.getInstance().getCamera();
-        if (camera) {
-            this.floatingText.setCamera(camera);
-        }
-
         this.eventBus.on('combat:damage', this.onDamage, this);
         this.eventBus.on('feedback:show', this.onFeedback, this);
 
@@ -46,7 +38,7 @@ export class FeedbackSystem implements IGameSystem {
         // 实际上 QuizSystem 可能直接发 feedback:show
         // 这里只处理纯数值伤害
         if (damage > 0) {
-            this.floatingText.spawn(text, pos, color);
+            this.ui.showFloatingText(text, pos, color);
         }
     }
 
@@ -54,6 +46,6 @@ export class FeedbackSystem implements IGameSystem {
      * 处理通用反馈飘字
      */
     private onFeedback(text: string, pos: pc.Vec3, color: string) {
-        this.floatingText.spawn(text, pos, color);
+        this.ui.showFloatingText(text, pos, color);
     }
 }

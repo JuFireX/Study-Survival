@@ -1,18 +1,17 @@
 import * as pc from 'playcanvas';
-import { GameContext } from '../core/GameContext';
-import { SceneBuilder } from '../core/SceneBuilder';
-import { EventBus } from '../core/EventBus';
-import { IGameSystem } from './share/IGameSystem';
+import { EventBus } from './EventBus';
+import { GameContext } from './GameContext';
+import { SceneManager } from './SceneManager';
+import { UIManager } from './UIManager';
 
-import { Joystick } from '../ui/Joystick';
-import { HUD } from '../ui/HUD';
-import { SpawnSystem } from './SpawnSystem';
-import { QuizSystem } from './QuestionSystem';
-import { CombatSystem } from './CombatSystem';
-import { FeedbackSystem } from './FeedbackSystem';
-import { DebugSystem } from './DebugSystem';
-import { ProgressionSystem } from './ProgressionSystem';
-import { DropSystem } from './DropSystem';
+import { CombatSystem } from '../systems/CombatSystem';
+import { DebugSystem } from '../systems/DebugSystem';
+import { DropSystem } from '../systems/DropSystem';
+import { FeedbackSystem } from '../systems/FeedbackSystem';
+import { ProgressionSystem } from '../systems/ProgressionSystem';
+import { QuizSystem } from '../systems/QuestionSystem';
+import { SpawnSystem } from '../systems/SpawnSystem';
+import { IGameSystem } from '../systems/share/IGameSystem';
 
 import { PlayerController } from '../entities/characters/share/PlayerController';
 import { PlayerStats } from '../entities/characters/share/PlayerStats';
@@ -28,39 +27,40 @@ import { BulletBehavior } from '../entities/weapons/share/BulletBehavior';
  * 核心循环的指挥者，负责初始化系统、编排流程和状态管理。
  */
 export class GameManager {
+    private static instance: GameManager | null = null;
+
+    public static getInstance(): GameManager {
+        if (!GameManager.instance) {
+            GameManager.instance = new GameManager();
+        }
+        return GameManager.instance;
+    }
+
     private app: pc.Application;
     private context: GameContext;
     private eventBus: EventBus;
     private systems: IGameSystem[] = [];
-    private joystick: Joystick;
+    private ui: UIManager;
 
-    constructor() {
+    private constructor() {
         this.context = GameContext.getInstance();
         this.app = this.context.getApp();
         this.eventBus = EventBus.getInstance();
 
-        // 将自身暴露给 window 方便调试（不建议在正式逻辑中使用）
         (window as any).gameManager = this;
 
         this.registerScripts();
 
-        // 1. 初始化场景
-        const sceneBuilder = new SceneBuilder();
-        const camera = sceneBuilder.buildScene();
+        const sceneManager = new SceneManager();
+        const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
 
-        // 2. 创建玩家
-        this.joystick = new Joystick();
+        this.ui = new UIManager();
         this.createPlayer();
-        new HUD();
 
-        // 3. 初始化各子系统
         this.initializeSystems();
-
-        // 4. 绑定事件
         this.bindEvents();
 
-        // 5. 启动更新循环
         this.app.on('update', this.update, this);
     }
 
@@ -97,7 +97,7 @@ export class GameManager {
         // 创建 PlayerController 实例并注入 Joystick
         const controller = player.script!.create('playerController') as PlayerController;
         if (controller) {
-            controller.setup(this.joystick);
+            controller.setup(this.ui.getJoystick());
         }
 
         // 添加武器
@@ -125,12 +125,12 @@ export class GameManager {
      */
     private initializeSystems() {
         // 按依赖顺序添加系统
-        this.systems.push(new FeedbackSystem()); // 优先初始化反馈系统
+        this.systems.push(new FeedbackSystem(this.ui)); // 优先初始化反馈系统
         this.systems.push(new DebugSystem());
         this.systems.push(new SpawnSystem());
         this.systems.push(new CombatSystem());
-        this.systems.push(new QuizSystem());
-        this.systems.push(new ProgressionSystem());
+        this.systems.push(new QuizSystem(this.ui));
+        this.systems.push(new ProgressionSystem(this.ui));
         this.systems.push(new DropSystem());
         // this.systems.push(new SkillSystem()); 
         // this.systems.push(new AchievementSystem());
