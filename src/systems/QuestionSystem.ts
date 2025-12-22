@@ -2,7 +2,8 @@
 import { IGameSystem } from './share/IGameSystem';
 import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
-import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
+import { UIManager } from '../core/UIManager';
+import type { QuestionData } from '../ui/QuestionUI';
 import { questions } from '../config/questions';
 
 /**
@@ -10,18 +11,14 @@ import { questions } from '../config/questions';
  * 管理题目加载、触发、UI 显示和答案校验。
  */
 export class QuizSystem implements IGameSystem {
-    // private app: pc.Application;
-    private ui: QuestionUI;
+    private ui: UIManager;
     private questions: QuestionData[] = questions;
     private active = false;
-    // private timer: number = 0;
-    // private interval: number = 10; // 每10秒触发一次
     private eventBus: EventBus;
 
-    constructor() {
-        // this.app = GameContext.getInstance().getApp();
+    constructor(ui: UIManager) {
         this.eventBus = EventBus.getInstance();
-        this.ui = new QuestionUI();
+        this.ui = ui;
         this.loadQuestions();
     }
 
@@ -63,12 +60,11 @@ export class QuizSystem implements IGameSystem {
         this.eventBus.fire('quiz:start');
 
         const question = this.pickQuestion();
-        this.ui.show(question, (answer) => {
+        this.ui.showQuestion(question, (answer) => {
             const ok = this.checkAnswer(question, answer);
             this.onResult(ok);
 
             this.active = false;
-            // 通知 GameManager 恢复游戏
             this.eventBus.fire('quiz:end', ok);
         });
     }
