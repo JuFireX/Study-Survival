@@ -56,7 +56,8 @@ export interface EnemyStats {
 
 export enum CardType {
     Buff = 'buff',// 增益卡
-    Weapon = 'weapon'// 武器卡
+    Weapon = 'weapon',// 武器卡
+    Question = 'question' // 题目卡
 }
 
 export enum CardRarity {
@@ -72,6 +73,17 @@ export interface CardEffect {
     type: 'add' | 'multiply';// 影响类型，添加或乘法
 }
 
+export interface QuestionData {
+    id: number;
+    subject: string;
+    difficulty: number;
+    text: string;
+    type?: 'choice' | 'fill' | 'multi-choice';
+    options?: string[];
+    correct?: number | number[]; // Index or indices for choice
+    answer?: string; // String answer for fill
+}
+
 export interface Card {
     id: string;// 卡片ID
     name: string;// 卡片名称
@@ -83,6 +95,9 @@ export interface Card {
     weaponId?: string;// 武器ID
     // 进化/合成需求
     requiredCardId?: string;// 进化/合成需求的卡片ID
+    // 题目相关
+    questionDifficulty?: number; // 题目难度
+    question?: QuestionData; // 具体题目数据
 }
 
 export interface LevelConfig {

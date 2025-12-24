@@ -4,18 +4,19 @@ import { GameContext } from '../core/GameContext';
 import { EventBus } from '../core/EventBus';
 import { UIManager } from '../core/UIManager';
 import { Cards } from '../config/cards';
-import { Card } from '../config/types';
+import { questions } from '../config/questions';
+import { Card, QuestionData } from '../config/types';
 import { PlayerStats } from '../entities/characters/share/PlayerStats';
 
 /**
- 升级->技能选择->答题->增益
+ 升级->技能选择(内置答题)->增益
  */
 
 export class ProgressionSystem implements IGameSystem {
     private app: pc.Application;
     private eventBus: EventBus;
     private ui: UIManager;
-    private pendingCard: Card | null = null;
+    // private pendingCard: Card | null = null; // No longer needed as quiz is inline
 
     constructor(ui: UIManager) {
         this.app = GameContext.getInstance().getApp();
@@ -25,7 +26,7 @@ export class ProgressionSystem implements IGameSystem {
 
     initialize() {
         this.eventBus.on('player:levelUp', this.onLevelUp, this);
-        this.eventBus.on('quiz:end', this.onQuizEnd, this);
+        // this.eventBus.on('quiz:end', this.onQuizEnd, this); // Handled in UI callback
     }
 
     update(dt: number) {
@@ -37,43 +38,47 @@ export class ProgressionSystem implements IGameSystem {
         console.log(`Level Up to ${level}!`);
         this.app.timeScale = 0; // Pause game
 
-        // Pick 3 random cards
+        // Pick 3 random cards with questions
         const options = this.getRandomCards(3);
 
         this.ui.showSkillSelect(options, (selectedCard) => {
             if (selectedCard) {
-                this.pendingCard = selectedCard;
-                this.eventBus.fire('quiz:request');
-            } else {
-                this.app.timeScale = 1;
+                // Card selected and question answered correctly
+                this.applyCard(selectedCard);
             }
+            // Whether selected or skipped (null), resume game
+            this.app.timeScale = 1;
         });
     }
 
-    private onQuizEnd(success: boolean) {
-        if (this.pendingCard) {
-            const player = GameContext.getInstance().getPlayer();
-            if (player) {
-                const stats = player.script!.get('playerStats') as PlayerStats;
-                if (stats) {
-                    stats.applyCard(this.pendingCard, success);
-                    console.log(`Applied card ${this.pendingCard.name} with success=${success}`);
-                }
+    private applyCard(card: Card) {
+        const player = GameContext.getInstance().getPlayer();
+        if (player) {
+            const stats = player.script!.get('playerStats') as PlayerStats;
+            if (stats) {
+                stats.applyCard(card, true); // Success is always true here as UI handles verification
+                console.log(`Applied card ${card.name}`);
             }
-            this.pendingCard = null;
         }
-
-        // Resume game is handled by QuizSystem calling 'quiz:end' 
-        // BUT QuizSystem fires 'quiz:end' THEN we catch it here.
-        // QuizSystem logic (checked earlier) resumes timeScale itself?
-        // Let's check QuizSystem.ts again.
-        // Yes: this.app.timeScale = 1; in onQuizEnd of GameManager (or QuizSystem?)
-        // Wait, GameManager listens to quiz:end and resumes timeScale.
-        // So we don't need to resume it here.
     }
 
     private getRandomCards(count: number): Card[] {
-        const shuffled = [...Cards].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
+        const shuffledCards = [...Cards].sort(() => 0.5 - Math.random());
+        const selectedCards = shuffledCards.slice(0, count);
+
+        // Assign random questions
+        return selectedCards.map(card => {
+            // Clone card to avoid modifying the config object permanently (though shallow clone is enough for top level)
+            const newCard = { ...card };
+            
+            // Pick a random question
+            // We can filter by difficulty if needed, but for now just random
+            const randomQ = questions[Math.floor(Math.random() * questions.length)];
+            
+            // Clone question too just in case
+            newCard.question = { ...randomQ };
+            
+            return newCard;
+        });
     }
 }
