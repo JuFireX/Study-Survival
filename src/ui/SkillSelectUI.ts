@@ -12,8 +12,8 @@ export class SkillSelectUI {
         this.component.destroy();
     }
 
-    public show(cards: Card[], callback: (card: Card | null) => void) {
-        this.component.show(cards, callback);
+    public show(cards: Card[], onCheck: (card: Card, answer: any) => boolean, callback: (card: Card | null) => void) {
+        this.component.show(cards, onCheck, callback);
     }
 
     public hide() {

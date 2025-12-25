@@ -1,20 +1,29 @@
 import * as pc from 'playcanvas';
 import { BulletBehavior } from './BulletBehavior';
 import { GameplayConfig } from '../../../config/gameplay';
+import { WeaponStats } from '../../../config/types';
 
 /**
  * 武器控制器
  * 负责寻找最近的敌人并自动射击。
  */
 export class WeaponController extends pc.ScriptType {
-    range: number = GameplayConfig.Weapon.Default.Range;
-    cooldown: number = GameplayConfig.Weapon.Default.Cooldown;
+    // 使用 WeaponStats 统一管理属性
+    stats: WeaponStats = {
+        damage: GameplayConfig.Weapon.Default.Damage,
+        cooldown: GameplayConfig.Weapon.Default.Cooldown,
+        range: GameplayConfig.Weapon.Default.Range,
+        projectileSpeed: GameplayConfig.Weapon.Default.BulletSpeed,
+        projectileCount: 1,
+        pierceCount: 0,
+        areaSize: 1
+    };
+
     timer: number = 0;
-    damage: number = GameplayConfig.Weapon.Default.Damage;
 
     update(dt: number) {
         this.timer += dt;
-        if (this.timer >= this.cooldown) {
+        if (this.timer >= this.stats.cooldown) {
             this.shoot();
             this.timer = 0;
         }
@@ -33,7 +42,7 @@ export class WeaponController extends pc.ScriptType {
         for (const child of children) {
             if (child.name === 'Enemy') {
                 const dst = myPos.distance(child.getPosition());
-                if (dst < this.range && dst < minDst) {
+                if (dst < this.stats.range && dst < minDst) {
                     minDst = dst;
                     closest = child as pc.Entity;
                 }
@@ -52,7 +61,9 @@ export class WeaponController extends pc.ScriptType {
     spawnProjectile(target: pc.Entity) {
         const bullet = new pc.Entity('Bullet');
         bullet.addComponent('model', { type: 'sphere' });
-        bullet.setLocalScale(0.2, 0.2, 0.2);
+        // 根据 areaSize 调整大小
+        const scale = 0.2 * this.stats.areaSize;
+        bullet.setLocalScale(scale, scale, scale);
         bullet.setPosition(this.entity.getPosition());
 
         // 设置黄色材质
@@ -68,7 +79,9 @@ export class WeaponController extends pc.ScriptType {
         const script = bullet.script!.create('bulletBehavior') as BulletBehavior;
         if (script) {
             script.target = target;
-            script.damage = this.damage;
+            // 伤害快照：将当前武器面板伤害传递给子弹
+            script.damage = this.stats.damage;
+            script.speed = this.stats.projectileSpeed;
         }
     }
 }

@@ -1,6 +1,5 @@
-import { QuestionData, QuestionUIComponent } from './components/QuestionUIComponent';
-
-export type { QuestionData };
+import { QuestionData } from '../config/types';
+import { QuestionUIComponent } from './components/QuestionUIComponent';
 
 export class QuestionUI {
     private component: QuestionUIComponent;

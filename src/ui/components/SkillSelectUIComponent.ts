@@ -1,10 +1,11 @@
-import { Card, CardType, QuestionData } from '../../config/types';
+import { Card, CardType } from '../../config/types';
 
 export class SkillSelectUIComponent {
     private container!: HTMLElement;
     private cardsContainer!: HTMLElement;
     private modalContainer!: HTMLElement; // For Question Modal
     private onSelectCallback: ((card: Card | null) => void) | null = null;
+    private onCheckAnswer: ((card: Card, answer: any) => boolean) | null = null;
 
     constructor() {
         this.createDOM();
@@ -43,7 +44,8 @@ export class SkillSelectUIComponent {
         document.body.appendChild(this.container);
     }
 
-    public show(cards: Card[], callback: (card: Card | null) => void) {
+    public show(cards: Card[], onCheck: (card: Card, answer: any) => boolean, callback: (card: Card | null) => void) {
+        this.onCheckAnswer = onCheck;
         this.onSelectCallback = callback;
         this.cardsContainer.innerHTML = '';
         this.modalContainer.style.display = 'none'; // Ensure modal is closed
@@ -226,12 +228,16 @@ export class SkillSelectUIComponent {
 
     private handleAnswer(card: Card, input: any, correct: any) {
         let isCorrect = false;
-        // Simple validation
-        if (typeof correct === 'number') {
-            isCorrect = input === correct;
+
+        if (this.onCheckAnswer) {
+            isCorrect = this.onCheckAnswer(card, input);
         } else {
-            // String comparison
-            isCorrect = String(input).trim().toLowerCase() === String(correct).trim().toLowerCase();
+            // Fallback (should not happen if system is wired correctly)
+            if (typeof correct === 'number') {
+                isCorrect = input === correct;
+            } else {
+                isCorrect = String(input).trim().toLowerCase() === String(correct).trim().toLowerCase();
+            }
         }
 
         if (isCorrect) {

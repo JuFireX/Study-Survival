@@ -1,4 +1,4 @@
-import { LevelConfig } from './types';
+import { LevelConfig, PlayerStats } from './types';
 
 export const GameConfig = {
     // 经验值配置 (简单的指数增长示例)
@@ -18,42 +18,12 @@ export const GameConfig = {
     defaultPlayerStats: {
         currentHealth: 100,
         maxHealth: 100,
-        tempShield: 0,
-        maxShield: 0,
-        lifesteal: 0,
-        healthRegen: 0,
-        killHeal: 0,
-        pickupHeal: 0,
+        defense: 0,
+        magicDefense: 0,
 
-        baseDamage: 10,
-        damageMultiplier: 1.0,
-        critRate: 0.05,
-        critMultiplier: 1.5,
-        attackSpeed: 1.0,
-        projectileCount: 1,
-        pierceCount: 0,
-        areaSize: 1.0,
-
-        armor: 0,
-        damageReduction: 0,
-        dodgeRate: 0,
         moveSpeed: 10,
-        thorns: 0,
-        revives: 0,
-        invincibleTime: 0,
-
-        expMultiplier: 1.0,
-        goldMultiplier: 1.0,
-        shopDiscount: 0,
-        luck: 1.0,
         pickupRange: 3.0,
-
-        cooldownReductionLimit: 0.4,
-        skillDuration: 1.0,
-        projectileSize: 1.0,
-        curse: 0,
-        rerolls: 0,
-        skips: 0,
-        banishes: 0
-    }
+        expEfficiency: 1.0,
+        luck: 1.0
+    } as PlayerStats
 };

@@ -1,13 +1,4 @@
-export interface QuestionData {
-    id: number;
-    subject: string;
-    difficulty: number;
-    text: string;
-    type?: 'choice' | 'fill' | 'multi-choice';
-    options?: string[];
-    correct?: number | number[]; // Index or indices for choice
-    answer?: string; // String answer for fill
-}
+import { QuestionData } from '../../config/types';
 
 export class QuestionUIComponent {
     container: HTMLElement;
