@@ -8,12 +8,15 @@ import { WeaponStats } from '../../../config/types';
  * 负责寻找最近的敌人并自动射击。
  */
 export class WeaponController extends pc.ScriptType {
+    // 武器ID，用于精确匹配卡牌效果
+    id: string = 'w_sword';
+
     // 使用 WeaponStats 统一管理属性
     stats: WeaponStats = {
-        damage: GameplayConfig.Weapon.Default.Damage,
-        cooldown: GameplayConfig.Weapon.Default.Cooldown,
-        range: GameplayConfig.Weapon.Default.Range,
-        projectileSpeed: GameplayConfig.Weapon.Default.BulletSpeed,
+        damage: GameplayConfig.Weapon.default.damage || 10,
+        cooldown: GameplayConfig.Weapon.default.cooldown || 0.5,
+        range: GameplayConfig.Weapon.default.range || 10,
+        projectileSpeed: GameplayConfig.Weapon.default.projectileSpeed || 20,
         projectileCount: 1,
         pierceCount: 0,
         areaSize: 1

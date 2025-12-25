@@ -129,8 +129,13 @@ export class CharacterSystem implements IGameSystem {
     }
 
     private onApplyEffect(effect: CardEffect) {
-        // 默认 target 为 player
-        if (effect.target && effect.target !== 'player') return;
+        // 匹配角色目标：必须以 c_ 开头
+        if (!effect.target || !effect.target.startsWith('c_')) return;
+        
+        // 假设只有一个玩家，c_* 或 c_player 都匹配
+        // 如果有多角色，需要更复杂的 ID 检查
+        const targetId = effect.target;
+        if (targetId !== 'c_player' && targetId !== 'c_*') return;
 
         const player = GameContext.getInstance().getPlayer();
         const stats = player?.script?.get('playerStats') as PlayerStats;

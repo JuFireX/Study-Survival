@@ -1,9 +1,9 @@
-import { QuestionData } from '../ui/QuestionUI';
+import { QuestionData } from '../config/types';
 
 export const questions: QuestionData[] = [
   {
     "id": 1,
-    "subject": "math",
+    "subject": "数学",
     "difficulty": 1,
     "text": "1 + 1 = ?",
     "options": ["1", "2", "3", "4"],
@@ -11,7 +11,7 @@ export const questions: QuestionData[] = [
   },
   {
     "id": 2,
-    "subject": "math",
+    "subject": "数学",
     "difficulty": 1,
     "text": "2 * 3 = ?",
     "options": ["5", "6", "9", "12"],
@@ -19,23 +19,23 @@ export const questions: QuestionData[] = [
   },
   {
     "id": 3,
-    "subject": "english",
+    "subject": "英语",
     "difficulty": 1,
     "text": "Apple means?",
-    "options": ["Banana", "Apple", "Orange", "Grape"],
+    "options": ["香蕉", "苹果", "橙子", "葡萄"],
     "correct": 1
   },
   {
     "id": 4,
-    "subject": "chinese",
+    "subject": "中文",
     "difficulty": 1,
-    "text": "Which is a poem?",
-    "options": ["Code", "Li Bai", "Math", "English"],
-    "correct": 1
+    "text": "下列中哪一位不是诗人？",
+    "options": ["李白", "杜甫", "白居易", "英语"],
+    "correct": 3
   },
   {
     "id": 5,
-    "subject": "general",
+    "subject": "英语",
     "difficulty": 1,
     "text": "What is the capital of France?",
     "type": "fill",
@@ -43,7 +43,7 @@ export const questions: QuestionData[] = [
   },
   {
     "id": 6,
-    "subject": "math",
+    "subject": "数学",
     "difficulty": 2,
     "text": "10 / 2 = ?",
     "type": "fill",
@@ -51,7 +51,7 @@ export const questions: QuestionData[] = [
   },
   {
     "id": 7,
-    "subject": "general",
+    "subject": "英语",
     "difficulty": 2,
     "text": "Which of the following are fruits?",
     "type": "multi-choice",

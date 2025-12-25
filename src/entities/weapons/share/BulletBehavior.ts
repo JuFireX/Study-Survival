@@ -8,8 +8,8 @@ import { GameplayConfig } from '../../../config/gameplay';
  */
 export class BulletBehavior extends pc.ScriptType {
     target: pc.Entity | null = null;
-    speed: number = GameplayConfig.Weapon.Default.BulletSpeed;
-    damage: number = GameplayConfig.Weapon.Default.Damage;
+    speed: number = GameplayConfig.Weapon.default.projectileSpeed || 20;
+    damage: number = GameplayConfig.Weapon.default.damage || 10;
 
     // 缓存 EventBus 实例
     private eventBus: EventBus | null = null;

@@ -3,7 +3,7 @@ import { IGameSystem } from '../share/IGameSystem';
 import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
 import { UIManager } from '../../core/UIManager';
-import { GameplayConfig } from '../../config/gameplay';
+import { WorldLevelConfig } from '../../config/evolution';
 import { ExpOrb } from '../../entities/drops/ExpOrb';
 import { FastEnemy } from '../../entities/enemies/e_fast/FastEnemy';
 import { TankEnemy } from '../../entities/enemies/e_tank/TankEnemy';
@@ -15,7 +15,7 @@ export class EnemySystem implements IGameSystem {
 
     // Spawning
     private timer: number = 0;
-    private spawnInterval: number = GameplayConfig.Enemy.SpawnInterval;
+    private spawnInterval: number = WorldLevelConfig.Enemy.spawnInterval;
 
     constructor(ui: UIManager) {
         this.app = GameContext.getInstance().getApp();

@@ -3,14 +3,20 @@ import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
 import { GameplayConfig } from '../../config/gameplay';
 
+import { PlayerStats } from '../characters/share/PlayerStats';
+
 export class ExpOrb extends pc.ScriptType {
-    public value: number = GameplayConfig.Drops.ExpOrb.Value;
+    public value: number = GameplayConfig.Drops.expOrb.value;
     private player!: pc.Entity;
-    private moveSpeed: number = GameplayConfig.Drops.ExpOrb.MoveSpeed;
+    private moveSpeed: number = GameplayConfig.Drops.expOrb.moveSpeed;
     private isCollecting: boolean = false;
+    private playerStats: PlayerStats | null = null;
 
     initialize() {
         this.player = GameContext.getInstance().getPlayer()!;
+        if (this.player && this.player.script) {
+            this.playerStats = this.player.script.get('playerStats') as PlayerStats;
+        }
     }
 
     update(dt: number) {
@@ -20,9 +26,8 @@ export class ExpOrb extends pc.ScriptType {
         const playerPos = this.player.getPosition();
         const dist = pos.distance(playerPos);
 
-        // Magnet range (hardcoded or from stats)
-        // We can get pickupRange from PlayerStats if we want to be precise
-        const pickupRange = GameplayConfig.Drops.ExpOrb.PickupRange;
+        // Get pickupRange from PlayerStats (RPG stats), default to 3.0
+        const pickupRange = this.playerStats?.stats.pickupRange || 3.0;
 
         if (dist < pickupRange) {
             this.isCollecting = true;

@@ -1,17 +1,24 @@
+// 等级配置
+export interface LevelConfig {
+    level: number;                      // 等级
+    expRequired: number;                // 升级所需经验
+    playerStats: Partial<PlayerStats>;  // 该等级的玩家基础属性
+    enemyStats: Partial<EnemyStats>;    // 该等级的怪物基础属性
+}
+
+// 角色属性(作用于角色的可用增益挂载点)
 export interface PlayerStats {
-    // 1. 生存类
     currentHealth: number; // 当前生命值
     maxHealth: number;     // 最大生命值
     defense: number;       // 物抗
     magicDefense: number;  // 法抗
-
-    // 2. 移动/机制类
     moveSpeed: number;     // 移动速度
     pickupRange: number;   // 拾取范围
     expEfficiency: number; // 经验获取效率
     luck: number;          // 幸运值
 }
 
+// 敌人属性(作用于敌人的可用增益挂载点)
 export interface EnemyStats {
     currentHealth: number; // 当前生命值
     maxHealth: number;     // 最大生命值
@@ -21,39 +28,18 @@ export interface EnemyStats {
     expValue: number;      // 掉落能量值
 }
 
-// 武器属性 (新增，用于武器系统独立计算)
+// 武器属性(作用于武器的可用增益挂载点)
 export interface WeaponStats {
-    damage: number;
-    cooldown: number;
-    range: number;
-    projectileSpeed: number;
-    projectileCount: number;
-    pierceCount: number;
-    areaSize: number;
+    damage: number;         // 伤害
+    cooldown: number;       // 冷却时间
+    range: number;          // 攻击范围
+    projectileSpeed: number; // 弹速
+    projectileCount: number; // 弹数
+    pierceCount: number;     // 穿透数
+    areaSize: number;        // 攻击范围大小
 }
 
-export enum CardType {
-    Buff = 'buff',       // 增益卡
-    Weapon = 'weapon',   // 武器卡
-    Question = 'question'// 题目卡
-}
-
-export enum CardRarity {
-    Common = 'common',      // 普通卡
-    Rare = 'rare',          // 稀有卡
-    Epic = 'epic',          // 史诗卡
-    Legendary = 'legendary' // 传说卡
-}
-
-export interface CardEffect {
-    // 目标: 默认为 player, 也可以是 weapon 或 enemy
-    target?: 'player' | 'weapon' | 'enemy';
-    // 影响的属性: 这里放宽为 string 以支持不同目标的属性 (如 weapon.damage)
-    stat: string;
-    value: number; // 可以是固定值或百分比
-    type: 'add' | 'multiply'; // 影响类型
-}
-
+// 题目数据
 export interface QuestionData {
     id: number;
     subject: string;
@@ -61,30 +47,55 @@ export interface QuestionData {
     text: string;
     type?: 'choice' | 'fill' | 'multi-choice';
     options?: string[];
-    correct?: number | number[]; // Index or indices for choice
-    answer?: string; // String answer for fill
+    correct?: number | number[];     // 选择题答案选项
+    answer?: string;                 // 填空题答案关键字
 }
 
+// 卡牌类型
+export enum CardType {
+    Buff = 'buff',       // 增益卡
+    Weapon = 'weapon',   // 武器卡
+    Question = 'question'// 题目卡
+}
+
+// 卡牌稀有度
+export enum CardRarity {
+    Common = 'common',      // 普通卡
+    Rare = 'rare',          // 稀有卡
+    Epic = 'epic',          // 史诗卡
+    Legendary = 'legendary' // 传说卡
+}
+
+// 卡牌效果
+export interface CardEffect {
+    target: string;            // 目标挂载点: w_*(武器), c_*(角色), e_*(敌人), 或具体ID如 w_sword
+    stat: string;              // 影响的属性(见PlayerStats、EnemyStats、WeaponStats)
+    type: 'add' | 'multiply';  // 加法或乘法结算
+    value: number;             // 固定值或百分比
+}
+
+// 卡牌基类
 export interface Card {
-    id: string;          // 卡片ID
-    name: string;        // 卡片名称
-    description: string; // 卡片描述
-    type: CardType;      // 卡片类型
-    rarity: CardRarity;  // 卡片稀有度
-    effects: CardEffect[]; // 卡片效果
-
-    // 武器特有
-    weaponId?: string;   // 武器ID
-
-    // 进化/合成需求
-    requiredCardId?: string; // 进化/合成需求的卡片ID
-
-    // 题目相关
-    questionDifficulty?: number; // 题目难度
-    question?: QuestionData;     // 具体题目数据
+    id: string;             // 卡牌ID
+    rarity: CardRarity;     // 卡牌稀有度
 }
 
-export interface LevelConfig {
-    level: number;      // 等级
-    expRequired: number;// 升级所需经验
+export interface BuffCard extends Card {
+    type: CardType.Buff;    // 卡牌类型
+    name: string;           // 增益卡名称
+    description: string;    // 增益卡描述
+    effects: CardEffect[];  // 增益效果及挂载点
+}
+
+export interface WeaponCard extends Card {
+    type: CardType.Weapon;  // 卡牌类型
+    name: string;           // 武器卡名称
+    description: string;    // 武器卡描述
+    stats: WeaponStats;     // 武器属性
+    effects: CardEffect[];  // 增益效果及挂载点
+}
+
+export interface QuestionCard extends Card {
+    type: CardType.Question; // 卡牌类型
+    question: QuestionData;  // 题目数据
 }
