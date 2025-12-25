@@ -24,3 +24,5 @@ export class AAA extends BaseCharacter {
         }
     }
 }
+
+// 看起来默认英雄不能是AAA建材王总了

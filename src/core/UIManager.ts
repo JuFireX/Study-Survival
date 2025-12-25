@@ -1,10 +1,10 @@
 import * as pc from 'playcanvas';
-import type { Card } from '../config/types';
+import type { Card, QuestionData } from '../config/types';
 import { GameContext } from './GameContext';
 import { FloatingTextManager } from '../ui/FloatingTextManager';
 import { HUD } from '../ui/HUD';
 import { Joystick } from '../ui/Joystick';
-import { QuestionUI, type QuestionData } from '../ui/QuestionUI';
+import { QuestionUI } from '../ui/QuestionUI';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 
 export class UIManager {
@@ -50,8 +50,8 @@ export class UIManager {
         this.questionUI.show(question, onAnswer);
     }
 
-    public showSkillSelect(cards: Card[], onSelect: (card: Card | null) => void) {
-        this.skillSelectUI.show(cards, onSelect);
+    public showSkillSelect(cards: Card[], onCheck: (card: Card, answer: any) => boolean, onSelect: (card: Card | null) => void) {
+        this.skillSelectUI.show(cards, onCheck, onSelect);
     }
 
     public showFloatingText(text: string, worldPos: pc.Vec3, color: string = 'white') {

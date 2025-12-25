@@ -1,16 +1,16 @@
 import * as pc from 'playcanvas';
-import { EventBus } from './EventBus';
+// import { EventBus } from './EventBus';
 import { GameContext } from './GameContext';
 import { SceneManager } from './SceneManager';
 import { UIManager } from './UIManager';
 
-import { CombatSystem } from '../systems/CombatSystem';
 import { DebugSystem } from '../systems/DebugSystem';
-import { DropSystem } from '../systems/DropSystem';
-import { FeedbackSystem } from '../systems/FeedbackSystem';
-import { ProgressionSystem } from '../systems/ProgressionSystem';
-import { QuizSystem } from '../systems/QuestionSystem';
-import { SpawnSystem } from '../systems/SpawnSystem';
+import { CharacterSystem } from '../systems/character/CharacterSystem';
+import { EnemySystem } from '../systems/enemy/EnemySystem';
+import { WeaponSystem } from '../systems/weapon/WeaponSystem';
+import { CardSystem } from '../systems/card/CardSystem';
+import { QuestionSystem } from '../systems/question/QuestionSystem';
+import { SceneSystem } from '../systems/scene/SceneSystem';
 import { IGameSystem } from '../systems/share/IGameSystem';
 
 import { PlayerController } from '../entities/characters/share/PlayerController';
@@ -38,19 +38,20 @@ export class GameManager {
 
     private app: pc.Application;
     private context: GameContext;
-    private eventBus: EventBus;
+    // private eventBus: EventBus;
     private systems: IGameSystem[] = [];
     private ui: UIManager;
 
     private constructor() {
         this.context = GameContext.getInstance();
         this.app = this.context.getApp();
-        this.eventBus = EventBus.getInstance();
+        // this.eventBus = EventBus.getInstance();
 
         (window as any).gameManager = this;
 
         this.registerScripts();
 
+        // 基础场景构建 (静态部分)
         const sceneManager = new SceneManager();
         const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
@@ -59,7 +60,9 @@ export class GameManager {
         this.createPlayer();
 
         this.initializeSystems();
-        this.bindEvents();
+
+        // 绑定事件 (如果有需要在 GameManager 处理的全局事件)
+        // this.bindEvents();
 
         this.app.on('update', this.update, this);
     }
@@ -91,14 +94,11 @@ export class GameManager {
         // 添加角色外观/逻辑（AAA）
         player.script!.create('aaa');
 
-        // 添加 PlayerStats 脚本实例（确保其它系统能通过 player.script.get('playerStats') 访问到）
+        // 添加 PlayerStats 脚本实例
         player.script!.create('playerStats');
 
-        // 创建 PlayerController 实例并注入 Joystick
-        const controller = player.script!.create('playerController') as PlayerController;
-        if (controller) {
-            controller.setup(this.ui.getJoystick());
-        }
+        // 创建 PlayerController 实例 (Joystick 注入移交给了 CharacterSystem)
+        player.script!.create('playerController');
 
         // 添加武器
         player.script!.create('weaponController');
@@ -124,59 +124,36 @@ export class GameManager {
      * 初始化系统列表
      */
     private initializeSystems() {
-        // 按依赖顺序添加系统
-        this.systems.push(new FeedbackSystem(this.ui)); // 优先初始化反馈系统
+        // 1. 基础/调试系统
         this.systems.push(new DebugSystem());
-        this.systems.push(new SpawnSystem());
-        this.systems.push(new CombatSystem());
-        this.systems.push(new QuizSystem(this.ui));
-        this.systems.push(new ProgressionSystem(this.ui));
-        this.systems.push(new DropSystem());
-        // this.systems.push(new SkillSystem()); 
-        // this.systems.push(new AchievementSystem());
+
+        // 2. 数据/服务系统
+        const questionSystem = new QuestionSystem();
+        this.systems.push(questionSystem); // 优先初始化以便加载数据
+
+        // 3. 核心玩法系统
+        this.systems.push(new SceneSystem()); // 场景管理
+        this.systems.push(new CharacterSystem(this.ui)); // 角色管理 (UI, Stats, Input)
+        this.systems.push(new EnemySystem(this.ui)); // 敌人管理 (Spawn, Drops, DamageText)
+        this.systems.push(new WeaponSystem()); // 武器管理 (Global logic)
+        this.systems.push(new CardSystem(this.ui, questionSystem)); // 卡牌/升级系统 (LevelUp flow)
 
         // 执行初始化
         this.systems.forEach(sys => sys.initialize());
     }
 
     /**
-     * 绑定全局事件监听
-     */
-    private bindEvents() {
-        this.eventBus.on('quiz:start', this.onQuizStart, this);
-        this.eventBus.on('quiz:end', this.onQuizEnd, this);
-    }
-
-    /**
      * 主更新循环
      */
     private update(dt: number) {
-        // 如果游戏暂停（timeScale = 0），部分系统可能仍需运行（如 Quiz UI）
-        // 但这里我们只更新 Gameplay 相关的 Systems
-        if (this.app.timeScale === 0) {
-            // QuizSystem 内部自己处理暂停时的 UI 逻辑，或者它是 DOM 驱动的，不受 loop 影响
-            // 如果 QuizSystem 需要在暂停时 update，可以单独调用
-            return;
-        }
+        // 如果游戏暂停，部分系统可能仍需运行 (如 UI 相关的 System)
+        // 这里简单处理：如果暂停，只更新非 Gameplay 系统？
+        // 目前 CardSystem 接管了 timeScale，所以暂停时 update 循环仍在继续，只是 dt 可能受影响？
+        // PlayCanvas app.timeScale = 0 会导致 dt = 0 passed to update? 
+        // 通常是的。所以 systems.update(0) 会被调用。
 
         for (const sys of this.systems) {
             sys.update(dt);
         }
-    }
-
-    /**
-     * 暂停游戏
-     */
-    private onQuizStart() {
-        this.app.timeScale = 0;
-        console.log("Game Paused for Quiz");
-    }
-
-    /**
-     * 恢复游戏
-     */
-    private onQuizEnd(result: boolean) {
-        this.app.timeScale = 1;
-        console.log("Game Resumed. Result:", result);
     }
 }

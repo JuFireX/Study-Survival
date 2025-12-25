@@ -1,6 +1,7 @@
 import * as pc from 'playcanvas';
 import { Joystick } from '../../../ui/Joystick';
 import { GameplayConfig } from '../../../config/gameplay';
+import { Player } from '../../../config/types';
 
 /**
  * 玩家控制器
@@ -8,7 +9,7 @@ import { GameplayConfig } from '../../../config/gameplay';
  */
 export class PlayerController extends pc.ScriptType {
     joystick: Joystick | null = null;
-    speed: number = GameplayConfig.Player.Speed;
+    speed: number = GameplayConfig.Player.moveSpeed || 10;
 
     initialize() {
         // 初始化逻辑
@@ -59,7 +60,8 @@ export class PlayerController extends pc.ScriptType {
                 move.normalize();
             }
 
-            move.mulScalar(this.speed * dt);
+            const speed = this.playerStats?.stats.moveSpeed || 10;
+            move.mulScalar(speed * dt);
             this.entity.translate(move);
 
             // 简单的朝向控制

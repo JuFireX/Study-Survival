@@ -7,7 +7,7 @@ import { GameplayConfig } from '../../../config/gameplay';
  */
 export class EnemyBehavior extends pc.ScriptType {
     player: pc.Entity | null = null;
-    speed: number = GameplayConfig.Enemy.BaseSpeed;
+    speed: number = GameplayConfig.Enemy.moveSpeed || 3;
 
     initialize() {
     }
