@@ -1,11 +1,11 @@
 import * as pc from 'playcanvas';
-import type { Card, QuestionData } from '../config/types';
-import { GameContext } from './GameContext';
-import { FloatingTextManager } from '../ui/FloatingTextManager';
-import { HUD } from '../ui/HUD';
-import { Joystick } from '../ui/Joystick';
-import { QuestionUI } from '../ui/QuestionUI';
-import { SkillSelectUI } from '../ui/SkillSelectUI';
+import type { Card, QuestionData } from '../../config/types';
+import { GameContext } from '../GameContext';
+import { FloatingTextManager } from '../../ui/FloatingTextManager';
+import { HUD } from '../../ui/HUD';
+import { Joystick } from '../../ui/Joystick';
+import { QuestionUI } from '../../ui/QuestionUI';
+import { SkillSelectUI } from '../../ui/SkillSelectUI';
 
 /**
  * UI 管理器 (UIManager)

@@ -1,7 +1,9 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
-import { SceneManager } from './SceneManager';
-import { UIManager } from './UIManager';
+import { SceneManager } from './manager/SceneManager';
+import { UIManager } from './manager/UIManager';
+import { ResourceManager } from './manager/ResourceManager';
+import { CardManager } from './manager/CardManager';
 
 // Systems
 import { DebugSystem } from '../systems/DebugSystem';
@@ -54,6 +56,7 @@ export class GameManager {
 
         // 2. 构建基础场景 (Camera, Lights, Ground)
         const sceneManager = new SceneManager();
+        this.context.setSceneManager(sceneManager); // 注册到 Context
         const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
 
@@ -61,15 +64,19 @@ export class GameManager {
         this.ui = new UIManager();
         this.context.setUIManager(this.ui);
 
-        // 4. 创建玩家
+        // 4. 初始化数据管理器
+        const cardManager = new CardManager();
+        this.context.setCardManager(cardManager);
+
+        // 5. 创建玩家
         this.createPlayer();
 
-        // 5. 初始化所有游戏系统
+        // 6. 初始化所有游戏系统
         this.initializeSystems();
 
-        // 6. 启动 Update 循环
+        // 7. 启动 Update 循环
         this.app.on('update', this.update, this);
-        
+
         console.log("[GameManager] Initialized successfully.");
     }
 
@@ -100,10 +107,10 @@ export class GameManager {
     private createPlayer() {
         const player = new pc.Entity('Player');
         player.addComponent('model', { type: 'capsule' });
-        
+
         // 初始化脚本组件
         player.addComponent('script');
-        
+
         // 添加角色特定逻辑
         player.script!.create('aaa');
         player.script!.create('playerStats');
@@ -145,7 +152,7 @@ export class GameManager {
 
         // 2. 数据/服务系统
         const questionSystem = new QuestionSystem();
-        this.systems.push(questionSystem); 
+        this.systems.push(questionSystem);
 
         // 3. 核心玩法系统
         this.systems.push(new SceneSystem()); // 场景动态管理

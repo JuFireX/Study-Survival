@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { GameContext } from './GameContext';
+import { GameContext } from '../GameContext';
 
 /**
  * 场景构建器 (SceneManager)

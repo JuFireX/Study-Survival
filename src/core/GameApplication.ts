@@ -1,6 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
-import { ResourceManager } from './ResourceManager';
+import { ResourceManager } from './manager/ResourceManager';
 
 /**
  * 游戏应用程序封装 (GameApplication)
@@ -12,7 +12,6 @@ import { ResourceManager } from './ResourceManager';
  * 4. 管理应用程序的生命周期 (启动, 销毁)。
  * 5. 处理全局窗口事件 (如 Resize)。
  */
-
 export class GameApplication {
     private app: pc.Application;
     private canvas: HTMLCanvasElement;
@@ -74,8 +73,12 @@ export class GameApplication {
         console.log("[GameApplication] Starting...");
 
         try {
+            // 注册 ResourceManager 到 Context
+            const resourceManager = ResourceManager.getInstance();
+            GameContext.getInstance().setResourceManager(resourceManager);
+
             // 加载所有核心资源
-            await ResourceManager.getInstance().loadAll();
+            await resourceManager.loadAll();
 
             // 启动 PlayCanvas 循环
             this.app.start();

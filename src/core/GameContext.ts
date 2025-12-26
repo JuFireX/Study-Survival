@@ -1,7 +1,10 @@
 import * as pc from 'playcanvas';
 import { EventBus } from './EventBus';
 import type { GameManager } from './GameManager';
-import type { UIManager } from './UIManager';
+import type { UIManager } from './manager/UIManager';
+import type { CardManager } from './manager/CardManager';
+import type { ResourceManager } from './manager/ResourceManager';
+import type { SceneManager } from './manager/SceneManager';
 
 /**
  * 游戏上下文 (GameContext)
@@ -23,8 +26,11 @@ export class GameContext {
 
     // 核心管理器
     private eventBus: EventBus;
-    private gameManager: GameManager | null = null;
-    private uiManager: UIManager | null = null;
+    private gameManager: GameManager | null = null; // 游戏管理器
+    private sceneManager: SceneManager | null = null; // 场景管理器
+    private cardManager: CardManager | null = null; // 卡牌管理器
+    private uiManager: UIManager | null = null; // 用户界面管理器
+    private resourceManager: ResourceManager | null = null; // 资源管理器
 
     private constructor() {
         this.eventBus = EventBus.getInstance();
@@ -125,6 +131,20 @@ export class GameContext {
     }
 
     /**
+     * 设置 ResourceManager 实例
+     */
+    public setResourceManager(manager: ResourceManager) {
+        this.resourceManager = manager;
+    }
+
+    /**
+     * 获取 ResourceManager 实例
+     */
+    public getResourceManager(): ResourceManager | null {
+        return this.resourceManager;
+    }
+
+    /**
      * 设置 UIManager 实例
      */
     public setUIManager(manager: UIManager) {
@@ -136,5 +156,33 @@ export class GameContext {
      */
     public getUIManager(): UIManager | null {
         return this.uiManager;
+    }
+
+    /**
+     * 设置 CardManager 实例
+     */
+    public setCardManager(manager: CardManager) {
+        this.cardManager = manager;
+    }
+
+    /**
+     * 获取 CardManager 实例
+     */
+    public getCardManager(): CardManager | null {
+        return this.cardManager;
+    }
+
+    /**
+     * 设置 SceneManager 实例
+     */
+    public setSceneManager(manager: SceneManager) {
+        this.sceneManager = manager;
+    }
+
+    /**
+     * 获取 SceneManager 实例
+     */
+    public getSceneManager(): SceneManager | null {
+        return this.sceneManager;
     }
 }
