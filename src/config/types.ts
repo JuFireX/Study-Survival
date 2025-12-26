@@ -1,3 +1,10 @@
+/**
+ * 类型定义 (Type Definitions)
+ * 
+ * 职责:
+ * 1. 集中管理项目中使用的所有 TypeScript 接口和类型别名。
+ * 2. 确保数据结构的一致性。
+ */
 // 等级配置
 export interface LevelConfig {
     level: number;                      // 等级
