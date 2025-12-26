@@ -1,17 +1,32 @@
+import { EventBus } from '../core/EventBus';
+import { PlayerEffectsComponent } from './components/PlayerEffectsComponent';
+
 /**
- * 玩家特效 UI 管理器 (PlayerEffects)
+ * 玩家效果管理器 (PlayerEffects)
  * 
  * 职责:
- * 1. 显示玩家当前持有的 Buff/Debuff 图标。
- * 2. 展示当前装备的武器图标。
- * 3. 更新状态效果的持续时间显示。
+ * 1. 监听 EventBus 上的 Buff/Weapon 更新事件。
+ * 2. 控制 UI 组件显示对应数量的小方块。
  */
 export class PlayerEffects {
+    private component: PlayerEffectsComponent;
+    private eventBus: EventBus;
+
     constructor() {
-        // Initialization
+        this.component = new PlayerEffectsComponent();
+        this.eventBus = EventBus.getInstance();
+
+        // 监听事件：接收每帧挂载输入（简化成数量）
+        // 假设事件名为 'ui:updateBuffCount'，参数为 count: number
+        this.eventBus.on('ui:updateBuffCount', this.onUpdateBuffCount, this);
     }
 
-    public addEffect(icon: string, duration: number) {
-        // Add effect icon
+    private onUpdateBuffCount(count: number) {
+        this.component.updateIcons(count);
+    }
+
+    public destroy() {
+        this.eventBus.off('ui:updateBuffCount', this.onUpdateBuffCount, this);
+        this.component.destroy();
     }
 }
