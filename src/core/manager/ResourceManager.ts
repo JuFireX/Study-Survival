@@ -35,8 +35,8 @@ export class ResourceManager {
         try {
             // 扫描 src/assets 下的图片和音频
             // eager: true 意味着直接返回解析后的模块(这里是 url 字符串), 而不是 import 函数
-            const images = import.meta.glob('../assets/image/*.{png,jpg,jpeg}', { as: 'url', eager: true });
-            const audio = import.meta.glob('../assets/music/*.{mp3,wav,ogg}', { as: 'url', eager: true });
+            const images = import.meta.glob('../assets/image/*.{png,jpg,jpeg}', { query: '?url', import: 'default', eager: true });
+            const audio = import.meta.glob('../assets/music/*.{mp3,wav,ogg}', { query: '?url', import: 'default', eager: true });
 
             const loadPromises: Promise<void>[] = [];
 
