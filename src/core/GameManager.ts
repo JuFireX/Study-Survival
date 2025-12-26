@@ -2,7 +2,7 @@ import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
 import { SceneManager } from './manager/SceneManager';
 import { UIManager } from './manager/UIManager';
-import { ResourceManager } from './manager/ResourceManager';
+// import { ResourceManager } from './manager/ResourceManager';
 import { CardManager } from './manager/CardManager';
 
 // Systems
