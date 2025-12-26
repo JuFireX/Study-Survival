@@ -85,6 +85,7 @@ export interface CardEffect {
 export interface Card {
     id: string;             // 卡牌ID
     rarity: CardRarity;     // 卡牌稀有度
+    type: CardType;         // 卡牌类型
 }
 
 export interface BuffCard extends Card {
