@@ -7,6 +7,11 @@ import { Joystick } from '../ui/Joystick';
 import { QuestionUI } from '../ui/QuestionUI';
 import { SkillSelectUI } from '../ui/SkillSelectUI';
 
+/**
+ * UI管理类
+ * 用于管理游戏中的UI元素
+ */
+
 export class UIManager {
     private app: pc.Application;
 

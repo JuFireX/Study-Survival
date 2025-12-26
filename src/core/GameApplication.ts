@@ -1,6 +1,8 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
 
+import { ResourceManager } from './ResourceManager';
+
 /**
  * 游戏应用程序封装
  * 负责 PlayCanvas Application 的初始化、配置、资源加载和生命周期管理。
@@ -46,7 +48,10 @@ export class GameApplication {
     /**
      * 启动应用
      */
-    public start() {
+    public async start() {
+        // 加载资源
+        await ResourceManager.getInstance().loadAll();
+
         this.app.start();
         console.log("Game Application Started");
     }
