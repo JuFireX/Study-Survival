@@ -2,8 +2,12 @@ import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
 
 /**
- * 资源管理类
- * 负责统一加载和管理游戏资源 (Texture, Audio, Models, etc.)
+ * 资源管理类 (ResourceManager)
+ * 
+ * 职责:
+ * 1. 负责统一加载和管理游戏资源 (Texture, Audio, Models 等)。
+ * 2. 使用 Vite 的 `import.meta.glob` 功能自动扫描和加载资源。
+ * 3. 提供按名称获取资源的接口。
  */
 export class ResourceManager {
     private static instance: ResourceManager;
@@ -23,34 +27,40 @@ export class ResourceManager {
 
     /**
      * 加载所有预定义资源
-     * 使用 Vite 的 import.meta.glob 自动扫描资源目录
+     * 自动扫描 `src/assets` 目录下的图片和音频文件
      */
     public async loadAll(): Promise<void> {
         console.log("[ResourceManager] Start loading assets...");
 
-        // 扫描 src/assets 下的图片和音频
-        // eager: true 意味着直接返回解析后的模块(这里是 url 字符串), 而不是 import 函数
-        const images = import.meta.glob('../assets/image/*.{png,jpg,jpeg}', { as: 'url', eager: true });
-        const audio = import.meta.glob('../assets/music/*.{mp3,wav,ogg}', { as: 'url', eager: true });
+        try {
+            // 扫描 src/assets 下的图片和音频
+            // eager: true 意味着直接返回解析后的模块(这里是 url 字符串), 而不是 import 函数
+            const images = import.meta.glob('../assets/image/*.{png,jpg,jpeg}', { as: 'url', eager: true });
+            const audio = import.meta.glob('../assets/music/*.{mp3,wav,ogg}', { as: 'url', eager: true });
 
-        const loadPromises: Promise<void>[] = [];
+            const loadPromises: Promise<void>[] = [];
 
-        // 加载图片资源
-        for (const path in images) {
-            const url = images[path];
-            const name = this.extractName(path);
-            loadPromises.push(this.loadAsset(name, 'texture', url));
+            // 加载图片资源
+            for (const path in images) {
+                const url = images[path] as string;
+                const name = this.extractName(path);
+                loadPromises.push(this.loadAsset(name, 'texture', url));
+            }
+
+            // 加载音频资源
+            for (const path in audio) {
+                const url = audio[path] as string;
+                const name = this.extractName(path);
+                loadPromises.push(this.loadAsset(name, 'audio', url));
+            }
+
+            await Promise.all(loadPromises);
+            console.log(`[ResourceManager] All assets loaded. Total: ${this.assets.size}`);
+
+        } catch (error) {
+            console.error("[ResourceManager] Fatal error during asset loading:", error);
+            throw error;
         }
-
-        // 加载音频资源
-        for (const path in audio) {
-            const url = audio[path];
-            const name = this.extractName(path);
-            loadPromises.push(this.loadAsset(name, 'audio', url));
-        }
-
-        await Promise.all(loadPromises);
-        console.log(`[ResourceManager] All assets loaded. Total: ${this.assets.size}`);
     }
 
     /**
@@ -80,7 +90,7 @@ export class ResourceManager {
                 if (asset) {
                     asset.name = name;
                     this.assets.set(name, asset);
-                    console.log(`[ResourceManager] Loaded: ${name} (${type})`);
+                    // console.log(`[ResourceManager] Loaded: ${name} (${type})`);
                 }
                 resolve();
             });
@@ -89,6 +99,7 @@ export class ResourceManager {
 
     /**
      * 获取已加载的资源
+     * @param name 资源名称 (不含扩展名)
      */
     public getAsset(name: string): pc.Asset | undefined {
         return this.assets.get(name);
@@ -96,6 +107,7 @@ export class ResourceManager {
 
     /**
      * 获取纹理资源 (Helper)
+     * @param name 资源名称
      */
     public getTexture(name: string): pc.Texture | null {
         const asset = this.getAsset(name);

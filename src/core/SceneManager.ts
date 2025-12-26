@@ -2,8 +2,12 @@ import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
 
 /**
- * 场景构建器
- * 负责初始化 3D 场景，包括灯光、地面、摄像机等环境元素。
+ * 场景构建器 (SceneManager)
+ * 
+ * 职责:
+ * 1. 负责初始化 3D 场景的基础环境 (地面, 灯光, 天空盒等)。
+ * 2. 负责创建和配置主摄像机。
+ * 3. (未来) 负责场景切换和动态环境加载。
  */
 export class SceneManager {
     private app: pc.Application;
@@ -21,6 +25,9 @@ export class SceneManager {
     public buildScene(): pc.Entity {
         this.createGround();
         this.createLight();
+        // 如果需要天空盒，可以在这里添加
+        // this.createSkybox();
+
         return this.createCamera();
     }
 
@@ -31,9 +38,11 @@ export class SceneManager {
         const ground = new pc.Entity('Ground');
         ground.addComponent('model', { type: 'plane' });
         ground.setLocalScale(50, 1, 50);
-        // 添加碰撞体（如果需要物理）
+
+        // 物理组件配置 (如果项目引入了物理引擎)
         // ground.addComponent('collision', { type: 'box', halfExtents: new pc.Vec3(25, 0.5, 25) });
         // ground.addComponent('rigidbody', { type: 'static' });
+
         this.app.root.addChild(ground);
     }
 
@@ -41,7 +50,8 @@ export class SceneManager {
      * 创建环境光
      */
     private createLight() {
-        const light = new pc.Entity('Light');
+        // 主平行光
+        const light = new pc.Entity('Directional Light');
         light.addComponent('light', {
             type: pc.LIGHTTYPE_DIRECTIONAL,
             intensity: 1,
@@ -52,17 +62,26 @@ export class SceneManager {
         });
         light.setEulerAngles(45, 45, 0);
         this.app.root.addChild(light);
+
+        // 可以添加环境光设置
+        // this.app.scene.ambientLight = new pc.Color(0.2, 0.2, 0.2);
     }
 
     /**
-     * 创建摄像机
+     * 创建主摄像机
      */
     private createCamera(): pc.Entity {
-        const camera = new pc.Entity('Camera');
+        const camera = new pc.Entity('Main Camera');
         camera.addComponent('camera', {
             clearColor: new pc.Color(0.2, 0.2, 0.2),
-            farClip: 100
+            farClip: 100,
+            fov: 45
         });
+
+        // 初始位置，后续会被 Controller 接管
+        camera.setPosition(0, 10, 10);
+        camera.lookAt(0, 0, 0);
+
         this.app.root.addChild(camera);
         return camera;
     }
