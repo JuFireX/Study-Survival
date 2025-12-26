@@ -8,6 +8,7 @@
  * 
  * 目前处于占位状态，后续可扩展。
  */
+
 export class DataManager {
     private static instance: DataManager;
 

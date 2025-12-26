@@ -9,6 +9,7 @@ import * as pc from 'playcanvas';
  * 
  * 使用单例模式确保全局唯一性。
  */
+
 export class EventBus {
     private static instance: EventBus;
     private eventHandler: pc.EventHandler;
