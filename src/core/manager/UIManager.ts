@@ -1,3 +1,5 @@
+import { GameContext } from "../GameContext";
+
 /**
  * UI 管理器 (UIManager)
  * 
@@ -6,3 +8,11 @@
  * 2. 提供统一的接口供其他系统 (Systems) 调用 UI 功能。
  * 3. 负责 UI 相关的摄像机绑定 (如 FloatingText)。
  */
+export class UIManager {
+    private context: GameContext;
+    private uiComponents: Map<string, pc.Entity> = new Map();
+
+    constructor() {
+        this.context = GameContext.getInstance();
+    }
+}
