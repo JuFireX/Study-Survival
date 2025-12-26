@@ -1,4 +1,4 @@
-import { Card, CardRarity, CardType, QuestionCard, BuffCard, WeaponCard } from '../config/types';
+import { CardType, QuestionCard, BuffCard, WeaponCard } from '../config/types';
 import { CardSelectComponent, CardPair, CardFaceState, RarityWeight } from './components/CardSelectComponent';
 
 /**
