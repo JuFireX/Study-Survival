@@ -99,3 +99,17 @@ export interface QuestionCard extends Card {
     type: CardType.Question; // 卡牌类型
     question: QuestionData;  // 题目数据
 }
+
+//游戏系统基类
+export interface IGameSystem {
+    /**
+     * 初始化系统
+     */
+    initialize(): void;
+
+    /**
+     * 更新系统
+     * @param dt 上一帧的时间间隔（秒）
+     */
+    update(dt: number): void;
+}
