@@ -1,26 +1,44 @@
 import * as pc from 'playcanvas';
 import { EventBus } from './EventBus';
+import type { GameManager } from './GameManager';
+import type { UIManager } from './manager/UIManager';
+import type { CardManager } from './manager/CardManager';
+import type { ResourceManager } from './manager/ResourceManager';
+import type { SceneManager } from './manager/SceneManager';
 
 /**
- * 游戏上下文
- * 充当服务定位器，保存对 Application、Player Entity 和各种 Manager 的全局引用。
- * 避免在类之间传递过多的参数。
+ * 游戏上下文 (GameContext)
+ * 
+ * 职责:
+ * 1. 作为服务定位器 (Service Locator)，提供对核心游戏对象的全局访问点。
+ * 2. 存储全局单例引用：`Application`, `Player Entity`, `Camera`, `EventBus`, `GameManager` 等。
+ * 3. 避免在系统和类之间传递过多的参数。
+ * 
+ * 使用单例模式。
  */
 export class GameContext {
     private static instance: GameContext;
 
-    public app: pc.Application | null = null;
-    public player: pc.Entity | null = null;
-    public camera: pc.Entity | null = null;
-    public eventBus: EventBus;
-    
-    // 这里可以添加其他的 Manager 引用
-    // public gameManager: GameManager | null = null;
+    // 核心 PlayCanvas 对象
+    private app: pc.Application | null = null;
+    private player: pc.Entity | null = null;
+    private camera: pc.Entity | null = null;
+
+    // 核心管理器
+    private eventBus: EventBus;
+    private gameManager: GameManager | null = null; // 游戏管理器
+    private sceneManager: SceneManager | null = null; // 场景管理器
+    private cardManager: CardManager | null = null; // 卡牌管理器
+    private uiManager: UIManager | null = null; // 用户界面管理器
+    private resourceManager: ResourceManager | null = null; // 资源管理器
 
     private constructor() {
         this.eventBus = EventBus.getInstance();
     }
 
+    /**
+     * 获取 GameContext 单例实例
+     */
     public static getInstance(): GameContext {
         if (!GameContext.instance) {
             GameContext.instance = new GameContext();
@@ -28,9 +46,13 @@ export class GameContext {
         return GameContext.instance;
     }
 
+    // ==========================================
+    // Application Access
+    // ==========================================
+
     /**
      * 设置 Application 实例
-     * @param app PlayCanvas Application
+     * 通常在 GameApplication 初始化时调用
      */
     public setApp(app: pc.Application) {
         this.app = app;
@@ -38,17 +60,32 @@ export class GameContext {
 
     /**
      * 获取 Application 实例
+     * @throws Error 如果 Application 尚未初始化
      */
     public getApp(): pc.Application {
         if (!this.app) {
-            throw new Error("GameContext: Application not initialized!");
+            throw new Error("[GameContext] Application not initialized!");
         }
         return this.app;
     }
 
+    // ==========================================
+    // EventBus Access
+    // ==========================================
+
+    /**
+     * 获取全局事件总线
+     */
+    public getEventBus(): EventBus {
+        return this.eventBus;
+    }
+
+    // ==========================================
+    // Scene Objects Access
+    // ==========================================
+
     /**
      * 设置玩家实体
-     * @param player 玩家 Entity
      */
     public setPlayer(player: pc.Entity) {
         this.player = player;
@@ -63,7 +100,6 @@ export class GameContext {
 
     /**
      * 设置主摄像机
-     * @param camera 摄像机 Entity
      */
     public setCamera(camera: pc.Entity) {
         this.camera = camera;
@@ -74,5 +110,79 @@ export class GameContext {
      */
     public getCamera(): pc.Entity | null {
         return this.camera;
+    }
+
+    // ==========================================
+    // Managers Access
+    // ==========================================
+
+    /**
+     * 设置 GameManager 实例
+     */
+    public setGameManager(manager: GameManager) {
+        this.gameManager = manager;
+    }
+
+    /**
+     * 获取 GameManager 实例
+     */
+    public getGameManager(): GameManager | null {
+        return this.gameManager;
+    }
+
+    /**
+     * 设置 ResourceManager 实例
+     */
+    public setResourceManager(manager: ResourceManager) {
+        this.resourceManager = manager;
+    }
+
+    /**
+     * 获取 ResourceManager 实例
+     */
+    public getResourceManager(): ResourceManager | null {
+        return this.resourceManager;
+    }
+
+    /**
+     * 设置 UIManager 实例
+     */
+    public setUIManager(manager: UIManager) {
+        this.uiManager = manager;
+    }
+
+    /**
+     * 获取 UIManager 实例
+     */
+    public getUIManager(): UIManager | null {
+        return this.uiManager;
+    }
+
+    /**
+     * 设置 CardManager 实例
+     */
+    public setCardManager(manager: CardManager) {
+        this.cardManager = manager;
+    }
+
+    /**
+     * 获取 CardManager 实例
+     */
+    public getCardManager(): CardManager | null {
+        return this.cardManager;
+    }
+
+    /**
+     * 设置 SceneManager 实例
+     */
+    public setSceneManager(manager: SceneManager) {
+        this.sceneManager = manager;
+    }
+
+    /**
+     * 获取 SceneManager 实例
+     */
+    public getSceneManager(): SceneManager | null {
+        return this.sceneManager;
     }
 }

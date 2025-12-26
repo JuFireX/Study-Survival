@@ -17,7 +17,7 @@ export const QuestionCards: QuestionCard[] = questions.map(q => ({
     question: q
 }));
 
-// 增益卡
+// 增益卡(c_^指当前玩家)(还挺可爱的)
 export const BuffCards: BuffCard[] = [
     {
         id: 'b_might',
@@ -41,7 +41,7 @@ export const BuffCards: BuffCard[] = [
         description: '增加 1 点物理防御',
         type: CardType.Buff,
         rarity: CardRarity.Rare,
-        effects: [{ target: 'c_player', stat: 'defense', value: 1, type: 'add' }]
+        effects: [{ target: 'c_^', stat: 'defense', value: 1, type: 'add' }]
     },
     {
         id: 'b_magnet',
@@ -49,7 +49,7 @@ export const BuffCards: BuffCard[] = [
         description: '增加 50% 拾取范围',
         type: CardType.Buff,
         rarity: CardRarity.Rare,
-        effects: [{ target: 'c_player', stat: 'pickupRange', value: 0.5, type: 'multiply' }]
+        effects: [{ target: 'c_^', stat: 'pickupRange', value: 0.5, type: 'multiply' }]
     },
     {
         id: 'b_ultimate_power',
@@ -59,7 +59,7 @@ export const BuffCards: BuffCard[] = [
         rarity: CardRarity.Epic,
         effects: [
             { target: 'w_*', stat: 'damage', value: 0.5, type: 'multiply' },
-            { target: 'c_player', stat: 'maxHealth', value: -20, type: 'add' }
+            { target: 'c_^', stat: 'maxHealth', value: -20, type: 'add' }
         ]
     }
 ];
