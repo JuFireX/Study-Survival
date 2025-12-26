@@ -9,6 +9,7 @@ import { GameContext } from './GameContext';
  * 2. 使用 Vite 的 `import.meta.glob` 功能自动扫描和加载资源。
  * 3. 提供按名称获取资源的接口。
  */
+
 export class ResourceManager {
     private static instance: ResourceManager;
     private assets: Map<string, pc.Asset> = new Map();
@@ -90,7 +91,7 @@ export class ResourceManager {
                 if (asset) {
                     asset.name = name;
                     this.assets.set(name, asset);
-                    // console.log(`[ResourceManager] Loaded: ${name} (${type})`);
+                    console.log(`[ResourceManager] Loaded: ${name} (${type})`);
                 }
                 resolve();
             });

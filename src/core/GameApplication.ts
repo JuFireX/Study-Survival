@@ -12,6 +12,7 @@ import { ResourceManager } from './ResourceManager';
  * 4. 管理应用程序的生命周期 (启动, 销毁)。
  * 5. 处理全局窗口事件 (如 Resize)。
  */
+
 export class GameApplication {
     private app: pc.Application;
     private canvas: HTMLCanvasElement;
@@ -32,7 +33,7 @@ export class GameApplication {
             keyboard: new pc.Keyboard(window),
             // 可选: 图形设备选项
             graphicsDeviceOptions: {
-                alpha: false, // 通常游戏不需要透明背景
+                alpha: false,
                 antialias: true,
                 powerPreference: 'high-performance'
             }

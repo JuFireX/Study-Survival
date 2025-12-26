@@ -1,6 +1,5 @@
 import * as pc from 'playcanvas';
 import { EventBus } from './EventBus';
-// 使用 import type 避免循环依赖
 import type { GameManager } from './GameManager';
 import type { UIManager } from './UIManager';
 
