@@ -1,3 +1,10 @@
+/**
+ * 卡牌配置 (Cards Config)
+ * 
+ * 职责:
+ * 1. 汇总并导出所有游戏卡牌数据 (题目卡, 武器卡, 增益卡)。
+ * 2. 处理卡牌数据的初始化和转换。
+ */
 import { CardType, CardRarity, QuestionCard, BuffCard, WeaponCard } from './types';
 import { questions } from './questions';
 

@@ -1,8 +1,12 @@
 import { JoystickComponent } from './components/JoystickComponent';
 
 /**
- * 虚拟摇杆
- * 提供触摸和鼠标输入的模拟摇杆，用于控制角色移动。
+ * 虚拟摇杆 (Joystick)
+ * 
+ * 职责:
+ * 1. 处理触摸屏上的虚拟摇杆输入。
+ * 2. 计算摇杆的偏移量和方向向量。
+ * 3. 将输入转换为游戏内的移动指令。
  */
 export class Joystick {
     private component: JoystickComponent;

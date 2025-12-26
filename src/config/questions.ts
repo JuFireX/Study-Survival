@@ -1,3 +1,10 @@
+/**
+ * 题库数据 (Questions Data)
+ * 
+ * 职责:
+ * 1. 存储所有静态题目数据。
+ * 2. 作为卡牌系统中题目卡的数据源。
+ */
 import { QuestionData } from '../config/types';
 
 export const questions: QuestionData[] = [

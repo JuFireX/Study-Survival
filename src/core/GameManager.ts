@@ -2,28 +2,29 @@ import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
 import { SceneManager } from './manager/SceneManager';
 import { UIManager } from './manager/UIManager';
-import { ResourceManager } from './manager/ResourceManager';
+// import { ResourceManager } from './manager/ResourceManager';
 import { CardManager } from './manager/CardManager';
+import { IGameSystem } from '../config/types';
 
 // Systems
-import { DebugSystem } from '../systems/DebugSystem';
-import { CharacterSystem } from '../systems/character/CharacterSystem';
-import { EnemySystem } from '../systems/enemy/EnemySystem';
-import { WeaponSystem } from '../systems/weapon/WeaponSystem';
-import { CardSystem } from '../systems/card/CardSystem';
-import { QuestionSystem } from '../systems/question/QuestionSystem';
-import { SceneSystem } from '../systems/scene/SceneSystem';
-import { IGameSystem } from '../systems/share/IGameSystem';
+// import { DebugSystem } from '../systems/DebugSystem';
+// import { CharacterSystem } from '../systems/character/CharacterSystem';
+// import { EnemySystem } from '../systems/enemy/EnemySystem';
+// import { WeaponSystem } from '../systems/weapon/WeaponSystem';
+// import { CardSystem } from '../systems/card/CardSystem';
+// import { QuestionSystem } from '../systems/question/QuestionSystem';
+// import { SceneSystem } from '../systems/scene/SceneSystem';
+// import { IGameSystem } from '../systems/IGameSystem';
 
 // Scripts
-import { PlayerController } from '../entities/characters/share/PlayerController';
-import { PlayerStats } from '../entities/characters/share/PlayerStats';
-import { AAA } from '../entities/characters/c_AAA/AAA';
-import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
-import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
-import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
-import { WeaponController } from '../entities/weapons/share/WeaponController';
-import { BulletBehavior } from '../entities/weapons/share/BulletBehavior';
+// import { PlayerController } from '../entities/characters/share/PlayerController';
+// import { PlayerStats } from '../entities/characters/share/PlayerStats';
+// import { AAA } from '../entities/characters/c_AAA/AAA';
+// import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
+// import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
+// import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
+// import { WeaponController } from '../entities/weapons/share/WeaponController';
+// import { BulletBehavior } from '../entities/weapons/share/BulletBehavior';
 
 /**
  * 游戏管理器 (GameManager)
@@ -52,7 +53,7 @@ export class GameManager {
         (window as any).gameManager = this;
 
         // 1. 注册脚本
-        this.registerScripts();
+        // this.registerScripts();
 
         // 2. 构建基础场景 (Camera, Lights, Ground)
         const sceneManager = new SceneManager();
@@ -90,16 +91,16 @@ export class GameManager {
     /**
      * 注册 PlayCanvas 脚本组件
      */
-    private registerScripts() {
-        pc.registerScript(PlayerController, 'playerController');
-        pc.registerScript(PlayerStats, 'playerStats');
-        pc.registerScript(AAA, 'aaa');
-        pc.registerScript(EnemyBehavior, 'enemyBehavior');
-        pc.registerScript(FastEnemy, 'fastEnemy');
-        pc.registerScript(TankEnemy, 'tankEnemy');
-        pc.registerScript(WeaponController, 'weaponController');
-        pc.registerScript(BulletBehavior, 'bulletBehavior');
-    }
+    // private registerScripts() {
+    //     pc.registerScript(PlayerController, 'playerController');
+    //     pc.registerScript(PlayerStats, 'playerStats');
+    //     pc.registerScript(AAA, 'aaa');
+    //     pc.registerScript(EnemyBehavior, 'enemyBehavior');
+    //     pc.registerScript(FastEnemy, 'fastEnemy');
+    //     pc.registerScript(TankEnemy, 'tankEnemy');
+    //     pc.registerScript(WeaponController, 'weaponController');
+    //     pc.registerScript(BulletBehavior, 'bulletBehavior');
+    // }
 
     /**
      * 创建玩家实体
@@ -148,18 +149,18 @@ export class GameManager {
      */
     private initializeSystems() {
         // 1. 基础/调试系统
-        this.systems.push(new DebugSystem());
+        // this.systems.push(new DebugSystem());
 
         // 2. 数据/服务系统
-        const questionSystem = new QuestionSystem();
-        this.systems.push(questionSystem);
+        // const questionSystem = new QuestionSystem();
+        // this.systems.push(questionSystem);
 
         // 3. 核心玩法系统
-        this.systems.push(new SceneSystem()); // 场景动态管理
-        this.systems.push(new CharacterSystem(this.ui)); // 角色管理
-        this.systems.push(new EnemySystem(this.ui)); // 敌人管理
-        this.systems.push(new WeaponSystem()); // 武器管理
-        this.systems.push(new CardSystem(this.ui, questionSystem)); // 升级/卡牌系统
+        // this.systems.push(new SceneSystem()); // 场景动态管理
+        // this.systems.push(new CharacterSystem(this.ui)); // 角色管理
+        // this.systems.push(new EnemySystem(this.ui)); // 敌人管理
+        // this.systems.push(new WeaponSystem()); // 武器管理
+        // this.systems.push(new CardSystem(this.ui, questionSystem)); // 升级/卡牌系统
 
         // 执行初始化
         this.systems.forEach(sys => {

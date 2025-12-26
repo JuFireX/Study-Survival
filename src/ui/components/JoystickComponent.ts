@@ -1,3 +1,10 @@
+/**
+ * 虚拟摇杆 UI 组件 (JoystickComponent)
+ * 
+ * 职责:
+ * 1. 创建虚拟摇杆的 DOM 元素 (底座和摇杆)。
+ * 2. 监听 Touch 事件，计算摇杆位置。
+ */
 export class JoystickComponent {
     private container: HTMLElement;
     private knob: HTMLElement;
@@ -53,7 +60,7 @@ export class JoystickComponent {
 
         document.body.appendChild(this.container);
 
-        // Initialize maxRadius based on initial size
+        // 初始化最大半径 (基于初始大小)
         this.updateMaxRadius();
         window.addEventListener('resize', () => this.updateMaxRadius());
 
@@ -62,19 +69,14 @@ export class JoystickComponent {
         this.container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
         this.container.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: false });
 
-        // 绑定鼠标事件（用于桌面测试）
+        // 绑定鼠标事件
         this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
         window.addEventListener('mousemove', this.boundMouseMove);
         window.addEventListener('mouseup', this.boundMouseUp);
     }
 
     private updateMaxRadius() {
-        // Use clientWidth to get the actual pixel size from vmin
-        // Max radius is roughly half the container width minus padding
-        // 25vmin container, 10vmin knob. 
-        // Radius available = (25 - 10) / 2 = 7.5vmin? 
-        // Or can go further? Usually joystick center to edge is 12.5vmin.
-        // Let's use 40% of container width as a safe max radius.
+        // 最大半径基于容器宽度的 40%
         if (this.container) {
             this.maxRadius = this.container.clientWidth * 0.4;
         }

@@ -1,40 +1,19 @@
 import * as pc from 'playcanvas';
-import { GameplayConfig } from '../../../config/gameplay';
 
 /**
- * 敌人行为脚本
- * 简单的追逐玩家 AI。
+ * 敌人行为脚本 (EnemyBehavior)
+ * 
+ * 职责:
+ * 1. 实现敌人的具体 AI 逻辑 (如寻路, 避障, 攻击判定)。
+ * 2. 控制敌人的模型动画。
+ * 3. 处理敌人的感知逻辑 (如视野范围检测)。
  */
 export class EnemyBehavior extends pc.ScriptType {
-    player: pc.Entity | null = null;
-    speed: number = GameplayConfig.Enemy.moveSpeed || 3;
-
     initialize() {
-    }
-
-    /**
-     * 设置目标
-     * @param player 玩家实体
-     */
-    setup(player: pc.Entity) {
-        this.player = player;
+        // Script initialization
     }
 
     update(dt: number) {
-        if (!this.player) return;
-
-        const pos = this.entity.getPosition();
-        const target = this.player.getPosition();
-
-        // 计算朝向玩家的方向向量
-        const dir = new pc.Vec3().sub2(target, pos);
-        dir.y = 0; // 保持在水平面上，不飞行也不下沉
-
-        if (dir.length() > 0.1) {
-            dir.normalize().mulScalar(this.speed * dt);
-            this.entity.translate(dir);
-            // 面向玩家
-            this.entity.lookAt(target.x, pos.y, target.z);
-        }
+        // Frame update
     }
 }

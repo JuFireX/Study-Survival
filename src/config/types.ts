@@ -1,3 +1,10 @@
+/**
+ * 类型定义 (Type Definitions)
+ * 
+ * 职责:
+ * 1. 集中管理项目中使用的所有 TypeScript 接口和类型别名。
+ * 2. 确保数据结构的一致性。
+ */
 // 等级配置
 export interface LevelConfig {
     level: number;                      // 等级
@@ -78,6 +85,7 @@ export interface CardEffect {
 export interface Card {
     id: string;             // 卡牌ID
     rarity: CardRarity;     // 卡牌稀有度
+    type: CardType;         // 卡牌类型
 }
 
 export interface BuffCard extends Card {
@@ -98,4 +106,18 @@ export interface WeaponCard extends Card {
 export interface QuestionCard extends Card {
     type: CardType.Question; // 卡牌类型
     question: QuestionData;  // 题目数据
+}
+
+//游戏系统基类
+export interface IGameSystem {
+    /**
+     * 初始化系统
+     */
+    initialize(): void;
+
+    /**
+     * 更新系统
+     * @param dt 上一帧的时间间隔（秒）
+     */
+    update(dt: number): void;
 }
