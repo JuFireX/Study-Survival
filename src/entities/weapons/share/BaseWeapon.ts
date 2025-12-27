@@ -1,5 +1,3 @@
-import * as pc from 'playcanvas';
-
 /**
  * 武器基类 (BaseWeapon)
  * 

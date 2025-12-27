@@ -14,6 +14,7 @@ export class EnemyBehavior extends pc.ScriptType {
     }
 
     update(dt: number) {
+        void dt;
         // Frame update
     }
 }
