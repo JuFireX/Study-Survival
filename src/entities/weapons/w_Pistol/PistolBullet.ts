@@ -44,10 +44,33 @@ export class PistolBullet extends pc.Script {
         // 2. 移动实体
         this.entity.translate(moveVec);
 
-        // 3. 射程检测
+        // 3. 简单的碰撞检测 (距离检测)
+        this.checkCollision();
+
+        // 4. 射程检测
         this.distanceTraveled += moveDistance;
         if (this.distanceTraveled >= this.range) {
             this.destroyBullet();
+        }
+    }
+
+    private checkCollision() {
+        const enemies = this.app.root.findByTag('enemy');
+        const myPos = this.entity.getPosition();
+        const radiusSq = 1.0 * 1.0; // 碰撞半径平方
+
+        for (const enemyEntity of enemies) {
+            // 简单的距离检测
+            const dist = enemyEntity.getPosition().distance(myPos);
+            if (dist * dist < radiusSq) {
+                // 获取绑定的 BaseEnemy 实例
+                const enemy = (enemyEntity as any).baseEnemy;
+                if (enemy && typeof enemy.takeDamage === 'function') {
+                    enemy.takeDamage(this.damage);
+                    this.destroyBullet();
+                    return; // 一次只打一个
+                }
+            }
         }
     }
 

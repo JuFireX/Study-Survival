@@ -10,6 +10,7 @@ import { IGameSystem } from '../config/types';
 // Systems
 import { CharacterSystem } from '../systems/character/CharacterSystem';
 import { WeaponSystem } from '../systems/weapon/WeaponSystem';
+import { EnemySystem } from '../systems/enemy/EnemySystem';
 
 
 /**
@@ -108,6 +109,7 @@ export class GameManager {
         // 3. 核心玩法系统
         this.systems.push(new CharacterSystem());
         this.systems.push(new WeaponSystem());
+        this.systems.push(new EnemySystem());
 
         // 执行初始化
         this.systems.forEach(sys => {

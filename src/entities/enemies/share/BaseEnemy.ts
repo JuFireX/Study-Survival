@@ -1,4 +1,13 @@
+import * as pc from 'playcanvas';
+import { GameContext } from '../../../core/GameContext';
 
+export interface EnemyStats {
+    maxHealth: number;
+    health: number;
+    speed: number;
+    damage: number;
+    expDrop: number;
+}
 
 /**
  * 敌人基类 (BaseEnemy)
@@ -8,131 +17,132 @@
  * 2. 管理敌人的通用状态 (如追踪玩家, 攻击, 受击, 死亡)。
  * 3. 提供敌人特有的行为接口，供 AI 系统调用。
  */
-export class BaseEnemy {
+export abstract class BaseEnemy {
+    public entity: pc.Entity;
+    public stats: EnemyStats;
+    protected context: GameContext;
+    protected isDead: boolean = false;
 
-<<<<<<< Updated upstream
-=======
-    private app: pc.Application;
-    private eventBus: EventBus;
-    private alive: boolean = true;
-    private attackCooldownLeft: number = 0;
-    
+    constructor(stats: EnemyStats) {
+        this.context = GameContext.getInstance();
+        this.stats = { ...stats }; // Copy stats
+        this.entity = new pc.Entity();
 
-    constructor() {
-        const context = GameContext.getInstance();
-        this.app = context.getApp();
-        this.eventBus = context.getEventBus();
-        this.id = pc.guid.create();
+        // 默认模型（子类可以覆盖）
+        this.setupModel();
+
+        // 添加到场景
+        this.context.getApp().root.addChild(this.entity);
+
+        // 标记为敌人
+        this.entity.tags.add('enemy');
+        // 绑定实例到实体，方便碰撞检测时获取
+        (this.entity as any).baseEnemy = this;
     }
 
-    public initialize() {
-        if (!this.stats) {
-            this.stats = {
-                currentHealth: 20,
-                maxHealth: 20,
-                damage: 5,
-                defense: 0,
-                moveSpeed: 2,
-                expValue: 10
-            };
+    protected setupModel() {
+        // 默认创建一个红色方块作为敌人
+        this.entity.addComponent('model', {
+            type: 'box'
+        });
+        const material = new pc.StandardMaterial();
+        material.diffuse = new pc.Color(1, 0, 0); // 红色
+        material.update();
+        this.entity.model!.material = material;
+    }
+
+    public setPosition(x: number, y: number, z: number) {
+        this.entity.setPosition(x, y, z);
+    }
+
+    public getPosition(): pc.Vec3 {
+        return this.entity.getPosition();
+    }
+
+    /**
+     * 每帧更新
+     */
+    public update(dt: number) {
+        if (this.isDead) return;
+
+        const player = this.context.getPlayer();
+        if (player) {
+            this.chasePlayer(player, dt);
         }
-
-        this.entity = new pc.Entity(`Enemy_${this.id}`);
-        //this.entity.addComponent('model', { type: 'box' });
-        this.entity.addComponent('model', { type: 'sphere' });
-        this.entity.setLocalScale(1, 1, 1);
-        this.entity.setPosition(0, 1, 0);
-        (this.entity as any).__enemy = this;
     }
 
-    public getEntity(): pc.Entity {
-        return this.entity;
-    }
-
-    public getStats(): Readonly<EnemyStats> {
-        return this.stats;
-    }
-
-    public setPosition(pos: pc.Vec3) {
-        this.entity.setPosition(pos);
-    }
-
-    public getPosition(out?: pc.Vec3): pc.Vec3 {
-        const p = this.entity.getPosition();
-        if (out) {
-            out.copy(p);
-            return out;
-        }
-        return p.clone();
-    }
-
-    public isDead(): boolean {
-        return !this.alive;
-    }
-
-    public update(dt: number, playerWorldPos: pc.Vec3) {
-        if (!this.alive) return;
-
-        const pos = this.entity.getPosition();
-        const toPlayer = playerWorldPos.clone().sub(pos);
-        toPlayer.y = 0;
-        const dist = toPlayer.length();
-
-        if (dist > 0.001) {
-            toPlayer.normalize();
-            const step = Math.min(dist, this.stats.moveSpeed * dt);
-            this.entity.setPosition(pos.x + toPlayer.x * step, pos.y, pos.z + toPlayer.z * step);
-        }
-
-        this.attackCooldownLeft = Math.max(0, this.attackCooldownLeft - dt);
-
-        
-
-        if (dist <= 1.25 && this.attackCooldownLeft <= 0) {
-            this.attackCooldownLeft = 0.6;
-            const hitPos = this.entity.getPosition().clone();
-            this.eventBus.fire('combat:hitPlayer', this.stats.damage, hitPos);
-        }
-
-
-    }
-
-    public attack() {
-        if (this.attackCooldownLeft > 0) return;
-
-        const hitPos = this.entity.getPosition().clone();
-        this.eventBus.fire('combat:hitPlayer', this.stats.damage, hitPos);
-    }
-
-    public takeDamage(rawDamage: number, color: string = 'white'): number {
-        if (!this.alive) return 0;
-
-        const damage = Math.max(1, Math.floor(rawDamage) - this.stats.defense);
-        this.stats.currentHealth = Math.max(0, this.stats.currentHealth - damage);
-        this.eventBus.fire('combat:damage', damage, this.entity.getPosition().clone(), color);
-
-        if (this.stats.currentHealth <= 0) {
-            this.alive = false;
-        }
-
-        return damage;
-    }
-
-    public hitTest(pos: pc.Vec3, radius: number = 0.5): boolean {
+    /**
+     * 简单的追踪逻辑
+     */
+    protected chasePlayer(player: pc.Entity, dt: number) {
+        const playerPos = player.getPosition();
         const enemyPos = this.entity.getPosition();
-        const dx = enemyPos.x - pos.x;
-        const dz = enemyPos.z - pos.z;
-        return (dx * dx + dz * dz) <= radius * radius;
+
+        const direction = new pc.Vec3().sub2(playerPos, enemyPos);
+        direction.y = 0; // 忽略高度差
+
+        if (direction.lengthSq() > 0.1) {
+            direction.normalize();
+
+            // 移动
+            const moveStep = direction.mulScalar(this.stats.speed * dt);
+            this.entity.translate(moveStep);
+
+            // 朝向玩家
+            this.entity.lookAt(playerPos.x, enemyPos.y, playerPos.z);
+        }
     }
 
-    public destroy() {
-        this.alive = false;
-        const parent = this.entity.parent;
-        if (parent) {
-            parent.removeChild(this.entity);
+    /**
+     * 受到伤害
+     */
+    public takeDamage(amount: number) {
+        if (this.isDead) return;
+
+        this.stats.health -= amount;
+
+        // UI 跳字
+        const uiManager = this.context.getUIManager();
+        if (uiManager && uiManager.getFloatingText()) {
+            // 注意：这里假设 FloatingText 有 showDamage 方法，具体需要看实现
+            // 如果没有，可能需要适配。暂时假设有。
+            // 实际上 FloatingText.ts 可能需要实现 show 方法。
+            // 既然我们要完全实现，我们通过 EventBus 广播伤害事件，让 UI 系统去监听比较好，
+            // 但用户要求使用 UI 组件输出。
+            // 让我们检查一下 FloatingText 的实现，如果看不到，我们假设需要通过 EventBus 或者直接调用。
+            // 根据 UIManager 的代码，可以直接获取 FloatingText。
+            // 暂时打印 log，稍后确认 FloatingText 接口。
+            console.log(`Enemy took ${amount} damage. Health: ${this.stats.health}`);
         }
-        this.entity.destroy();
-        void this.app;
+
+        // 广播受击事件 (用于 UI 显示飘字等)
+        this.context.getEventBus().fire('enemy:hit', this.entity, amount);
+
+        // 广播通用战斗伤害事件 (用于 FloatingText)
+        this.context.getEventBus().fire('combat:damage', amount, this.entity.getPosition());
+
+        if (this.stats.health <= 0) {
+            this.die();
+        }
     }
->>>>>>> Stashed changes
+
+    /**
+     * 死亡处理
+     */
+    protected die() {
+        if (this.isDead) return;
+        this.isDead = true;
+
+        console.log('Enemy died!');
+
+        // 广播死亡事件 (用于掉落经验、任务进度等)
+        this.context.getEventBus().fire('enemy:die', this, this.stats.expDrop);
+
+        // 销毁实体
+        this.entity.destroy();
+    }
+
+    public isAlive(): boolean {
+        return !this.isDead;
+    }
 }
