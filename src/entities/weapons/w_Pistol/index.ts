@@ -1,6 +1,8 @@
 import * as pc from 'playcanvas';
 import { BaseWeapon } from '../share/BaseWeapon';
-import { BulletBehavior } from '../share/BulletBehavior'; // Ensure script is registered
+import { PistolBullet } from './PistolBullet';
+
+export { PistolBullet };
 
 export class Pistol extends BaseWeapon {
 
@@ -24,14 +26,17 @@ export class Pistol extends BaseWeapon {
 
         // 4. 添加子弹行为脚本
         bullet.addComponent('script');
-        // 直接创建脚本实例，不通过 attributes 传参，避免 schema 查找错误
-        const script = bullet.script!.create('bulletBehavior') as unknown as BulletBehavior;
+        // 使用新注册的脚本名称 'pistolBullet'
+        const script = bullet.script!.create('pistolBullet') as unknown as PistolBullet;
 
         if (script) {
-            script.speed = this.stats.projectileSpeed || 20;
-            script.damage = this.stats.damage;
-            script.range = this.stats.range;
-            script.direction = this.owner.forward.clone(); // 默认向角色前方发射
+            // 使用 setup 方法初始化，避免直接修改属性
+            script.setup(
+                this.stats.projectileSpeed || 20,
+                this.stats.damage,
+                this.stats.range,
+                this.owner.forward.clone()
+            );
         }
 
         // 5. 添加到场景

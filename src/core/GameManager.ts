@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
+import { ScriptRegistry } from './ScriptRegistry';
 import { ResourceManager } from './manager/ResourceManager';
 import { SceneManager } from './manager/SceneManager';
 import { UIManager } from './manager/UIManager';
@@ -11,7 +12,6 @@ import { DebugSystem } from '../systems/DebugSystem';
 import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 import { CharacterSystem } from '../systems/character/CharacterSystem';
 import { EnemySystem } from '../systems/enemy/EnemySystem';
-
 
 
 /**
@@ -41,7 +41,7 @@ export class GameManager {
         (window as any).gameManager = this;
 
         // 1. 注册脚本
-        this.context.getScriptRegistry().init();
+        ScriptRegistry.init();
 
         // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();

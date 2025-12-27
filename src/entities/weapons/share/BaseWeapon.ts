@@ -21,7 +21,6 @@ export abstract class BaseWeapon {
     constructor(id: string, owner: pc.Entity, stats: WeaponStats) {
         this.id = id;
         this.owner = owner;
-        // 深拷贝属性，防止修改影响配置原件
         this.stats = JSON.parse(JSON.stringify(stats));
     }
 
@@ -35,7 +34,6 @@ export abstract class BaseWeapon {
             this.currentCooldown -= dt;
         }
 
-        // Survivor-like 游戏通常是自动攻击，这里检测冷却完毕即尝试攻击
         if (this.currentCooldown <= 0) {
             this.tryAttack();
         }
@@ -68,7 +66,7 @@ export abstract class BaseWeapon {
      */
     public applyEffect(effect: CardEffect) {
         // 简单的属性修改逻辑示例
-        if (effect.target === this.id || effect.target.startsWith('w_')) {
+        if (effect.target === this.id || effect.target === 'w_*') {
             const key = effect.stat as keyof WeaponStats;
             if (this.stats[key] !== undefined) {
                 if (effect.type === 'add') {
@@ -80,6 +78,9 @@ export abstract class BaseWeapon {
         }
     }
 
+    /**
+     * 设置武器等级 (影响属性)
+     */
     public setLevel(level: number) {
         this.level = level;
     }

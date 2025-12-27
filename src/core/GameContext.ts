@@ -5,7 +5,6 @@ import { UIManager } from './manager/UIManager';
 import { CardManager } from './manager/CardManager';
 import { ResourceManager } from './manager/ResourceManager';
 import { SceneManager } from './manager/SceneManager';
-import { ScriptRegistry } from './ScriptRegistry';
 
 /**
  * 游戏上下文 (GameContext)
@@ -27,7 +26,6 @@ export class GameContext {
 
     // 核心管理器
     private eventBus: EventBus;                             // 事件总线
-    private scriptRegistry: ScriptRegistry;                 // 脚本注册器
     private gameManager: GameManager | null = null;         // 游戏管理器
     private resourceManager: ResourceManager | null = null; // 资产管理器
     private sceneManager: SceneManager | null = null;       // 场景管理器
@@ -36,7 +34,6 @@ export class GameContext {
 
     private constructor() {
         this.eventBus = EventBus.getInstance();
-        this.scriptRegistry = new ScriptRegistry();
     }
 
     /**
@@ -81,13 +78,6 @@ export class GameContext {
      */
     public getEventBus(): EventBus {
         return this.eventBus;
-    }
-
-    /**
-     * 获取脚本注册器
-     */
-    public getScriptRegistry(): ScriptRegistry {
-        return this.scriptRegistry;
     }
 
     // ==========================================
