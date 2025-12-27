@@ -153,6 +153,7 @@ export abstract class BaseEnemy {
 
         // UI 跳字 (通过 EventBus)
         // 确保 FloatingText 监听的是 'combat:damage'
+        console.log(`[BaseEnemy] takeDamage: ${amount} at ${this.entity.getPosition()}`);
         this.context.getEventBus().fire('combat:damage', amount, this.entity.getPosition());
 
         if (this.stats.health <= 0) {

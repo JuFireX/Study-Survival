@@ -13,9 +13,11 @@ export class FloatingText {
     private maxLife: number = 0;
     private _isActive: boolean = false;
     private screenPos: pc.Vec3 = new pc.Vec3();
+    private app: pc.Application;
 
     constructor() {
         this.component = new FloatingTextComponent();
+        this.app = GameContext.getInstance().getApp();
     }
 
     public spawn(text: string, worldPos: pc.Vec3, color: string) {
@@ -56,7 +58,23 @@ export class FloatingText {
             // 确保在屏幕前方才显示
             if (this.screenPos.z > 0) {
                 this.component.setActive(true);
-                this.component.setPosition(this.screenPos.x, this.screenPos.y);
+
+                // Robust coordinate conversion:
+                // 1. Normalize to 0..1 based on backbuffer size
+                // 2. Flip Y (PlayCanvas is Bottom-Left, DOM is Top-Left)
+                // 3. Scale to Canvas CSS size
+
+                const device = this.app.graphicsDevice;
+                // @ts-ignore - canvas is an HTMLCanvasElement
+                const canvas = device.canvas as HTMLCanvasElement;
+
+                const nX = this.screenPos.x / device.width;
+                const nY = this.screenPos.y / device.height; // PlayCanvas worldToScreen returns Top-Left based coords, no need to flip
+
+                const finalX = nX * canvas.clientWidth;
+                const finalY = nY * canvas.clientHeight;
+
+                this.component.setPosition(finalX, finalY);
             } else {
                 this.component.setActive(false);
             }

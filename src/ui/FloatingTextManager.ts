@@ -28,6 +28,7 @@ export class FloatingTextManager {
     }
 
     private onDamage(damage: number, worldPos: pc.Vec3, color: string = 'white') {
+        console.log(`[FloatingTextManager] onDamage: ${damage}`);
         this.spawn(Math.floor(damage).toString(), worldPos, color);
     }
 
@@ -58,7 +59,7 @@ export class FloatingTextManager {
     public destroy() {
         this.app.off('update', this.update, this);
         this.eventBus.off('combat:damage', this.onDamage, this);
-        
+
         this.activeTexts.forEach(ft => ft.destroy());
         this.pool.forEach(ft => ft.destroy());
         this.activeTexts = [];

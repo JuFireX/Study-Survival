@@ -11,6 +11,8 @@ export class FloatingTextComponent {
     constructor() {
         this.element = document.createElement('div');
         this.element.style.position = 'absolute';
+        this.element.style.left = '0px';
+        this.element.style.top = '0px';
         this.element.style.fontWeight = 'bold';
         this.element.style.fontSize = '2vmin'; // 字体大小
         this.element.style.textShadow = '1px 1px 1px black';
