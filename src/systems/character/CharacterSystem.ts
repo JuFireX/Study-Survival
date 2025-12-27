@@ -1,3 +1,8 @@
+import { IGameSystem } from '../../config/types';
+import { GameContext } from '../../core/GameContext';
+import type { EventBus } from '../../core/EventBus';
+import type { UIManager } from '../../core/manager/UIManager';
+
 /**
  * 角色系统 (CharacterSystem)
  * 
@@ -7,3 +12,21 @@
  * 2. 可供调配的UI: 玩家状态UI (如血条、经验等), 玩家操作UI (如虚拟摇杆等)
  * 
  */
+export class CharacterSystem implements IGameSystem {
+    private eventBus: EventBus;
+    private ui: UIManager;
+
+    constructor(ui: UIManager) {
+        GameContext.getInstance().getApp();
+        this.eventBus = GameContext.getInstance().getEventBus();
+        this.ui = ui;
+    }
+
+    initialize() {
+        console.log("CharacterSystem initialized");
+    }
+
+    update(dt: number) {
+        void dt;
+    }
+}
