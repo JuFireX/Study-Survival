@@ -3,7 +3,7 @@ import type { CardEffect, IGameSystem, PlayerStats } from '../../config/types';
 import { WorldLevelConfig } from '../../config/evolution';
 import { GameContext } from '../../core/GameContext';
 import type { EventBus } from '../../core/EventBus';
-import type { UIManager } from '../../core/manager/UIManager';
+import { UIManager } from '../../core/manager/UIManager';
 
 /**
  * 角色系统 (CharacterSystem)
@@ -45,12 +45,13 @@ export class CharacterSystem implements IGameSystem {
     private lastHudHealth: { current: number; max: number } | null = null;
     private lastHudExp: { current: number; max: number; level: number } | null = null;
     private lastBuffCount: number = -1;
+    private joystickBound: boolean = false;
+    private isDead: boolean = false;
 
-    constructor(ui: UIManager) {
+    constructor(ui?: UIManager) {
         const context = GameContext.getInstance();
         this.eventBus = context.getEventBus();
-        this.ui = ui;
-
+        this.ui = ui ?? context.getUIManager() ?? UIManager.getInstance();
         this.stats = this.createDefaultPlayerStats();
         this.syncExpRequirementFromLevel();
     }
@@ -76,7 +77,15 @@ export class CharacterSystem implements IGameSystem {
     public update(dt: number): void {
         if (!this.player) {
             this.player = GameContext.getInstance().getPlayer();
-            if (!this.player) return;
+        }
+
+        if (this.isDead) {
+            this.updateHUD(false);
+            return;
+        }
+
+        if (!this.joystickBound) {
+            this.bindJoystickToPlayerController();
         }
 
         if (dt > 0) {
@@ -109,18 +118,22 @@ export class CharacterSystem implements IGameSystem {
         const controller = player.script.get('playerController') as any;
         if (!controller) return;
 
+        let bound = false;
+
         if (typeof controller.setup === 'function') {
             controller.setup(joystick);
-            return;
-        }
-
-        if (typeof controller.setJoystick === 'function') {
+            bound = true;
+        } else if (typeof controller.setJoystick === 'function') {
             controller.setJoystick(joystick);
-            return;
+            bound = true;
+        } else if ('joystick' in controller) {
+            controller.joystick = joystick;
+            bound = true;
         }
 
-        if ('joystick' in controller) {
-            controller.joystick = joystick;
+        if (bound) {
+            this.joystickBound = true;
+            console.log("[CharacterSystem] Joystick bound to PlayerController successfully.");
         }
     }
 
@@ -208,7 +221,28 @@ export class CharacterSystem implements IGameSystem {
     }
 
     private handleDeath() {
+        if (this.isDead) return;
+
+        this.isDead = true;
         this.stats.currentHealth = 0;
+
+        const player = this.player ?? GameContext.getInstance().getPlayer();
+        const controller = player?.script?.get('playerController') as any;
+        if (controller && typeof controller === 'object' && 'enabled' in controller) {
+            controller.enabled = false;
+        }
+
+        const joystick = this.ui.getJoystick();
+        if (joystick) {
+            joystick.value.x = 0;
+            joystick.value.y = 0;
+        }
+
+        const app = GameContext.getInstance().getApp();
+        (app as any).timeScale = 0;
+
+        this.updateHUD(true);
+        this.eventBus.fire('player:died');
         this.eventBus.fire('game:over');
     }
 

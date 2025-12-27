@@ -11,7 +11,7 @@ import { DebugSystem } from '../systems/DebugSystem';
 import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 import { CharacterSystem } from '../systems/character/CharacterSystem';
 import { EnemySystem } from '../systems/enemy/EnemySystem';
-
+import '../entities/characters/share/PlayerController';
 
 
 /**
@@ -133,7 +133,7 @@ export class GameManager {
 
         // 3. 核心玩法系统
         this.systems.push(new WeaponSystem()); // 武器管理
-        this.systems.push(new CharacterSystem(this.ui)); // 角色系统
+        this.systems.push(new CharacterSystem()); // 角色系统
         this.systems.push(new EnemySystem(this.ui)); // 敌人系统
 
         // 执行初始化
