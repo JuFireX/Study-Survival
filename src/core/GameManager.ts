@@ -31,40 +31,30 @@ export class GameManager {
     private constructor() {
         this.context = GameContext.getInstance();
         this.app = this.context.getApp();
-
         // 注册自身到 Context
         this.context.setGameManager(this);
-
         // 调试用: 暴露到全局 window 对象
         (window as any).gameManager = this;
-
         // 1. 注册脚本
         ScriptRegistry.init();
-
         // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();
         this.context.setResourceManager(resourceManager);
-
         // 3. 构建基础场景 (Camera, Lights, Ground)
         const sceneManager = SceneManager.getInstance();
         this.context.setSceneManager(sceneManager);
         const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
-
         // 4. 初始化 UI
         this.ui = UIManager.getInstance();
         this.context.setUIManager(this.ui);
-
         // 5. 初始化卡牌管理器
         const cardManager = CardManager.getInstance();
         this.context.setCardManager(cardManager);
-
         // 6. 初始化所有游戏系统
         this.initializeSystems();
-
         // 8. 启动 Update 循环
         this.app.on('update', this.update, this);
-
         console.log("[GameManager] Initialized successfully.");
     }
 
@@ -74,7 +64,6 @@ export class GameManager {
         }
         return GameManager.instance;
     }
-
 
     /**
      * 初始化系统列表
@@ -90,7 +79,7 @@ export class GameManager {
 
         // 3. 核心玩法系统
         this.systems.push(new CharacterSystem());
-        this.systems.push(new WeaponSystem()); // 武器管理
+        this.systems.push(new WeaponSystem());
 
         // 执行初始化
         this.systems.forEach(sys => {

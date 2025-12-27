@@ -14,7 +14,7 @@ export class PistolBullet extends pc.Script {
     public speed: number = 20;
     public damage: number = 10;
     public range: number = 20;
-    
+
     // 运行时状态
     private direction: pc.Vec3 = new pc.Vec3();
     private distanceTraveled: number = 0;
@@ -40,7 +40,7 @@ export class PistolBullet extends pc.Script {
         // 1. 计算移动量
         const moveDistance = this.speed * dt;
         const moveVec = this.direction.clone().mulScalar(moveDistance);
-        
+
         // 2. 移动实体
         this.entity.translate(moveVec);
 
@@ -66,7 +66,7 @@ export class PistolBullet extends pc.Script {
         if (other.tags.has('enemy')) {
             // TODO: 调用敌人的受击方法
             // (other.script as any).enemyBehavior?.takeDamage(this.damage);
-            
+
             this.destroyBullet();
         }
     }
