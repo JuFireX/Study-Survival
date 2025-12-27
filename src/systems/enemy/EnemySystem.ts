@@ -1,3 +1,12 @@
+import * as pc from 'playcanvas';
+import type { IGameSystem } from '../../config/types';
+import { GameContext } from '../../core/GameContext';
+import type { EventBus } from '../../core/EventBus';
+import type { UIManager } from '../../core/manager/UIManager';
+import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
+
+type EnemyKind = 'fast' | 'tank';
+
 /**
  * 敌人系统 (EnemySystem)
  * 
@@ -8,18 +17,6 @@
  * 
  * 由于敌人有自己的行为树, 所以这里应该调用敌人的帧更新方法, 可以统一管理敌人的血量, 死亡, 生成经验球等事件
  */
-
-import * as pc from 'playcanvas';
-import type { IGameSystem } from '../../config/types';
-import { GameContext } from '../../core/GameContext';
-import type { EventBus } from '../../core/EventBus';
-import type { UIManager } from '../../core/manager/UIManager';
-import { BaseEnemy } from '../../entities/enemies/share/BaseEnemy';
-import { FastEnemy } from '../../entities/enemies/e_fast';
-import { TankEnemy } from '../../entities/enemies/e_tank';
-
-type EnemyKind = 'fast' | 'tank';
-
 export class EnemySystem implements IGameSystem {
     private app: pc.Application;
     private eventBus: EventBus;

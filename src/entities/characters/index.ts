@@ -1,1 +1,2 @@
-// 计划从这里导出每个角色独立的类
+export * from './share/BaseCharacter';
+export * from './share/PlayerController';

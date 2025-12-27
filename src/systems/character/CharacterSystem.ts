@@ -24,7 +24,6 @@ type StatusEffect = {
 };
 
 export class CharacterSystem implements IGameSystem {
-    private app: pc.Application;
     private eventBus: EventBus;
     private ui: UIManager;
 
@@ -49,7 +48,6 @@ export class CharacterSystem implements IGameSystem {
 
     constructor(ui: UIManager) {
         const context = GameContext.getInstance();
-        this.app = context.getApp();
         this.eventBus = context.getEventBus();
         this.ui = ui;
 

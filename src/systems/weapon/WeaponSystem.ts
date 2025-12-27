@@ -22,7 +22,7 @@ export class WeaponSystem implements IGameSystem {
             // 测试：默认给玩家一把手枪
             this.addWeapon('pistol');
             // 测试：再给玩家一把剑
-            this.addWeapon('sword');
+            // this.addWeapon('sword');
         } else {
             console.warn('[WeaponSystem] Player not found during initialization.');
         }
