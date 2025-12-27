@@ -49,39 +49,43 @@ const tex = context.getResourceManager()?.getTexture("my_texture");
 - `getTexture(name: string)`: 通过文件名（无扩展名）返回 `pc.Texture`。
 - `getAsset(name: string)`: 返回原始的 `pc.Asset`。
 
-## SceneManager(待完善)
+## SceneManager
 
-管理游戏场景。
-
-```typescript
-// 用法
-context.getSceneManager().loadScene("my_scene");
-```
-
-- `loadScene(name: string)`: 加载场景文件（在 `src/scenes` 中）。
-- `getCurrentScene(): pc.Scene | null` - 获取当前加载的场景。
-
-## UIManager(待完善)
-
-控制 UI 元素。
+管理 3D 场景元素。
 
 ```typescript
-// 用法
-context.getUIManager().show("my_ui");
+const sceneManager = SceneManager.getInstance();
+// 通常由 GameManager 自动调用
+// sceneManager.buildScene();
 ```
 
-- `show(name: string)`: 显示 UI 元素（在 `src/ui` 中）。
-- `hide(name: string)`: 隐藏 UI 元素。
-- `getElement(name: string): pc.Element | null` - 获取 UI 元素的引用。
+- `buildScene()`: 构建基础场景（地面、灯光、摄像机）。返回创建的 Camera Entity。
 
-## CardManager(待完善)
+## UIManager
 
-访问卡牌数据。
+管理所有 UI 组件。
 
 ```typescript
-// 用法
-const card = context.getCardManager()?.getCard("my_card");
+const ui = context.getUIManager();
+const joystick = ui?.getJoystick();
 ```
 
-- `getCard(name: string)`: 通过卡牌名称返回 `Card` 对象。
-- `getAllCards(): Card[]` - 获取所有已加载的卡牌。
+- `getJoystick()`: 获取虚拟摇杆组件。
+- `getPlayerStatus()`: 获取玩家状态 UI。
+- `getFloatingText()`: 获取漂浮文字组件。
+- `getCardSelect()`: 获取卡牌选择界面。
+- `getBossStatus()`: 获取 Boss 血条 UI。
+- `getPlayerEffects()`: 获取玩家特效 UI。
+
+## CardManager
+
+只读的卡牌数据管理器。
+
+```typescript
+const cards = context.getCardManager();
+const weapons = cards?.getAllWeaponCards();
+```
+
+- `getAllQuestionCards()`: 获取所有问题卡数据。
+- `getAllWeaponCards()`: 获取所有武器卡数据。
+- `getAllBuffCards()`: 获取所有增益卡数据。

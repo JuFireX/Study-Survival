@@ -12,10 +12,21 @@ import { GameContext } from '../GameContext';
 export class SceneManager {
     private app: pc.Application;
     private context: GameContext;
+    private static instance: SceneManager;
 
     constructor() {
         this.context = GameContext.getInstance();
         this.app = this.context.getApp();
+    }
+
+    /**
+     * 获取单例实例
+     */
+    public static getInstance(): SceneManager {
+        if (!SceneManager.instance) {
+            SceneManager.instance = new SceneManager();
+        }
+        return SceneManager.instance;
     }
 
     /**
@@ -25,9 +36,6 @@ export class SceneManager {
     public buildScene(): pc.Entity {
         this.createGround();
         this.createLight();
-        // 如果需要天空盒，可以在这里添加
-        // this.createSkybox();
-
         return this.createCamera();
     }
 
@@ -38,10 +46,6 @@ export class SceneManager {
         const ground = new pc.Entity('Ground');
         ground.addComponent('model', { type: 'plane' });
         ground.setLocalScale(50, 1, 50);
-
-        // 物理组件配置 (如果项目引入了物理引擎)
-        // ground.addComponent('collision', { type: 'box', halfExtents: new pc.Vec3(25, 0.5, 25) });
-        // ground.addComponent('rigidbody', { type: 'static' });
 
         this.app.root.addChild(ground);
     }
@@ -61,10 +65,8 @@ export class SceneManager {
             normalOffsetBias: 0.05
         });
         light.setEulerAngles(45, 45, 0);
-        this.app.root.addChild(light);
 
-        // 可以添加环境光设置
-        // this.app.scene.ambientLight = new pc.Color(0.2, 0.2, 0.2);
+        this.app.root.addChild(light);
     }
 
     /**

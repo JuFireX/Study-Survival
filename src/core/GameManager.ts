@@ -1,8 +1,8 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
+import { ResourceManager } from './manager/ResourceManager';
 import { SceneManager } from './manager/SceneManager';
 import { UIManager } from './manager/UIManager';
-// import { ResourceManager } from './manager/ResourceManager';
 import { CardManager } from './manager/CardManager';
 import { IGameSystem } from '../config/types';
 
@@ -55,27 +55,31 @@ export class GameManager {
         // 1. 注册脚本
         // this.registerScripts();
 
-        // 2. 构建基础场景 (Camera, Lights, Ground)
-        const sceneManager = new SceneManager();
-        this.context.setSceneManager(sceneManager); // 注册到 Context
+        // 2. 初始化资产管理器
+        const resourceManager = ResourceManager.getInstance();
+        this.context.setResourceManager(resourceManager);
+
+        // 3. 构建基础场景 (Camera, Lights, Ground)
+        const sceneManager = SceneManager.getInstance();
+        this.context.setSceneManager(sceneManager);
         const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
 
-        // 3. 初始化 UI
-        this.ui = new UIManager();
+        // 4. 初始化 UI
+        this.ui = UIManager.getInstance();
         this.context.setUIManager(this.ui);
 
-        // 4. 初始化数据管理器
-        const cardManager = new CardManager();
+        // 5. 初始化卡牌管理器
+        const cardManager = CardManager.getInstance();
         this.context.setCardManager(cardManager);
 
-        // 5. 创建玩家
+        // 6. 创建玩家
         this.createPlayer();
 
-        // 6. 初始化所有游戏系统
+        // 7. 初始化所有游戏系统
         this.initializeSystems();
 
-        // 7. 启动 Update 循环
+        // 8. 启动 Update 循环
         this.app.on('update', this.update, this);
 
         console.log("[GameManager] Initialized successfully.");
