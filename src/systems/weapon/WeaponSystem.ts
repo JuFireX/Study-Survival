@@ -1,6 +1,6 @@
 import { IGameSystem, WeaponStats } from '../../config/types';
-import { GameContext } from '../../core/GameContext';
 import { BaseWeapon, Pistol, Sword } from '../../entities/weapons';
+import { GameContext } from '../../core/GameContext';
 
 /**
  * 武器系统 (WeaponSystem)
@@ -82,6 +82,9 @@ export class WeaponSystem implements IGameSystem {
         if (weapon) {
             this.activeWeapons.push(weapon);
             console.log(`[WeaponSystem] Added weapon: ${type}`);
+
+            // 广播武器添加事件
+            GameContext.getInstance().getEventBus().fire('weapon:added', weapon);
         }
     }
 

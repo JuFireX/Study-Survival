@@ -10,7 +10,7 @@ import * as pc from 'playcanvas';
  */
 export class ScriptRegistry {
     private static queue: { cls: typeof pc.Script, name: string }[] = [];
-    private initialized: boolean = false;
+    private static initialized: boolean = false;
 
     /**
      * 将脚本加入注册队列
@@ -29,7 +29,7 @@ export class ScriptRegistry {
      * 初始化所有排队的脚本
      * 必须在 pc.Application 创建后调用
      */
-    public init() {
+    public static init() {
         if (this.initialized) return;
 
         console.log(`[ScriptRegistry] Initializing ${ScriptRegistry.queue.length} scripts...`);

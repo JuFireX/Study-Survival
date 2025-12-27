@@ -1,3 +1,4 @@
+import { PlayerStats } from '../config/types';
 import { EventBus } from '../core/EventBus';
 import { PlayerStatusComponent } from './components/PlayerStatusComponent';
 
@@ -18,15 +19,16 @@ export class PlayerStatus {
         this.eventBus = EventBus.getInstance();
 
         // 绑定事件
-        this.eventBus.on('ui:updateHealth', this.onUpdateHealth, this);
-        this.eventBus.on('ui:updateExp', this.onUpdateExp, this);
+        this.eventBus.on('player:damage', this.onPlayerDamage, this);
+        this.eventBus.on('player:heal', this.onPlayerHeal, this);
+        this.eventBus.on('player:exp', this.onPlayerExp, this);
+        this.eventBus.on('player:levelup', this.onPlayerLevelUp, this);
+        this.eventBus.on('player:init', this.onPlayerInit, this);
     }
 
-    private onUpdateHealth(current: number, max: number) {
+    private updateHealthUI(current: number, max: number) {
         if (max <= 0) return;
 
-        // 计算百分比
-        // 注意：这里我们主要显示生命值，护盾可以叠加显示或另行处理，目前简化为只显示生命值
         const percent = (current / max) * 100;
 
         // 决定颜色
@@ -40,16 +42,38 @@ export class PlayerStatus {
         this.component.updateHP(percent, current, max, color);
     }
 
-    private onUpdateExp(current: number, max: number, level: number) {
+    private onPlayerInit(stats: PlayerStats, level: number, currentExp: number, maxExp: number) {
+        this.updateHealthUI(stats.currentHealth, stats.maxHealth);
+        this.onPlayerExp(currentExp, maxExp, level);
+    }
+
+    private onPlayerDamage(_damage: number, current: number, max: number) {
+        this.updateHealthUI(current, max);
+    }
+
+    private onPlayerHeal(_amount: number, current: number, max: number) {
+        this.updateHealthUI(current, max);
+    }
+
+    private onPlayerExp(current: number, max: number, level: number) {
         if (max <= 0) max = 1; // 防止除零
         const percent = (current / max) * 100;
         const levelText = `Lv.${level}`;
         this.component.updateEXP(percent, levelText);
     }
 
+    private onPlayerLevelUp(_level: number) {
+        // 升级时，经验值通常会重置或变更，通常会紧接着收到 player:exp 事件
+        // 这里可以只更新等级文字，或者播放特效
+        // 为简单起见，这里不做特殊处理，依赖 player:exp 更新
+    }
+
     public destroy() {
-        this.eventBus.off('ui:updateHealth', this.onUpdateHealth, this);
-        this.eventBus.off('ui:updateExp', this.onUpdateExp, this);
+        this.eventBus.off('player:damage', this.onPlayerDamage, this);
+        this.eventBus.off('player:heal', this.onPlayerHeal, this);
+        this.eventBus.off('player:exp', this.onPlayerExp, this);
+        this.eventBus.off('player:levelup', this.onPlayerLevelUp, this);
+        this.eventBus.off('player:init', this.onPlayerInit, this);
         this.component.destroy();
     }
 }
