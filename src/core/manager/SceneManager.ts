@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from '../GameContext';
+import { ResourceManager } from './ResourceManager';
 
 /**
  * 场景构建器 (SceneManager)
@@ -36,7 +37,39 @@ export class SceneManager {
     public buildScene(): pc.Entity {
         this.createGround();
         this.createLight();
+        this.createTestPoster();
         return this.createCamera();
+    }
+
+    /**
+     * 创建测试海报 (用于验证纹理加载)
+     */
+    private createTestPoster() {
+        const resourceManager = ResourceManager.getInstance();
+        const texture = resourceManager.getTexture('test');
+
+        if (texture) {
+            const poster = new pc.Entity('TestPoster');
+
+            // 创建一个立着的平面
+            poster.addComponent('model', { type: 'plane' });
+            poster.setLocalEulerAngles(90, 0, 0); // 竖起来
+            poster.setLocalScale(10, 1, 10); // 放大
+            poster.setPosition(-40, 5, -40); // 放在角落
+
+            const material = new pc.StandardMaterial();
+            material.diffuse = new pc.Color(1, 1, 1);
+            material.diffuseMap = texture;
+            material.blendType = pc.BLEND_NORMAL; // 支持透明度
+            material.update();
+
+            poster.model!.material = material;
+
+            this.app.root.addChild(poster);
+            console.log('[SceneManager] Test poster created with texture "test".');
+        } else {
+            console.warn('[SceneManager] Texture "test" not found. Make sure test.jpeg exists in assets/image.');
+        }
     }
 
     /**
