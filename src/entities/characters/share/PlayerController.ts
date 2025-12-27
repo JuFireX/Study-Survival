@@ -15,6 +15,7 @@ export class PlayerController extends pc.ScriptType {
     }
 
     update(dt: number) {
+        void dt;
         // Frame update
     }
 }
