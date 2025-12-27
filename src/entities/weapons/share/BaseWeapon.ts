@@ -1,4 +1,5 @@
 import * as pc from 'playcanvas';
+import { GameContext } from '../../../core/GameContext';
 import { WeaponStats, CardEffect } from '../../../config/types';
 
 /**
@@ -46,6 +47,9 @@ export abstract class BaseWeapon {
         if (this.canAttack()) {
             this.attack();
             this.currentCooldown = this.stats.cooldown;
+
+            // 广播攻击事件
+            GameContext.getInstance().getEventBus().fire('weapon:attack', this.id, this.stats);
         }
     }
 
@@ -76,6 +80,9 @@ export abstract class BaseWeapon {
                 }
             }
         }
+
+        // 广播升级/属性变更事件
+        GameContext.getInstance().getEventBus().fire('weapon:update', this.id, this.stats);
     }
 
     /**
@@ -83,5 +90,7 @@ export abstract class BaseWeapon {
      */
     public setLevel(level: number) {
         this.level = level;
+        // 广播等级变化
+        GameContext.getInstance().getEventBus().fire('weapon:levelup', this.id, this.level);
     }
 }
