@@ -8,23 +8,8 @@ import { IGameSystem } from '../config/types';
 
 // Systems
 import { DebugSystem } from '../systems/DebugSystem';
-// import { CharacterSystem } from '../systems/character/CharacterSystem';
-// import { EnemySystem } from '../systems/enemy/EnemySystem';
-// import { WeaponSystem } from '../systems/weapon/WeaponSystem';
-// import { CardSystem } from '../systems/card/CardSystem';
-// import { QuestionSystem } from '../systems/question/QuestionSystem';
-// import { SceneSystem } from '../systems/scene/SceneSystem';
-// import { IGameSystem } from '../systems/IGameSystem';
+import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 
-// Scripts
-// import { PlayerController } from '../entities/characters/share/PlayerController';
-// import { PlayerStats } from '../entities/characters/share/PlayerStats';
-// import { AAA } from '../entities/characters/c_AAA/AAA';
-// import { EnemyBehavior } from '../entities/enemies/share/EnemyBehavior';
-// import { FastEnemy } from '../entities/enemies/e_fast/FastEnemy';
-// import { TankEnemy } from '../entities/enemies/e_tank/TankEnemy';
-// import { WeaponController } from '../entities/weapons/share/WeaponController';
-// import { BulletBehavior } from '../entities/weapons/share/BulletBehavior';
 
 /**
  * 游戏管理器 (GameManager)
@@ -53,7 +38,7 @@ export class GameManager {
         (window as any).gameManager = this;
 
         // 1. 注册脚本
-        this.registerScripts();
+        this.context.getScriptRegistry().init();
 
         // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();
@@ -92,19 +77,6 @@ export class GameManager {
         return GameManager.instance;
     }
 
-    /**
-     * 注册 PlayCanvas 脚本组件
-     */
-    private registerScripts() {
-        // pc.registerScript(PlayerController, 'playerController');
-        // pc.registerScript(PlayerStats, 'playerStats');
-        // pc.registerScript(AAA, 'aaa');
-        // pc.registerScript(EnemyBehavior, 'enemyBehavior');
-        // pc.registerScript(FastEnemy, 'fastEnemy');
-        // pc.registerScript(TankEnemy, 'tankEnemy');
-        // pc.registerScript(WeaponController, 'weaponController');
-        // pc.registerScript(BulletBehavior, 'bulletBehavior');
-    }
 
     /**
      * 创建玩家实体
@@ -117,10 +89,7 @@ export class GameManager {
         player.addComponent('script');
 
         // 添加角色特定逻辑
-        player.script!.create('aaa');
-        player.script!.create('playerStats');
         player.script!.create('playerController');
-        player.script!.create('weaponController');
 
         player.setPosition(0, 1, 0);
         this.app.root.addChild(player);
@@ -160,11 +129,7 @@ export class GameManager {
         // this.systems.push(questionSystem);
 
         // 3. 核心玩法系统
-        // this.systems.push(new SceneSystem()); // 场景动态管理
-        // this.systems.push(new CharacterSystem(this.ui)); // 角色管理
-        // this.systems.push(new EnemySystem(this.ui)); // 敌人管理
-        // this.systems.push(new WeaponSystem()); // 武器管理
-        // this.systems.push(new CardSystem(this.ui, questionSystem)); // 升级/卡牌系统
+        this.systems.push(new WeaponSystem()); // 武器管理
 
         // 执行初始化
         this.systems.forEach(sys => {
@@ -178,9 +143,6 @@ export class GameManager {
      * @param dt Delta time (seconds)
      */
     private update(dt: number) {
-        // 可以在这里处理全局暂停逻辑
-        // if (this.isPaused) return;
-
         for (const sys of this.systems) {
             sys.update(dt);
         }

@@ -11,6 +11,7 @@
 - **`GameApplication.ts`**: PlayCanvas 应用程序的入口点。
 - **`GameContext.ts`**: 服务定位器 (Singleton)，提供对核心系统的全局访问。
 - **`GameManager.ts`**: 游戏循环和系统编排的指挥者。
+- **`ScriptRegistry.ts`**: 脚本自动注册系统，解决脚本依赖和初始化时机问题。
 
 ## 关键概念
 

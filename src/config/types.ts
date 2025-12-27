@@ -110,14 +110,6 @@ export interface QuestionCard extends Card {
 
 //游戏系统基类
 export interface IGameSystem {
-    /**
-     * 初始化系统
-     */
-    initialize(): void;
-
-    /**
-     * 更新系统
-     * @param dt 上一帧的时间间隔（秒）
-     */
-    update(dt: number): void;
+    initialize(): void;         // 初始化系统
+    update(dt: number): void;   // 更新系统 (dt: 帧更新间隔（秒）)
 }
