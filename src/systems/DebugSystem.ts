@@ -1,5 +1,7 @@
 import { IGameSystem } from '../config/types';
 import { UIDebugSystem } from './debug/UIDebugSystem';
+import { EnemySystem } from './enemy/EnemySystem';
+import { UIManager } from '../core/manager/UIManager';
 
 /**
  * 调试系统 (DebugSystem)
@@ -13,15 +15,20 @@ import { UIDebugSystem } from './debug/UIDebugSystem';
 export class DebugSystem implements IGameSystem {
     name = 'DebugSystem';
     private uiDebugSystem = new UIDebugSystem();
+    private uiManager = new UIManager();
+    private enemySystem = new EnemySystem(this.uiManager);
+
 
     initialize(): void {
         // 初始化调试系统
         console.log('DebugSystem initialized');
         this.uiDebugSystem.initialize();
+        this.enemySystem.initialize();
     }
 
     update(dt: number): void {
         // 更新调试系统
         this.uiDebugSystem.update(dt);
+        this.enemySystem.update(dt);
     }
 }

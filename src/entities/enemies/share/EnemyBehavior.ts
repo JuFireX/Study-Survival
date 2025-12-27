@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+import type { IGameSystem } from '../../../config/types';
 
 /**
  * 敌人行为脚本 (EnemyBehavior)
@@ -8,7 +8,13 @@ import * as pc from 'playcanvas';
  * 2. 控制敌人的模型动画。
  * 3. 处理敌人的感知逻辑 (如视野范围检测)。
  */
-export class EnemyBehavior extends pc.ScriptType {
+export class EnemyBehavior implements IGameSystem {
+    public readonly id: string;
+
+    constructor(id: string) {
+        this.id = id;
+    }
+
     initialize() {
         // Script initialization
     }
@@ -16,5 +22,7 @@ export class EnemyBehavior extends pc.ScriptType {
     update(dt: number) {
         void dt;
         // Frame update
+        
+
     }
 }
