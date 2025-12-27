@@ -1,6 +1,6 @@
 import * as pc from 'playcanvas';
 import { EventBus } from './EventBus';
-import { GameManager } from './GameManager';
+import type { GameManager } from './GameManager';
 import { UIManager } from './manager/UIManager';
 import { CardManager } from './manager/CardManager';
 import { ResourceManager } from './manager/ResourceManager';

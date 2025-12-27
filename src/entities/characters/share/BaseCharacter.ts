@@ -23,6 +23,9 @@ export abstract class BaseCharacter {
         this.entity = entity;
         this.stats = { ...stats }; // 复制属性
 
+        // 绑定逻辑类到实体，方便从 Entity 获取 Logic
+        (this.entity as any).baseCharacter = this;
+
         // 确保实体有标识
         if (!this.entity.name) {
             this.entity.name = 'Player';
@@ -110,7 +113,7 @@ export abstract class BaseCharacter {
         this.currentExp += effectiveExp;
 
         // 检查升级
-        if (this.currentExp >= this.maxExp) {
+        while (this.currentExp >= this.maxExp) {
             this.levelUp();
         }
 

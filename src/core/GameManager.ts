@@ -11,6 +11,7 @@ import { IGameSystem } from '../config/types';
 import { CharacterSystem } from '../systems/character/CharacterSystem';
 import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 import { EnemySystem } from '../systems/enemy/EnemySystem';
+import { DropSystem } from '../systems/drop/DropSystem';
 
 
 /**
@@ -110,6 +111,7 @@ export class GameManager {
         this.systems.push(new CharacterSystem());
         this.systems.push(new WeaponSystem());
         this.systems.push(new EnemySystem());
+        this.systems.push(new DropSystem());
 
         // 执行初始化
         this.systems.forEach(sys => {
