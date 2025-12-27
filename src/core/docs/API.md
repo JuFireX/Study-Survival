@@ -20,6 +20,21 @@ const context = GameContext.getInstance();
 - `getSceneManager(): SceneManager` - 控制场景元素。
 - `getUIManager(): UIManager` - 控制 UI 元素。
 - `getCardManager(): CardManager` - 访问卡牌数据。
+- `getScriptRegistry(): ScriptRegistry` - 访问脚本注册系统。
+
+## ScriptRegistry
+
+PlayCanvas 脚本的自动注册系统。
+
+```typescript
+import { ScriptRegistry } from "../core/ScriptRegistry";
+
+// 在脚本文件末尾调用
+ScriptRegistry.register(MyScript, 'myScript');
+```
+
+- `register(cls, name)`: 静态方法，将脚本类加入待注册队列。
+- `init()`: 实例方法，由 GameManager 调用，执行实际的 `pc.registerScript`。
 
 ## EventBus
 
