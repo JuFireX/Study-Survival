@@ -8,9 +8,8 @@ import { CardManager } from './manager/CardManager';
 import { IGameSystem } from '../config/types';
 
 // Systems
-import { DebugSystem } from '../systems/DebugSystem';
-// import { WeaponSystem } from '../systems/weapon/WeaponSystem';
-
+import { CharacterSystem } from '../systems/character/CharacterSystem';
+import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 
 
 /**
@@ -60,10 +59,7 @@ export class GameManager {
         const cardManager = CardManager.getInstance();
         this.context.setCardManager(cardManager);
 
-        // 6. 创建玩家
-        this.createPlayer();
-
-        // 7. 初始化所有游戏系统
+        // 6. 初始化所有游戏系统
         this.initializeSystems();
 
         // 8. 启动 Update 循环
@@ -81,57 +77,20 @@ export class GameManager {
 
 
     /**
-     * 创建玩家实体
-     */
-    private createPlayer() {
-        const player = new pc.Entity('Player');
-        player.addComponent('model', { type: 'capsule' });
-
-        // 初始化脚本组件
-        player.addComponent('script');
-
-        // 添加角色特定逻辑
-        player.script!.create('playerController');
-
-        player.setPosition(0, 1, 0);
-        this.app.root.addChild(player);
-
-        // 注册到 Context
-        this.context.setPlayer(player);
-
-        // 设置摄像机跟随
-        this.setupCameraFollow(player);
-    }
-
-    /**
-     * 设置摄像机跟随逻辑
-     */
-    private setupCameraFollow(target: pc.Entity) {
-        const camera = this.context.getCamera();
-        if (camera) {
-            // 简单的跟随逻辑，后续可以迁移到专门的 CameraSystem
-            this.app.on('update', () => {
-                const pos = target.getPosition();
-                camera.setPosition(pos.x, 20, pos.z + 15);
-                camera.lookAt(pos.x, 0, pos.z);
-            });
-        }
-    }
-
-    /**
      * 初始化系统列表
      * 注意：初始化顺序很重要
      */
     private initializeSystems() {
         // 1. 基础/调试系统
-        this.systems.push(new DebugSystem());
+        // this.systems.push(new DebugSystem());
 
         // 2. 数据/服务系统
         // const questionSystem = new QuestionSystem();
         // this.systems.push(questionSystem);
 
         // 3. 核心玩法系统
-        // this.systems.push(new WeaponSystem()); // 武器管理
+        this.systems.push(new CharacterSystem());
+        this.systems.push(new WeaponSystem()); // 武器管理
 
 
         // 执行初始化

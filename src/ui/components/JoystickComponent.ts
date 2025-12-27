@@ -159,16 +159,12 @@ export class JoystickComponent {
     private updateKnob() {
         this.knob.style.transform = `translate(calc(-50% + ${this.currentX}px), calc(-50% + ${this.currentY}px))`;
 
-        // 移除线性速度变化：只要有输入（distance > 0），就输出归一化方向
         if (this.onMove) {
-            const dist = Math.sqrt(this.currentX * this.currentX + this.currentY * this.currentY);
-            if (dist > 1) { // 简单防抖，很小的移动忽略
-                const normalizedX = this.currentX / dist;
-                const normalizedY = this.currentY / dist;
-                this.onMove(normalizedX, normalizedY);
-            } else {
-                this.onMove(0, 0);
-            }
+            // 直接线性映射：当前偏移 / 最大半径
+            // 结果范围 [-1, 1]
+            const x = this.currentX / this.maxRadius;
+            const y = this.currentY / this.maxRadius;
+            this.onMove(x, y);
         }
     }
 }
