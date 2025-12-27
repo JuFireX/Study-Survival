@@ -1,4 +1,4 @@
-import * as pc from 'playcanvas';
+
 
 /**
  * 角色基类 (BaseCharacter)

@@ -3,6 +3,7 @@ import type { EnemyStats } from '../../../config/types';
 import { GameContext } from '../../../core/GameContext';
 import type { EventBus } from '../../../core/EventBus';
 
+
 /**
  * 敌人基类 (BaseEnemy)
  * 
@@ -11,7 +12,7 @@ import type { EventBus } from '../../../core/EventBus';
  * 2. 管理敌人的通用状态 (如追踪玩家, 攻击, 受击, 死亡)。
  * 3. 提供敌人特有的行为接口，供 AI 系统调用。
  */
-export class BaseEnemy {
+export class BaseEnemy{
     public readonly id: string;
     protected entity!: pc.Entity;
     protected stats!: EnemyStats;
@@ -20,6 +21,7 @@ export class BaseEnemy {
     private eventBus: EventBus;
     private alive: boolean = true;
     private attackCooldownLeft: number = 0;
+    
 
     constructor() {
         const context = GameContext.getInstance();
@@ -42,6 +44,7 @@ export class BaseEnemy {
 
         this.entity = new pc.Entity(`Enemy_${this.id}`);
         this.entity.addComponent('model', { type: 'box' });
+        this.entity.addComponent('model', { type: 'debug' });
         this.entity.setLocalScale(1, 1, 1);
         this.entity.setPosition(0, 1, 0);
         (this.entity as any).__enemy = this;
@@ -92,6 +95,13 @@ export class BaseEnemy {
             const hitPos = this.entity.getPosition().clone();
             this.eventBus.fire('combat:hitPlayer', this.stats.damage, hitPos);
         }
+    }
+
+    public attack(playerWorldPos: pc.Vec3) {
+        if (this.attackCooldownLeft > 0) return;
+
+        const hitPos = this.entity.getPosition().clone();
+        this.eventBus.fire('combat:hitPlayer', this.stats.damage, hitPos);
     }
 
     public takeDamage(rawDamage: number, color: string = 'white'): number {
