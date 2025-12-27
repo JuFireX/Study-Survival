@@ -92,7 +92,6 @@ export class GameManager {
         this.systems.push(new CharacterSystem());
         this.systems.push(new WeaponSystem()); // 武器管理
 
-
         // 执行初始化
         this.systems.forEach(sys => {
             console.log(`[GameManager] Initializing system: ${sys.constructor.name}`);
