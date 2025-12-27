@@ -9,12 +9,6 @@
  * 3. 作为 Player 和 NPC 的父类，提供共享逻辑。
  * 4. 应当从 types 中的 PlayerStats 作为参考
  */
-export class BaseCharacter {
-    protected hp: number = 100;
-    protected maxHp: number = 100;
-    protected moveSpeed: number = 5;
+export abstract class BaseCharacter {
 
-    constructor() {
-        // Initialization
-    }
 }

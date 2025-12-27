@@ -9,7 +9,7 @@ export class UIDebugSystem implements IGameSystem {
     private app: pc.Application | null = null;
     private isInitialized = false;
 
-    // Test states
+    // 测试用状态
     private bossHealth = 1000;
     private playerHealth = 100;
     private playerExp = 0;
@@ -18,12 +18,12 @@ export class UIDebugSystem implements IGameSystem {
     initialize(): void {
         try {
             const context = GameContext.getInstance();
-            // Try to get app, but it might not be ready yet
+            // 尝试获取应用实例, 但可能在初始化时还未准备好
             try {
                 this.app = context.getApp();
                 this.isInitialized = true;
             } catch (e) {
-                // Ignore, will retry in update
+                // 忽略, 稍后在 update 中重试
             }
             console.log('DebugSystem initialized. Press 1-5 to test UI components.');
         } catch (e) {
@@ -73,7 +73,6 @@ export class UIDebugSystem implements IGameSystem {
         if (this.app.keyboard.isPressed(pc.KEY_J)) {
             const joystick = UIManager.getInstance().getJoystick();
             if (joystick) {
-                // Only log if there is some input to avoid spamming
                 if (Math.abs(joystick.value.x) > 0.01 || Math.abs(joystick.value.y) > 0.01) {
                     console.log('Joystick:', joystick.value);
                 }

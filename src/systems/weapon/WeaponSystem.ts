@@ -1,6 +1,6 @@
 import { IGameSystem, WeaponStats } from '../../config/types';
-import { GameContext } from '../../core/GameContext';
 import { BaseWeapon, Pistol, Sword } from '../../entities/weapons';
+import { GameContext } from '../../core/GameContext';
 
 /**
  * 武器系统 (WeaponSystem)
