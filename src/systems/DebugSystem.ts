@@ -1,10 +1,5 @@
 import { IGameSystem } from '../config/types';
 import { UIDebugSystem } from './debug/UIDebugSystem';
-<<<<<<< Updated upstream
-=======
-import { EnemySystem } from './enemy/EnemySystem';
-
->>>>>>> Stashed changes
 
 /**
  * 调试系统 (DebugSystem)
@@ -18,11 +13,6 @@ import { EnemySystem } from './enemy/EnemySystem';
 export class DebugSystem implements IGameSystem {
     name = 'DebugSystem';
     private uiDebugSystem = new UIDebugSystem();
-<<<<<<< Updated upstream
-=======
-    private enemySystem = new EnemySystem();
-
->>>>>>> Stashed changes
 
     initialize(): void {
         // 初始化调试系统
