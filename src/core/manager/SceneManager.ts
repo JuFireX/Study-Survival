@@ -159,6 +159,9 @@ export class SceneManager {
             fov: 45
         });
 
+        // 添加音频监听器，确保能听到声音
+        camera.addComponent('audiolistener');
+
         // 初始位置，后续会被 Controller 接管
         camera.setPosition(0, 15, 15); // 稍微拉高一点视角
         camera.lookAt(0, 0, 0);

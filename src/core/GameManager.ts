@@ -55,7 +55,35 @@ export class GameManager {
         this.initializeSystems();
         // 8. 启动 Update 循环
         this.app.on('update', this.update, this);
+        // 9. 播放背景音乐
+        this.playBackgroundMusic();
         console.log("[GameManager] Initialized successfully.");
+    }
+
+    private playBackgroundMusic() {
+        const resourceManager = ResourceManager.getInstance();
+        const bgmAsset = resourceManager.getAsset('main theme');
+
+        if (bgmAsset) {
+            console.log('[GameManager] Playing background music: main theme');
+            const bgmEntity = new pc.Entity('BackgroundMusic');
+            bgmEntity.addComponent('sound');
+
+            bgmEntity.sound!.addSlot('bgm', {
+                asset: bgmAsset.id,
+                autoPlay: true,
+                loop: true,
+                volume: 0.5
+            });
+
+            // 设置为非空间音频 (2D)，确保声音不会随距离衰减，且无方向性
+            bgmEntity.sound!.positional = false;
+
+            this.app.root.addChild(bgmEntity);
+            bgmEntity.sound!.play('bgm');
+        } else {
+            console.warn('[GameManager] Background music "main theme" not found!');
+        }
     }
 
     public static getInstance(): GameManager {
