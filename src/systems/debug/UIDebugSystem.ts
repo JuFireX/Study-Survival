@@ -132,7 +132,7 @@ export class UIDebugSystem implements IGameSystem {
 
     private testFloatingText() {
         console.log('Testing FloatingText...');
-        const floatingText = UIManager.getInstance().getFloatingText();
+        const floatingText = UIManager.getInstance().getFloatingTextManager();
         if (!floatingText) return;
 
         // Ensure we have a camera, otherwise FloatingText might fail or not show

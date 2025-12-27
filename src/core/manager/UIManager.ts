@@ -1,9 +1,10 @@
 import { Joystick } from "../../ui/Joystick";
 import { PlayerStatus } from "../../ui/PlayerStatus";
-import { FloatingText } from "../../ui/FloatingText";
 import { CardSelect } from "../../ui/CardSelect";
 import { BossStatus } from "../../ui/BossStatus";
 import { PlayerEffects } from "../../ui/PlayerEffects";
+import { FloatingTextManager } from "../../ui/FloatingTextManager";
+import { EnemyHealthBarManager } from "../../ui/EnemyHealthBarManager";
 
 /**
  * UI 管理器 (UIManager)
@@ -19,10 +20,11 @@ export class UIManager {
     // UI Modules
     private joystick: Joystick | null = null;
     private playerStatus: PlayerStatus | null = null;
-    private floatingText: FloatingText | null = null;
     private cardSelect: CardSelect | null = null;
     private bossStatus: BossStatus | null = null;
     private playerEffects: PlayerEffects | null = null;
+    private floatingTextManager: FloatingTextManager | null = null;
+    private enemyHealthBarManager: EnemyHealthBarManager | null = null;
 
     constructor() {
         this.initialize();
@@ -47,10 +49,11 @@ export class UIManager {
 
             this.joystick = new Joystick();
             this.playerStatus = new PlayerStatus();
-            this.floatingText = new FloatingText();
             this.cardSelect = new CardSelect();
             this.bossStatus = new BossStatus();
             this.playerEffects = new PlayerEffects();
+            this.floatingTextManager = new FloatingTextManager();
+            this.enemyHealthBarManager = new EnemyHealthBarManager();
 
             console.log("[UIManager] UI components initialized successfully.");
         } catch (error) {
@@ -70,8 +73,15 @@ export class UIManager {
         return this.playerStatus;
     }
 
-    public getFloatingText(): FloatingText | null {
-        return this.floatingText;
+    public getFloatingTextManager(): FloatingTextManager | null {
+        return this.floatingTextManager;
+    }
+
+    /**
+     * @deprecated Use getFloatingTextManager() instead
+     */
+    public getFloatingText(): FloatingTextManager | null {
+        return this.floatingTextManager;
     }
 
     public getCardSelect(): CardSelect | null {
@@ -86,15 +96,20 @@ export class UIManager {
         return this.playerEffects;
     }
 
+    public getEnemyHealthBarManager(): EnemyHealthBarManager | null {
+        return this.enemyHealthBarManager;
+    }
+
     /**
      * 清理所有 UI 组件
      */
     public destroy() {
         this.joystick?.destroy();
         this.playerStatus?.destroy();
-        this.floatingText?.destroy();
         this.cardSelect?.destroy();
         this.bossStatus?.destroy();
         this.playerEffects?.destroy();
+        this.floatingTextManager?.destroy();
+        this.enemyHealthBarManager?.destroy();
     }
 }

@@ -57,12 +57,13 @@ export class PistolBullet extends pc.Script {
     private checkCollision() {
         const enemies = this.app.root.findByTag('enemy');
         const myPos = this.entity.getPosition();
-        const radiusSq = 1.0 * 1.0; // 碰撞半径平方
+        const radiusSq = 2.0 * 2.0; // 增大碰撞半径平方
 
         for (const enemyEntity of enemies) {
             // 简单的距离检测
-            const dist = enemyEntity.getPosition().distance(myPos);
-            if (dist * dist < radiusSq) {
+            // 使用自定义的距离计算替代不存在的 distance 方法
+            const distSq = new pc.Vec3().sub2(enemyEntity.getPosition(), myPos).lengthSq();
+            if (distSq < radiusSq) {
                 // 获取绑定的 BaseEnemy 实例
                 const enemy = (enemyEntity as any).baseEnemy;
                 if (enemy && typeof enemy.takeDamage === 'function') {

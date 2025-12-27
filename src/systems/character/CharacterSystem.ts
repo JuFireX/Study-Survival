@@ -24,6 +24,15 @@ export class CharacterSystem implements IGameSystem {
 
         // 设置摄像机跟随
         this.setupCameraFollow();
+
+        // 监听受击事件
+        GameContext.getInstance().getEventBus().on('player:hit', this.onPlayerHit, this);
+    }
+
+    private onPlayerHit(damage: number) {
+        if (this.character) {
+            this.character.takeDamage(damage);
+        }
     }
 
     private createCharacter(type: string) {
