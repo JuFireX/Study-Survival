@@ -12,10 +12,12 @@ import { GameContext } from '../GameContext';
 export class ResourceManager {
     private static instance: ResourceManager;
     private assets: Map<string, pc.Asset> = new Map();
+    private context: GameContext;
     private app: pc.Application;
 
     private constructor() {
-        this.app = GameContext.getInstance().getApp();
+        this.context = GameContext.getInstance();
+        this.app = this.context.getApp();
     }
 
     /**
