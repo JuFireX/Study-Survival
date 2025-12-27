@@ -53,7 +53,7 @@ export class GameManager {
         (window as any).gameManager = this;
 
         // 1. 注册脚本
-        // this.registerScripts();
+        this.registerScripts();
 
         // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();
@@ -95,16 +95,16 @@ export class GameManager {
     /**
      * 注册 PlayCanvas 脚本组件
      */
-    // private registerScripts() {
-    //     pc.registerScript(PlayerController, 'playerController');
-    //     pc.registerScript(PlayerStats, 'playerStats');
-    //     pc.registerScript(AAA, 'aaa');
-    //     pc.registerScript(EnemyBehavior, 'enemyBehavior');
-    //     pc.registerScript(FastEnemy, 'fastEnemy');
-    //     pc.registerScript(TankEnemy, 'tankEnemy');
-    //     pc.registerScript(WeaponController, 'weaponController');
-    //     pc.registerScript(BulletBehavior, 'bulletBehavior');
-    // }
+    private registerScripts() {
+        // pc.registerScript(PlayerController, 'playerController');
+        // pc.registerScript(PlayerStats, 'playerStats');
+        // pc.registerScript(AAA, 'aaa');
+        // pc.registerScript(EnemyBehavior, 'enemyBehavior');
+        // pc.registerScript(FastEnemy, 'fastEnemy');
+        // pc.registerScript(TankEnemy, 'tankEnemy');
+        // pc.registerScript(WeaponController, 'weaponController');
+        // pc.registerScript(BulletBehavior, 'bulletBehavior');
+    }
 
     /**
      * 创建玩家实体

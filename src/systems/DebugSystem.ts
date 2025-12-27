@@ -1,3 +1,5 @@
+import { IGameSystem } from '../config/types';
+
 /**
  * 调试系统 (DebugSystem)
  * 
@@ -7,8 +9,6 @@
  * 
  * 由于调试系统主要用于开发阶段, 所以这里可以直接调用相关的调试函数, 而不需要考虑性能问题
  */
-import { IGameSystem } from '../config/types';
-
 export class DebugSystem implements IGameSystem {
     name = 'DebugSystem';
 
