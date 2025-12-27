@@ -7,7 +7,7 @@ import { CardManager } from './manager/CardManager';
 import { IGameSystem } from '../config/types';
 
 // Systems
-// import { DebugSystem } from '../systems/DebugSystem';
+import { DebugSystem } from '../systems/DebugSystem';
 // import { CharacterSystem } from '../systems/character/CharacterSystem';
 // import { EnemySystem } from '../systems/enemy/EnemySystem';
 // import { WeaponSystem } from '../systems/weapon/WeaponSystem';
@@ -153,7 +153,7 @@ export class GameManager {
      */
     private initializeSystems() {
         // 1. 基础/调试系统
-        // this.systems.push(new DebugSystem());
+        this.systems.push(new DebugSystem());
 
         // 2. 数据/服务系统
         // const questionSystem = new QuestionSystem();
