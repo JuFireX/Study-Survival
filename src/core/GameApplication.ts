@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
+import { GameManager } from './GameManager';
 import { ResourceManager } from './manager/ResourceManager';
 
 /**
@@ -49,11 +50,8 @@ export class GameApplication {
      * 配置应用设置
      */
     private configure() {
-        // 设置全屏填充
-        this.app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-        // 自动调整分辨率以匹配像素比
-        this.app.setCanvasResolution(pc.RESOLUTION_AUTO);
-
+        this.app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);    // 设置全屏填充
+        this.app.setCanvasResolution(pc.RESOLUTION_AUTO);       // 自动调整分辨率以匹配像素比
         // 可以在此处配置物理引擎、本地化等
     }
 
@@ -61,8 +59,7 @@ export class GameApplication {
      * 绑定全局事件
      */
     private bindEvents() {
-        // 处理窗口大小调整
-        window.addEventListener('resize', () => this.app.resizeCanvas());
+        window.addEventListener('resize', () => this.app.resizeCanvas());   // 处理窗口大小调整
     }
 
     /**
@@ -79,6 +76,9 @@ export class GameApplication {
 
             // 加载所有核心资源
             await resourceManager.loadAll();
+
+            // 初始化 GameManager (这将构建场景、UI 和系统)
+            GameManager.getInstance();
 
             // 启动 PlayCanvas 循环
             this.app.start();

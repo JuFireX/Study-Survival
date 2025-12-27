@@ -1,7 +1,5 @@
 import { QuestionCards, WeaponCards, BuffCards } from '../../config/cards';
-import { QuestionCard } from '../../config/types';
-import { WeaponCard } from '../../config/types';
-import { BuffCard } from '../../config/types';
+import { BuffCard, WeaponCard, QuestionCard } from '../../config/types';
 
 /**
  * 卡牌管理器 (CardManager)
@@ -12,9 +10,26 @@ import { BuffCard } from '../../config/types';
  * 3. 类似于 "只读" 数据库, 不允许修改卡牌数据
  */
 export class CardManager {
-    private questionCards: QuestionCard[] = QuestionCards;
-    private weaponCards: WeaponCard[] = WeaponCards;
-    private buffCards: BuffCard[] = BuffCards;
+    private static instance: CardManager;
+    private questionCards: QuestionCard[];
+    private weaponCards: WeaponCard[];
+    private buffCards: BuffCard[];
+
+    private constructor() {
+        this.questionCards = QuestionCards;
+        this.weaponCards = WeaponCards;
+        this.buffCards = BuffCards;
+    }
+
+    /**
+     * 获取单例实例
+     */
+    public static getInstance(): CardManager {
+        if (!CardManager.instance) {
+            CardManager.instance = new CardManager();
+        }
+        return CardManager.instance;
+    }
 
     /**
      * 获取所有题目卡

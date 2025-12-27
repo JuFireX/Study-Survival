@@ -1,10 +1,10 @@
 import * as pc from 'playcanvas';
 import { EventBus } from './EventBus';
-import type { GameManager } from './GameManager';
-import type { UIManager } from './manager/UIManager';
-import type { CardManager } from './manager/CardManager';
-import type { ResourceManager } from './manager/ResourceManager';
-import type { SceneManager } from './manager/SceneManager';
+import { GameManager } from './GameManager';
+import { UIManager } from './manager/UIManager';
+import { CardManager } from './manager/CardManager';
+import { ResourceManager } from './manager/ResourceManager';
+import { SceneManager } from './manager/SceneManager';
 
 /**
  * 游戏上下文 (GameContext)
@@ -26,11 +26,11 @@ export class GameContext {
 
     // 核心管理器
     private eventBus: EventBus;
-    private gameManager: GameManager | null = null; // 游戏管理器
-    private sceneManager: SceneManager | null = null; // 场景管理器
-    private cardManager: CardManager | null = null; // 卡牌管理器
-    private uiManager: UIManager | null = null; // 用户界面管理器
-    private resourceManager: ResourceManager | null = null; // 资源管理器
+    private gameManager: GameManager | null = null;         // 游戏管理器
+    private resourceManager: ResourceManager | null = null; // 资产管理器
+    private sceneManager: SceneManager | null = null;       // 场景管理器
+    private cardManager: CardManager | null = null;         // 卡牌管理器
+    private uiManager: UIManager | null = null;             // 用户界面管理器
 
     private constructor() {
         this.eventBus = EventBus.getInstance();

@@ -23,6 +23,9 @@ export class CharacterSystem implements IGameSystem {
     }
 
     initialize() {
+        // Suppress unused warnings until implementation
+        void this.eventBus;
+        void this.ui;
         console.log("CharacterSystem initialized");
     }
 

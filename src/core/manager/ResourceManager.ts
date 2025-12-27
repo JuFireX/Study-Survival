@@ -18,6 +18,9 @@ export class ResourceManager {
         this.app = GameContext.getInstance().getApp();
     }
 
+    /**
+     * 获取单例实例
+     */
     public static getInstance(): ResourceManager {
         if (!ResourceManager.instance) {
             ResourceManager.instance = new ResourceManager();
