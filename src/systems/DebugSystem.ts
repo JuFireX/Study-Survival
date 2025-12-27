@@ -15,7 +15,7 @@ import { UIManager } from '../core/manager/UIManager';
 export class DebugSystem implements IGameSystem {
     name = 'DebugSystem';
     private uiDebugSystem = new UIDebugSystem();
-    private uiManager = new UIManager();
+    private uiManager = UIManager.getInstance();
     private enemySystem = new EnemySystem(this.uiManager);
 
 
