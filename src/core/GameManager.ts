@@ -12,6 +12,7 @@ import { CharacterSystem } from '../systems/character/CharacterSystem';
 import { WeaponSystem } from '../systems/weapon/WeaponSystem';
 import { EnemySystem } from '../systems/enemy/EnemySystem';
 import { DropSystem } from '../systems/drop/DropSystem';
+import { CardSystem } from '../systems/card/CardSystem';
 
 
 /**
@@ -112,7 +113,7 @@ export class GameManager {
         this.systems.push(new WeaponSystem());
         this.systems.push(new EnemySystem());
         this.systems.push(new DropSystem());
-
+        this.systems.push(new CardSystem());
         // 执行初始化
         this.systems.forEach(sys => {
             console.log(`[GameManager] Initializing system: ${sys.constructor.name}`);
