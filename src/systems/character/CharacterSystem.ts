@@ -1,6 +1,7 @@
 import * as pc from 'playcanvas';
 import { IGameSystem } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
+import { EventBus } from '../../core/EventBus';
 import { BaseCharacter, CharacterAAA } from '../../entities/characters';
 
 /**
@@ -12,32 +13,18 @@ import { BaseCharacter, CharacterAAA } from '../../entities/characters';
  * 3. 驱动角色更新
  */
 export class CharacterSystem implements IGameSystem {
+    private context: GameContext;
+    private eventBus: EventBus;
     private character: BaseCharacter | null = null;
     private joystickInput: pc.Vec2 = new pc.Vec2();
 
-    initialize(): void {
-        console.log('[CharacterSystem] Initializing...');
-
-        // 创建角色
-        // TODO: 从配置或存档读取当前选择的角色
-        this.createCharacter('c_AAA');
-
-        // 设置摄像机跟随
-        this.setupCameraFollow();
-
-        // 监听受击事件
-        GameContext.getInstance().getEventBus().on('player:hit', this.onPlayerHit, this);
-    }
-
-    private onPlayerHit(damage: number) {
-        if (this.character) {
-            this.character.takeDamage(damage);
-        }
+    constructor() {
+        this.context = GameContext.getInstance();
+        this.eventBus = this.context.getEventBus();
     }
 
     private createCharacter(type: string) {
-        const context = GameContext.getInstance();
-        const app = context.getApp();
+        const app = this.context.getApp();
 
         // 创建玩家实体
         const playerEntity = new pc.Entity('Player');
@@ -45,7 +32,7 @@ export class CharacterSystem implements IGameSystem {
         playerEntity.setPosition(0, 1, 0); // 初始位置
 
         // 绑定到 GameContext
-        context.setPlayer(playerEntity);
+        this.context.setPlayer(playerEntity);
 
         // 实例化具体角色逻辑
         switch (type) {
@@ -67,35 +54,47 @@ export class CharacterSystem implements IGameSystem {
     private initializeCharacterState() {
         if (!this.character) return;
 
-        GameContext.getInstance().getEventBus().fire('player:init',
+        this.eventBus.fire('player:init',
             this.character.stats,
             this.character.getLevel(),
             this.character.getCurrentExp(),
             this.character.getMaxExp()
         );
+
+        console.log(`[CharacterSystem] Initialized character state: ${JSON.stringify(this.character.stats)}`);
     }
 
     private setupCameraFollow() {
-        const context = GameContext.getInstance();
-        const camera = context.getCamera();
-        const player = context.getPlayer();
+        const camera = this.context.getCamera();
+        const player = this.context.getPlayer();
 
         if (camera && player) {
-            // 简单的跟随逻辑
-            // 注意：这里可能需要防止重复绑定，或者使用 LateUpdate
-            context.getApp().on('update', () => {
+            this.context.getApp().on('update', () => {
                 const pos = player.getPosition();
-                // 保持固定的偏移
                 camera.setPosition(pos.x, 20, pos.z + 15);
                 camera.lookAt(pos.x, 0, pos.z);
             }, this);
         }
     }
 
+    private onPlayerHit(damage: number) {
+        if (this.character) {
+            this.character.takeDamage(damage);
+        }
+    }
+
+    initialize(): void {
+        console.log('[CharacterSystem] Initializing...');
+        this.createCharacter('c_AAA');  // 这里选择 AAA 角色
+        this.setupCameraFollow();
+        // 订阅所有关联事件
+        this.eventBus.on('player:hit', this.onPlayerHit, this);
+    }
+
     update(dt: number): void {
         if (this.character) {
             // 处理输入
-            const uiManager = GameContext.getInstance().getUIManager();
+            const uiManager = this.context.getUIManager();
             const joystick = uiManager?.getJoystick();
             if (joystick) {
                 this.joystickInput.set(joystick.value.x, joystick.value.y);
