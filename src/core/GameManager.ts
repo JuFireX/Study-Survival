@@ -19,7 +19,7 @@ import { CardSystem } from '../systems/card/CardSystem';
  * 游戏管理器 (GameManager)
  * 
  * 职责:
- * 1. 核心循环的指挥者，负责初始化系统、编排流程和状态管理。
+ * 1. 核心循环的指挥者，负责初始化系统、管理系统和游戏时间因子。
  * 2. 负责构建初始场景和实体 (Player, Camera)。
  * 3. 负责管理所有子系统 (Systems) 的生命周期。
  */
@@ -36,9 +36,7 @@ export class GameManager {
     private constructor() {
         this.context = GameContext.getInstance();
         this.app = this.context.getApp();
-        // 注册自身到 Context
         this.context.setGameManager(this);
-        // 调试用: 暴露到全局 window 对象
         (window as any).gameManager = this;
 
         const eventBus = this.context.getEventBus();
@@ -55,7 +53,7 @@ export class GameManager {
         this.context.setSceneManager(sceneManager);
         const camera = sceneManager.buildScene();
         this.context.setCamera(camera);
-        // 4. 初始化 UI
+        // 4. 初始化 UI 管理器
         this.ui = UIManager.getInstance();
         this.context.setUIManager(this.ui);
         // 5. 初始化卡牌管理器
@@ -86,8 +84,7 @@ export class GameManager {
                 volume: 0.5
             });
 
-            // 设置为非空间音频 (2D)，确保声音不会随距离衰减，且无方向性
-            bgmEntity.sound!.positional = false;
+            bgmEntity.sound!.positional = false; // 设置为非空间音频
 
             this.app.root.addChild(bgmEntity);
             bgmEntity.sound!.play('bgm');
@@ -127,19 +124,13 @@ export class GameManager {
      * 注意：初始化顺序很重要
      */
     private initializeSystems() {
-        // 1. 基础/调试系统
-        // this.systems.push(new DebugSystem());
-
-        // 2. 数据/服务系统
-        // const questionSystem = new QuestionSystem();
-        // this.systems.push(questionSystem);
-
-        // 3. 核心玩法系统
+        // 导入所有系统
         this.systems.push(new CharacterSystem());
         this.systems.push(new WeaponSystem());
         this.systems.push(new EnemySystem());
         this.systems.push(new DropSystem());
         this.systems.push(new CardSystem());
+
         // 执行初始化
         this.systems.forEach(sys => {
             console.log(`[GameManager] Initializing system: ${sys.constructor.name}`);
