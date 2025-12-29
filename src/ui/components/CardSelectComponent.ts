@@ -148,7 +148,7 @@ export class CardSelectComponent {
         inner.style.position = 'relative';
         inner.style.transformStyle = 'preserve-3d';
         inner.style.transition = 'transform 0.6s';
-        
+
         // Set initial transform based on currentFace
         if (pair.currentFace === CardFaceState.Back) {
             inner.style.transform = 'rotateY(180deg)';

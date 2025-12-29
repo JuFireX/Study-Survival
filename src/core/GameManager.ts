@@ -30,6 +30,8 @@ export class GameManager {
     private context: GameContext;
     private systems: IGameSystem[] = [];
     private ui: UIManager;
+    private pauseCount = 0;
+    private previousTimeScale = 1;
 
     private constructor() {
         this.context = GameContext.getInstance();
@@ -38,6 +40,11 @@ export class GameManager {
         this.context.setGameManager(this);
         // 调试用: 暴露到全局 window 对象
         (window as any).gameManager = this;
+
+        const eventBus = this.context.getEventBus();
+        eventBus.on('game:pause', this.onGamePause, this);
+        eventBus.on('game:resume', this.onGameResume, this);
+
         // 1. 注册脚本
         ScriptRegistry.init();
         // 2. 初始化资产管理器
@@ -86,6 +93,25 @@ export class GameManager {
             bgmEntity.sound!.play('bgm');
         } else {
             console.warn('[GameManager] Background music "main theme" not found!');
+        }
+    }
+
+    //暂停游戏
+    private onGamePause(): void {
+        if (this.pauseCount === 0) {
+            this.previousTimeScale = typeof this.app.timeScale === 'number' ? this.app.timeScale : 1;
+            this.app.timeScale = 0;
+        }
+        this.pauseCount++;
+    }
+
+    //恢复游戏
+    private onGameResume(): void {
+        if (this.pauseCount <= 0) return;
+
+        this.pauseCount--;
+        if (this.pauseCount === 0) {
+            this.app.timeScale = this.previousTimeScale;
         }
     }
 
