@@ -29,8 +29,8 @@ export class DropSystem implements IGameSystem {
     private onEnemyDie(enemy: BaseEnemy, expDrop: number) {
         if (expDrop > 0) {
             const pos = enemy.getPosition();
-            // 在敌人位置稍微高一点的地方生成
-            this.spawnExpOrb(pos.x, pos.y + 0.5, pos.z, expDrop);
+            // 掉落物生成在网格表面
+            this.spawnExpOrb(pos.x, pos.y - 0.7, pos.z, expDrop);
         }
     }
 
@@ -65,9 +65,11 @@ export class DropSystem implements IGameSystem {
 
                 if (distSq < this.pickUpRange * this.pickUpRange) {
                     drop.onPickUp();
-                    // 从列表中移除
-                    this.drops.splice(i, 1);
                 }
+            }
+
+            if ((drop as any).isDestroyed?.()) {
+                this.drops.splice(i, 1);
             }
         }
     }

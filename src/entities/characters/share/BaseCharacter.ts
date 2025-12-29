@@ -18,6 +18,7 @@ export abstract class BaseCharacter {
     protected level: number = 1;
     protected currentExp: number = 0;
     protected maxExp: number = 100; // 简单起见，固定或按公式增长
+    protected isDead: boolean = false;
 
     constructor(entity: pc.Entity, stats: PlayerStats) {
         this.entity = entity;
@@ -135,7 +136,11 @@ export abstract class BaseCharacter {
     }
 
     protected die() {
-        GameContext.getInstance().getEventBus().fire('player:dead');
-        // 可以在这里处理死亡逻辑，如播放动画、结束游戏等
+        if (this.isDead) return;
+        this.isDead = true;
+
+        const context = GameContext.getInstance();
+        context.getEventBus().fire('player:dead');
+        context.getApp().timeScale = 0;
     }
 }
