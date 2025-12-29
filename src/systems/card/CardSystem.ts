@@ -1,3 +1,6 @@
+import { BuffCard, Card, IGameSystem, QuestionCard, WeaponCard } from '../../config/types';
+import { GameContext } from '../../core/GameContext';
+
 /**
  * 卡牌系统 (CardSystem)
  * 
@@ -8,13 +11,10 @@
  * 4. 响应玩家的选卡操作，并触发相应的卡牌效果。
  * 5. 与 UI 系统交互，通知卡牌数据的变更。
  */
-import { BuffCard, Card, IGameSystem, QuestionCard, WeaponCard } from '../../config/types';
-import { GameContext } from '../../core/GameContext';
-
 
 export class CardSystem implements IGameSystem {
 
-    
+
     private context: GameContext;
     private isInitialized = false;
 
@@ -101,6 +101,8 @@ export class CardSystem implements IGameSystem {
             return;
         }
 
+        this.context.getEventBus().fire('game:pause');
+
         const questions = this.drawQuestions(3);
         const rewards = this.drawRewards(3);
 
@@ -135,6 +137,7 @@ export class CardSystem implements IGameSystem {
 
         this.publishPiles();
         eventBus.fire('card:selected', selectedCardId, selected);
+        eventBus.fire('game:resume');
     }
 
     private onDrawCards(count?: number): void {
@@ -179,6 +182,7 @@ export class CardSystem implements IGameSystem {
         if (requested === 0) return [];
 
         const result: T[] = [];
+        const usedIds = new Set<string>();
 
         while (result.length < requested) {
             if (deck.length === 0) {
@@ -194,12 +198,24 @@ export class CardSystem implements IGameSystem {
 
             const card = deck.pop();
             if (!card) break;
+
+            if (usedIds.has(card.id)) {
+                continue;
+            }
+
+            usedIds.add(card.id);
             result.push(card);
         }
 
         if (result.length < requested && pool.length > 0) {
-            while (result.length < requested) {
-                result.push(pool[Math.floor(Math.random() * pool.length)]);
+            const candidates = pool.filter(c => !usedIds.has(c.id));
+            while (result.length < requested && candidates.length > 0) {
+                const idx = Math.floor(Math.random() * candidates.length);
+                const [picked] = candidates.splice(idx, 1);
+                if (!picked) break;
+
+                usedIds.add(picked.id);
+                result.push(picked);
             }
         }
 

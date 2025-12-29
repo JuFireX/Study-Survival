@@ -9,7 +9,7 @@ import { VFXConfig } from '../../config/game';
  * 1. 代表一个经验值掉落物。
  * 2. 被拾取时给玩家增加经验。
  */
-type PickState = 'idle' | 'retreat' | 'fly';
+type PickState = 'idle' | 'fly';
 
 export class ExpOrb extends BaseDrop {
     private expValue: number;

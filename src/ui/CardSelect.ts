@@ -34,6 +34,13 @@ export class CardSelect {
     public start(questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[], callback: (selectedCardId: string) => void) {
         this.onCompleted = callback;
         this.pairs = this.pairCards(questions, rewards);
+
+        const questionFrontPairs = this.pairs.filter(p => p.front.type === CardType.Question);
+        if (questionFrontPairs.length > 0 && questionFrontPairs.length < this.pairs.length) {
+            const nonQuestionFrontPairs = this.pairs.filter(p => p.front.type !== CardType.Question);
+            this.pairs = [...nonQuestionFrontPairs, ...questionFrontPairs];
+        }
+
         this.component.show(this.pairs);
     }
 
@@ -147,6 +154,13 @@ export class CardSelect {
 
         pair.isDiscarded = true;
         this.component.updateCardState(pair);
+
+        if (this.pairs.length > 0 && this.pairs.every(p => p.isDiscarded)) {
+            this.component.hide();
+            if (this.onCompleted) {
+                this.onCompleted('');
+            }
+        }
     }
 
     private handleSelect(pairId: string) {
