@@ -12,6 +12,7 @@ export abstract class BaseDrop {
     public entity: pc.Entity;
     protected context: GameContext;
     protected isPicked: boolean = false;
+    protected destroyed: boolean = false;
 
     constructor() {
         this.context = GameContext.getInstance();
@@ -34,7 +35,7 @@ export abstract class BaseDrop {
     }
 
     public update(dt: number) {
-        // 简单的自转效果
+        if (this.destroyed) return;
         this.entity.rotate(0, 90 * dt, 0);
     }
 
@@ -43,7 +44,17 @@ export abstract class BaseDrop {
      */
     public abstract onPickUp(): void;
 
+    public isPickedUp(): boolean {
+        return this.isPicked;
+    }
+
+    public isDestroyed(): boolean {
+        return this.destroyed;
+    }
+
     public destroy() {
+        if (this.destroyed) return;
+        this.destroyed = true;
         this.entity.destroy();
     }
 }
