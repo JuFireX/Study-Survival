@@ -113,8 +113,8 @@ export class UIDebugSystem implements IGameSystem {
             { id: 'b2', rarity: CardRarity.Epic, type: CardType.Buff, name: 'Health Up', description: 'Increases HP', effects: [] }
         ];
 
-        cardSelect.start(questions, rewards, (selectedId) => {
-            console.log('Card selected:', selectedId);
+        cardSelect.start(questions, rewards, (selectedIds) => {
+            console.log('Card selected:', selectedIds);
         });
     }
 

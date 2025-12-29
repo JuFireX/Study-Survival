@@ -109,34 +109,39 @@ export class CardSystem implements IGameSystem {
         this.lastSelectionSnapshot = { questions, rewards };
         this.publishPiles();
 
-        cardSelect.start(questions, rewards, (selectedCardId) => {
-            this.onSelectionCompleted(selectedCardId);
+        cardSelect.start(questions, rewards, (selectedCardIds) => {
+            this.onSelectionCompleted(selectedCardIds);
         });
     }
 
-    private onSelectionCompleted(selectedCardId: string): void {
+    private onSelectionCompleted(selectedCardIds: string[]): void {
         const snapshot = this.lastSelectionSnapshot;
         this.lastSelectionSnapshot = null;
         this.isSelecting = false;
 
         const eventBus = this.context.getEventBus();
+        const selectedSet = new Set<string>(Array.isArray(selectedCardIds) ? selectedCardIds.filter(id => typeof id === 'string' && id.length > 0) : []);
 
-        const selected =
-            snapshot?.rewards.find(r => r.id === selectedCardId) ??
-            this.rewardPool.find(r => r.id === selectedCardId) ??
-            null;
+        if (selectedSet.size > 0) {
+            for (const id of selectedSet) {
+                const selected =
+                    snapshot?.rewards.find(r => r.id === id) ??
+                    this.rewardPool.find(r => r.id === id) ??
+                    null;
 
-        if (selected) {
-            this.ownedRewards.push(selected);
+                if (selected) {
+                    this.ownedRewards.push(selected);
+                    eventBus.fire('card:selected', id, selected);
+                }
+            }
         }
 
         if (snapshot) {
             this.questionDiscard.push(...snapshot.questions);
-            this.rewardDiscard.push(...snapshot.rewards.filter(r => r.id !== selectedCardId));
+            this.rewardDiscard.push(...snapshot.rewards.filter(r => !selectedSet.has(r.id)));
         }
 
         this.publishPiles();
-        eventBus.fire('card:selected', selectedCardId, selected);
         eventBus.fire('game:resume');
     }
 

@@ -28,7 +28,9 @@ export interface CardPair {
     back: Card;
     isQuestionFront: boolean; // 是否问题卡在正面
     isAnswered: boolean; // 是否已回答
+    answerState: 'unanswered' | 'correct' | 'wrong';
     isDiscarded: boolean; // 是否已弃置
+    isSelected: boolean; // 是否已选择
     currentFace: CardFaceState; // 当前朝向
 }
 
@@ -49,7 +51,7 @@ export class CardSelectComponent {
     public onFlip: ((pairId: string) => void) | null = null;
     public onDiscard: ((pairId: string) => void) | null = null;
     public onSelect: ((pairId: string) => void) | null = null;
-    public onAnswer: ((pairId: string, optionIndex: number) => void) | null = null;
+    public onAnswer: ((pairId: string, answer: number | string) => void) | null = null;
 
     constructor() {
         this.container = document.createElement('div');
@@ -121,13 +123,19 @@ export class CardSelectComponent {
         this.updateButtons(pair, frontFace, true); // Front is front
         this.updateButtons(pair, backFace, false); // Back is back
 
-        // 3. 弃置状态视效
+        // 3. 弃置/选择状态视效
         if (pair.isDiscarded) {
             cardEl.style.opacity = '0.5';
             cardEl.style.filter = 'grayscale(100%)';
+            cardEl.style.boxShadow = 'none';
+        } else if (pair.isSelected) {
+            cardEl.style.opacity = '1';
+            cardEl.style.filter = 'none';
+            cardEl.style.boxShadow = '0 0 2vmin rgba(76, 175, 80, 0.8)';
         } else {
             cardEl.style.opacity = '1';
             cardEl.style.filter = 'none';
+            cardEl.style.boxShadow = 'none';
         }
 
         // 4. 如果是问题卡且未回答，可能需要更新题目状态（例如答错显示错误，答对显示正确）
@@ -262,7 +270,6 @@ export class CardSelectComponent {
             qText.style.marginBottom = '2vmin';
             container.appendChild(qText);
 
-            // 如果未回答，显示选项
             if (!pair.isAnswered) {
                 const optionsContainer = document.createElement('div');
                 optionsContainer.style.display = 'flex';
@@ -270,7 +277,38 @@ export class CardSelectComponent {
                 optionsContainer.style.gap = '1vmin';
                 optionsContainer.style.width = '100%';
 
-                if (qCard.question.options) {
+                if (qCard.question.type === 'fill' || !qCard.question.options) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.placeholder = '请输入答案';
+                    input.style.padding = '0.8vmin';
+                    input.style.fontSize = '1.6vmin';
+                    input.style.borderRadius = '0.5vmin';
+                    input.style.border = '0.2vmin solid rgba(255,255,255,0.3)';
+                    input.style.background = 'rgba(0,0,0,0.2)';
+                    input.style.color = '#fff';
+                    input.style.outline = 'none';
+
+                    const submit = document.createElement('button');
+                    submit.innerText = '提交';
+                    submit.style.padding = '0.7vmin';
+                    submit.style.fontSize = '1.6vmin';
+                    submit.style.cursor = 'pointer';
+
+                    const submitAnswer = (e: Event) => {
+                        e.stopPropagation();
+                        const value = input.value;
+                        if (this.onAnswer) this.onAnswer(pair.id, value);
+                    };
+
+                    submit.onclick = submitAnswer;
+                    input.onkeydown = (e) => {
+                        if (e.key === 'Enter') submitAnswer(e);
+                    };
+
+                    optionsContainer.appendChild(input);
+                    optionsContainer.appendChild(submit);
+                } else {
                     qCard.question.options.forEach((opt, idx) => {
                         const optBtn = document.createElement('button');
                         optBtn.innerText = opt;
@@ -284,17 +322,18 @@ export class CardSelectComponent {
                         optionsContainer.appendChild(optBtn);
                     });
                 }
+
                 container.appendChild(optionsContainer);
             } else {
-                // 已回答
-                const solved = document.createElement('div');
-                solved.innerText = 'SOLVED';
-                solved.style.fontSize = '3vmin';
-                solved.style.color = '#4caf50';
-                solved.style.fontWeight = 'bold';
-                solved.style.marginTop = 'auto';
-                solved.style.marginBottom = 'auto';
-                container.appendChild(solved);
+                const result = document.createElement('div');
+                const isWrong = pair.answerState === 'wrong';
+                result.innerText = isWrong ? 'WRONG' : 'SOLVED';
+                result.style.fontSize = '3vmin';
+                result.style.color = isWrong ? '#f44336' : '#4caf50';
+                result.style.fontWeight = 'bold';
+                result.style.marginTop = 'auto';
+                result.style.marginBottom = 'auto';
+                container.appendChild(result);
             }
 
         } else if (card.type === CardType.Buff) {
@@ -380,7 +419,7 @@ export class CardSelectComponent {
         const btnDiscard = face.querySelector('.btn-discard') as HTMLElement;
         const btnSelect = face.querySelector('.btn-select') as HTMLElement;
 
-        if (pair.isDiscarded) {
+        if (pair.isDiscarded || pair.isSelected) {
             this.setButtonEnabled(btnFlip, false);
             this.setButtonEnabled(btnDiscard, false);
             this.setButtonEnabled(btnSelect, false);
@@ -391,6 +430,10 @@ export class CardSelectComponent {
         this.setButtonEnabled(btnFlip, true);
         this.setButtonEnabled(btnDiscard, true);
         this.setButtonEnabled(btnSelect, true);
+
+        if (pair.isAnswered && pair.answerState === 'wrong') {
+            this.setButtonEnabled(btnSelect, false);
+        }
 
         // 规则 2: 如果该卡为问题卡卡面, 在回答问题前禁用其翻转功能
         if (isCurrentFace && card.type === CardType.Question && !pair.isAnswered) {

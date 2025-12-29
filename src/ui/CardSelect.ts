@@ -13,7 +13,7 @@ import { CardSelectComponent, CardPair, CardFaceState, RarityWeight } from './co
 export class CardSelect {
     private component: CardSelectComponent;
     private pairs: CardPair[] = [];
-    private onCompleted: ((selectedCardId: string) => void) | null = null;
+    private onCompleted: ((selectedCardIds: string[]) => void) | null = null;
 
     constructor() {
         this.component = new CardSelectComponent();
@@ -31,7 +31,7 @@ export class CardSelect {
      * @param rewards 3张增益/武器卡
      * @param callback 完成回调
      */
-    public start(questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[], callback: (selectedCardId: string) => void) {
+    public start(questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[], callback: (selectedCardIds: string[]) => void) {
         this.onCompleted = callback;
         this.pairs = this.pairCards(questions, rewards);
 
@@ -96,7 +96,9 @@ export class CardSelect {
                             isQuestionFront: true,
                             currentFace: CardFaceState.Front, // Q 在正面
                             isAnswered: false,
-                            isDiscarded: false
+                            answerState: 'unanswered',
+                            isDiscarded: false,
+                            isSelected: false
                         });
                     } else {
                         // 稀有度不够，取消做卡面的资格 -> 留给后续兜底逻辑
@@ -123,11 +125,27 @@ export class CardSelect {
                 isQuestionFront: false,
                 currentFace: CardFaceState.Front, // R 在正面
                 isAnswered: false,
-                isDiscarded: false
+                answerState: 'unanswered',
+                isDiscarded: false,
+                isSelected: false
             });
         }
 
         return pairs;
+    }
+
+    private tryFinalize() {
+        if (this.pairs.length === 0) return;
+        if (!this.pairs.every(p => p.isDiscarded || p.isSelected)) return;
+
+        const selectedIds = this.pairs.filter(p => p.isSelected).map(p => p.id);
+        const callback = this.onCompleted;
+        this.onCompleted = null;
+
+        this.component.hide();
+        if (callback) {
+            callback(selectedIds);
+        }
     }
 
     private handleFlip(pairId: string) {
@@ -150,69 +168,64 @@ export class CardSelect {
 
     private handleDiscard(pairId: string) {
         const pair = this.pairs.find(p => p.id === pairId);
-        if (!pair || pair.isDiscarded) return;
+        if (!pair || pair.isDiscarded || pair.isSelected) return;
 
         pair.isDiscarded = true;
         this.component.updateCardState(pair);
 
-        if (this.pairs.length > 0 && this.pairs.every(p => p.isDiscarded)) {
-            this.component.hide();
-            if (this.onCompleted) {
-                this.onCompleted('');
-            }
-        }
+        this.tryFinalize();
     }
 
     private handleSelect(pairId: string) {
         const pair = this.pairs.find(p => p.id === pairId);
-        if (!pair || pair.isDiscarded) return;
+        if (!pair || pair.isDiscarded || pair.isSelected) return;
 
-        // 规则 3: 如果该卡为其他卡卡面 (BW), 在回答问题前禁用其选择功能
         const currentCard = pair.currentFace === CardFaceState.Front ? pair.front : pair.back;
         if (currentCard.type !== CardType.Question && !pair.isAnswered) {
             console.warn("Cannot select reward before solving question!");
             return;
         }
 
-        // 提交选择
-        if (this.onCompleted) {
-            this.component.hide();
-            this.onCompleted(pair.id);
-        }
+        pair.isSelected = true;
+        this.component.updateCardState(pair);
+
+        this.tryFinalize();
     }
 
-    private handleAnswer(pairId: string, optionIndex: number) {
+    private handleAnswer(pairId: string, answer: number | string) {
         const pair = this.pairs.find(p => p.id === pairId);
-        if (!pair || pair.isAnswered || pair.isDiscarded) return;
+        if (!pair || pair.isAnswered || pair.isDiscarded || pair.isSelected) return;
 
-        // 获取问题卡
-        // 无论是 Front 还是 Back，找到是 Question 的那张
         const qCard = (pair.front.type === CardType.Question ? pair.front : pair.back) as QuestionCard;
 
-        // 校验答案
-        // 简化：假设 correct 是数字索引
-        const correct = qCard.question.correct;
         let isCorrect = false;
 
-        if (typeof correct === 'number') {
-            isCorrect = correct === optionIndex;
-        } else if (Array.isArray(correct)) {
-            isCorrect = correct.includes(optionIndex);
+        if (typeof answer === 'number') {
+            const correct = qCard.question.correct;
+            if (typeof correct === 'number') {
+                isCorrect = correct === answer;
+            } else if (Array.isArray(correct)) {
+                isCorrect = correct.includes(answer);
+            }
+        } else {
+            const rawInput = answer;
+            const input = typeof rawInput === 'string' ? rawInput.trim().toLowerCase() : '';
+            const expectedRaw = qCard.question.answer;
+
+            if (input.length > 0 && typeof expectedRaw === 'string') {
+                const candidates = expectedRaw
+                    .split(/[\|\/;,，]/g)
+                    .map(s => s.trim().toLowerCase())
+                    .filter(Boolean);
+
+                isCorrect = candidates.length > 0 ? candidates.includes(input) : expectedRaw.trim().toLowerCase() === input;
+            }
         }
 
-        if (isCorrect) {
-            pair.isAnswered = true;
-            // 答对后，更新 UI (显示 SOLVED，解锁按钮)
-            // 重新渲染该卡片的内容需要 Component 支持局部更新，或者全量 updateCardState 触发
-            // 由于 Component 中 renderCardContent 是在 create 时调用的，我们需要刷新 DOM
-            // 简单起见，调用 show 刷新所有 (或者优化 Component 增加 refresh 方法)
-            this.component.show(this.pairs);
-        } else {
-            // 答错逻辑：可能扣血、或者该卡直接销毁？需求没提。
-            // 暂时 log
-            console.log("Wrong answer!");
-            // 也许可以加个震动反馈
-        }
+        pair.isAnswered = true;
+        pair.answerState = isCorrect ? 'correct' : 'wrong';
+
+        this.component.show(this.pairs);
     }
 
     public destroy() {
