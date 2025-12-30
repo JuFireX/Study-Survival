@@ -82,6 +82,11 @@ export class CardSelectComponent {
         this.cardsContainer.style.display = 'flex';
         this.cardsContainer.style.gap = '5vmin';
         this.cardsContainer.style.perspective = '1000px'; // 3D 透视
+        this.cardsContainer.style.flexWrap = 'wrap';
+        this.cardsContainer.style.justifyContent = 'center';
+        this.cardsContainer.style.maxWidth = '95vw';
+        this.cardsContainer.style.padding = '0 2vmin';
+        this.cardsContainer.style.boxSizing = 'border-box';
         this.container.appendChild(this.cardsContainer);
 
         document.body.appendChild(this.container);
@@ -325,15 +330,56 @@ export class CardSelectComponent {
 
                 container.appendChild(optionsContainer);
             } else {
+                const resultGroup = document.createElement('div');
+                resultGroup.style.width = '100%';
+                resultGroup.style.display = 'flex';
+                resultGroup.style.flexDirection = 'column';
+                resultGroup.style.alignItems = 'flex-start';
+                resultGroup.style.boxSizing = 'border-box';
+                resultGroup.style.paddingLeft = '1.2vmin';
+                resultGroup.style.gap = '0.8vmin';
+                resultGroup.style.marginTop = 'auto';
+                resultGroup.style.marginBottom = 'auto';
+
                 const result = document.createElement('div');
                 const isWrong = pair.answerState === 'wrong';
                 result.innerText = isWrong ? 'WRONG' : 'SOLVED';
                 result.style.fontSize = '3vmin';
                 result.style.color = isWrong ? '#f44336' : '#4caf50';
                 result.style.fontWeight = 'bold';
-                result.style.marginTop = 'auto';
-                result.style.marginBottom = 'auto';
-                container.appendChild(result);
+                result.style.textAlign = 'left';
+                resultGroup.appendChild(result);
+
+                let standardAnswer = '';
+                if (qCard.question.type === 'fill' || !qCard.question.options) {
+                    if (typeof qCard.question.answer === 'string') {
+                        standardAnswer = qCard.question.answer;
+                    }
+                } else if (qCard.question.options) {
+                    const correct = qCard.question.correct;
+                    if (typeof correct === 'number') {
+                        standardAnswer = qCard.question.options[correct] ?? '';
+                        if (!standardAnswer) standardAnswer = `选项 ${correct + 1}`;
+                    } else if (Array.isArray(correct) && correct.length > 0) {
+                        const texts = correct
+                            .map(i => qCard.question.options?.[i])
+                            .filter((v): v is string => typeof v === 'string' && v.length > 0);
+                        standardAnswer = texts.length > 0 ? texts.join(' / ') : correct.map(i => `选项 ${i + 1}`).join(' / ');
+                    }
+                }
+
+                const answerLine = document.createElement('div');
+                answerLine.innerText = `答案：${standardAnswer || '（未配置）'}`;
+                answerLine.style.fontSize = '1.5vmin';
+                answerLine.style.color = 'rgba(255,255,255,0.55)';
+                answerLine.style.lineHeight = '1.3';
+                answerLine.style.whiteSpace = 'pre-wrap';
+                answerLine.style.wordBreak = 'break-word';
+                answerLine.style.paddingLeft = '1.2vmin';
+                answerLine.style.boxSizing = 'border-box';
+                resultGroup.appendChild(answerLine);
+
+                container.appendChild(resultGroup);
             }
 
         } else if (card.type === CardType.Buff) {
