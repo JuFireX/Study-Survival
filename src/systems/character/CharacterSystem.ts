@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from '../../config/types';
+import { BuffCard,IGameSystem,CardEffect,WeaponCard } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
 import { BaseCharacter, CharacterAAA } from '../../entities/characters';
