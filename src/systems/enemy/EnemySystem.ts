@@ -1,4 +1,5 @@
 import { IGameSystem } from '../../config/types';
+import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
 import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
 
@@ -20,13 +21,16 @@ export class EnemySystem implements IGameSystem {
     private maxSpawnPerTick = 2;
 
     private context: GameContext;
+    private eventBus: EventBus;
 
     constructor() {
         this.context = GameContext.getInstance();
+        this.eventBus = this.context.getEventBus();
     }
 
     initialize(): void {
         console.log(`[EnemySystem] Initializing...`);
+        this.eventBus.on('player:hit', this.update, this);
 
         const initial = Math.max(1, Math.floor(this.minAlive / 2));
         for (let i = 0; i < initial; i++) {
