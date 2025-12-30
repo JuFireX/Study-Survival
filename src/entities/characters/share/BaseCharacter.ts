@@ -13,16 +13,15 @@ import { GameContext } from '../../../core/GameContext';
  */
 export abstract class BaseCharacter {
     public entity: pc.Entity;
-    public stats: PlayerStats;
-
-    protected level: number = 1;
-    protected currentExp: number = 0;
-    protected maxExp: number = 100; // 简单起见，固定或按公式增长
     protected isDead: boolean = false;
+    public stats: PlayerStats;          // 角色基础属性
+    protected level: number = 1;        // 角色等级
+    protected currentExp: number = 0;   // 当前经验值
+    protected maxExp: number = 100;     // 最大经验值
 
     constructor(entity: pc.Entity, stats: PlayerStats) {
         this.entity = entity;
-        this.stats = { ...stats }; // 复制属性
+        this.stats = { ...stats };
 
         // 绑定逻辑类到实体，方便从 Entity 获取 Logic
         (this.entity as any).baseCharacter = this;
@@ -142,5 +141,12 @@ export abstract class BaseCharacter {
         const context = GameContext.getInstance();
         context.getEventBus().fire('player:dead');
         context.getApp().timeScale = 0;
+    }
+
+    /**
+     * 销毁角色
+     */
+    public destroy() {
+        // 子类清理逻辑
     }
 }
