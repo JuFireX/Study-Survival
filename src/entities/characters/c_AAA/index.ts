@@ -21,6 +21,8 @@ export class CharacterAAA extends BaseCharacter {
 
         // 订阅事件
         GameContext.getInstance().getEventBus().on('player:hit', this.onPlayerHit, this);
+
+
     }
 
     private initializeVisuals() {
