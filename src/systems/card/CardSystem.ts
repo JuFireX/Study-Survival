@@ -11,7 +11,6 @@ import { GameContext } from '../../core/GameContext';
  * 4. 响应玩家的选卡操作，并触发相应的卡牌效果。
  * 5. 与 UI 系统交互，通知卡牌数据的变更。
  */
-
 export class CardSystem implements IGameSystem {
 
 
