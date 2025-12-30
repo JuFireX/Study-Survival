@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from '../../config/types';
+import { BuffCard,IGameSystem,CardEffect,WeaponCard } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
 import { BaseCharacter, CharacterAAA } from '../../entities/characters';
@@ -61,6 +61,9 @@ export class CharacterSystem implements IGameSystem {
             this.character.getMaxExp()
         );
 
+        this.context.getEventBus().on('card:selected', this.onCardSelected, this);
+
+
         console.log(`[CharacterSystem] Initialized character state: ${JSON.stringify(this.character.stats)}`);
     }
 
@@ -89,6 +92,8 @@ export class CharacterSystem implements IGameSystem {
         this.setupCameraFollow();
         // 订阅所有关联事件
         this.eventBus.on('player:hit', this.onPlayerHit, this);
+        this.context.getEventBus().on('card:selected', this.onCardSelected, this);
+
     }
 
     update(dt: number): void {
@@ -108,9 +113,46 @@ export class CharacterSystem implements IGameSystem {
                 }
                 this.character.move(moveDir, dt);
             }
+            
+            this.context.getEventBus().on('card:selected', this.onCardSelected, this);
 
             // 更新角色逻辑
             this.character.update(dt);
+
+        }
+    }
+
+    private onCardSelected(_cardId: string, card: BuffCard | WeaponCard) {
+        if (!this.character) return;
+        console.log('[CardSystem]picked buff:', _cardId, card.name, card.effects);
+        if (!Array.isArray(card.effects) || card.effects.length === 0) return;
+
+        for (const effect of card.effects) {
+            this.applyCardEffect(effect);
+        }
+
+        // 刷新 UI 状态
+        this.initializeCharacterState();
+    }
+
+     private applyCardEffect(effect: CardEffect) {
+        if (!this.character) return;
+        if (effect.target !== 'c_^' && effect.target !== 'c_*') return;
+
+        const stats = this.character.stats as unknown as Record<string, number>;
+        const key = effect.stat;
+        if (!key || typeof stats[key] !== 'number') return;
+
+        if (effect.type === 'add') {
+            stats[key] += effect.value;
+        } else if (effect.type === 'multiply') {
+            stats[key] *= 1 + effect.value;
+        }
+
+        if (key === 'maxHealth') {
+            stats.currentHealth = Math.min(stats.currentHealth, stats.maxHealth);
+        } else if (key === 'currentHealth') {
+            stats.currentHealth = Math.max(0, Math.min(stats.currentHealth, stats.maxHealth));
         }
     }
 }
