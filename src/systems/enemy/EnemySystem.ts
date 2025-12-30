@@ -11,26 +11,42 @@ import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
  */
 export class EnemySystem implements IGameSystem {
     private enemies: BaseEnemy[] = [];
-    private spawnTimer: number = 0;
-    private spawnInterval: number = 3.0; // 每 3 秒生成一个敌人
+
+    private elapsedTime = 0;
+    private spawnTimer = 0;
+
+    private minAlive = 6;
+    private maxAlive = 18;
+    private maxSpawnPerTick = 2;
+
+    private context: GameContext;
+
+    constructor() {
+        this.context = GameContext.getInstance();
+    }
 
     initialize(): void {
-        console.log('[EnemySystem] Initializing...');
-        // 可以在这里预加载资源，或者立即生成一些测试敌人
-        this.spawnEnemy('fast');
+        console.log(`[EnemySystem] Initializing...`);
+
+        const initial = Math.max(1, Math.floor(this.minAlive / 2));
+        for (let i = 0; i < initial; i++) {
+            this.spawnEnemy('fast');
+        }
     }
 
     update(dt: number): void {
-        // 1. 生成逻辑
+        this.elapsedTime += dt;
+
+        // 1) 生成逻辑：用“目标存活数”控制密度，避免一波太多/太少
+        const spawnInterval = this.getSpawnIntervalSeconds();
         this.spawnTimer += dt;
-        if (this.spawnTimer >= this.spawnInterval) {
-            this.spawnTimer = 0;
-            // 随机生成
-            const type = Math.random() > 0.7 ? 'tank' : 'fast';
-            this.spawnEnemy(type);
+
+        while (this.spawnTimer >= spawnInterval) {
+            this.spawnTimer -= spawnInterval;
+            this.spawnUpToTarget();
         }
 
-        // 2. 更新所有敌人
+        // 2) 更新所有敌人
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             const enemy = this.enemies[i];
 
@@ -77,4 +93,47 @@ export class EnemySystem implements IGameSystem {
         this.enemies.push(enemy);
         console.log(`[EnemySystem] Spawned ${type} enemy. Total: ${this.enemies.length}`);
     }
+
+    private getTargetAliveCount(): number {
+        const ramp = Math.floor(this.elapsedTime / 15);
+        const target = this.minAlive + ramp;
+        return Math.max(this.minAlive, Math.min(this.maxAlive, target));
+    }
+
+    private getSpawnIntervalSeconds(): number {
+        const t = this.elapsedTime;
+        const min = 0.45;
+        const max = 1.2;
+        const normalized = Math.min(1, Math.max(0, t / 120));
+        return max - (max - min) * normalized;
+    }
+
+    private pickEnemyType(): string {
+        const baseTankChance = 0.1;
+        const maxTankChance = 0.35;
+        const ramp = Math.min(1, Math.max(0, this.elapsedTime / 180));
+        const tankChance = baseTankChance + (maxTankChance - baseTankChance) * ramp;
+        return Math.random() < tankChance ? 'tank' : 'fast';
+    }
+
+    private spawnUpToTarget(): void {
+        const alive = this.enemies.length;
+        if (alive >= this.maxAlive) return;
+
+        const targetAlive = this.getTargetAliveCount();
+        const clampedTarget = Math.min(this.maxAlive, targetAlive);
+
+        let missing = clampedTarget - alive;
+        if (alive < this.minAlive) {
+            missing = Math.max(missing, this.minAlive - alive);
+        }
+
+        if (missing <= 0) return;
+
+        const spawnCount = Math.min(this.maxSpawnPerTick, missing);
+        for (let i = 0; i < spawnCount; i++) {
+            this.spawnEnemy(this.pickEnemyType());
+        }
+    }
 }
+
