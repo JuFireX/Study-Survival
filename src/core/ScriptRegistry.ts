@@ -18,11 +18,16 @@ export class ScriptRegistry {
      * @param name 脚本名称 (在 Editor/Component 中使用的名称)
      */
     public static register(cls: typeof pc.Script, name: string) {
-        // 总是加入队列，由实例统一初始化
-        // 或者如果已经初始化了，这里应该找到实例来直接注册？
-        // 简单起见，这里只负责收集。运行时动态加载脚本是另一回事。
-        // 如果支持运行时加载，我们需要一个全局访问点。
-        this.queue.push({ cls, name });
+        if (this.initialized) {
+            try {
+                pc.registerScript(cls as any, name);
+                console.log(`[ScriptRegistry] Registered (Late): ${name}`);
+            } catch (e) {
+                console.error(`[ScriptRegistry] Failed to register (Late) ${name}:`, e);
+            }
+        } else {
+            this.queue.push({ cls, name });
+        }
     }
 
     /**

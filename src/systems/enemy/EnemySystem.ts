@@ -1,7 +1,12 @@
 import { IGameSystem } from '../../config/types';
 // import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
-import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
+import { BaseEnemy } from '../../entities/enemies';
+import { EnemyRegistry } from '../../entities/enemies/EnemyRegistry';
+
+// 导入以触发注册
+import '../../entities/enemies/e_Fast';
+import '../../entities/enemies/e_Tank';
 
 /**
  * 敌人系统 (EnemySystem)
@@ -64,18 +69,11 @@ export class EnemySystem implements IGameSystem {
     }
 
     private spawnEnemy(type: string) {
-        let enemy: BaseEnemy;
+        const enemy = EnemyRegistry.create(type);
 
-        switch (type) {
-            case 'fast':
-                enemy = new FastEnemy();
-                break;
-            case 'tank':
-                enemy = new TankEnemy();
-                break;
-            default:
-                console.warn(`[EnemySystem] Unknown enemy type: ${type}`);
-                return;
+        if (!enemy) {
+            console.warn(`[EnemySystem] Unknown enemy type: ${type}`);
+            return;
         }
 
         // 随机生成位置 (在玩家周围一定距离)

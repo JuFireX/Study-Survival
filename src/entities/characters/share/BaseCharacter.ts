@@ -1,6 +1,7 @@
 import * as pc from 'playcanvas';
 import { PlayerStats } from '../../../config/types';
 import { GameContext } from '../../../core/GameContext';
+import { EventBus } from '../../../core/EventBus';
 
 /**
  * 角色基类 (BaseCharacter)
@@ -12,6 +13,8 @@ import { GameContext } from '../../../core/GameContext';
  * 4. 应当从 types 中的 PlayerStats 作为参考
  */
 export abstract class BaseCharacter {
+    protected context: GameContext;
+    protected eventBus: EventBus;
     public entity: pc.Entity;
     protected isDead: boolean = false;
     public stats: PlayerStats;          // 角色基础属性
@@ -22,6 +25,8 @@ export abstract class BaseCharacter {
     constructor(entity: pc.Entity, stats: PlayerStats) {
         this.entity = entity;
         this.stats = { ...stats };
+        this.context = GameContext.getInstance();
+        this.eventBus = this.context.getEventBus();
 
         // 监听实体事件
         this.entity.on('damage', (amount: number) => this.takeDamage(amount));
@@ -90,7 +95,7 @@ export abstract class BaseCharacter {
         this.stats.currentHealth = Math.max(0, this.stats.currentHealth - damage);
 
         // 广播事件
-        GameContext.getInstance().getEventBus().fire('player:damage', damage, this.stats.currentHealth, this.stats.maxHealth);
+        this.eventBus.fire('player:damage', damage, this.stats.currentHealth, this.stats.maxHealth);
 
         if (this.stats.currentHealth <= 0) {
             this.die();
@@ -104,7 +109,7 @@ export abstract class BaseCharacter {
         this.stats.currentHealth = Math.min(this.stats.maxHealth, this.stats.currentHealth + amount);
 
         // 广播事件
-        GameContext.getInstance().getEventBus().fire('player:heal', amount, this.stats.currentHealth, this.stats.maxHealth);
+        this.eventBus.fire('player:heal', amount, this.stats.currentHealth, this.stats.maxHealth);
     }
 
     /**
@@ -120,7 +125,7 @@ export abstract class BaseCharacter {
         }
 
         // 广播事件
-        GameContext.getInstance().getEventBus().fire('player:exp', this.currentExp, this.maxExp, this.level);
+        this.eventBus.fire('player:exp', this.currentExp, this.maxExp, this.level);
     }
 
     protected levelUp() {
@@ -133,16 +138,16 @@ export abstract class BaseCharacter {
         this.stats.currentHealth = this.stats.maxHealth; // 升级回满血?
         this.stats.defense += 1;
 
-        GameContext.getInstance().getEventBus().fire('player:levelup', this.level);
+        this.eventBus.fire('player:levelup', this.level);
     }
 
     protected die() {
         if (this.isDead) return;
         this.isDead = true;
 
-        const context = GameContext.getInstance();
-        context.getEventBus().fire('player:dead');
-        context.getApp().timeScale = 0;
+        // 广播死亡事件
+        this.eventBus.fire('player:dead');
+        this.context.getApp().timeScale = 0;
     }
 
     /**

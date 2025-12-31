@@ -2,7 +2,12 @@ import * as pc from 'playcanvas';
 import { IGameSystem, WeaponStats } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
-import { BaseWeapon, Pistol, Sword } from '../../entities/weapons';
+import { BaseWeapon } from '../../entities/weapons';
+import { WeaponRegistry } from '../../entities/weapons/WeaponRegistry';
+
+// 导入以触发注册
+import '../../entities/weapons/w_Pistol';
+import '../../entities/weapons/w_Sword';
 
 /**
  * 武器系统 (WeaponSystem)
@@ -31,8 +36,6 @@ export class WeaponSystem implements IGameSystem {
         }
         this.player = player;
 
-        let weapon: BaseWeapon | null = null;
-
         // TODO: 这里应该从配置表读取初始属性
         const defaultStats: WeaponStats = {
             damage: 10,
@@ -45,32 +48,25 @@ export class WeaponSystem implements IGameSystem {
         };
 
         const id = `${type}_${Date.now()}`;
-
-        switch (type.toLowerCase()) {
-            case 'pistol':
-                weapon = new Pistol(id, player, {
-                    ...defaultStats,
-                    cooldown: 0.8,
-                    damage: 15
-                });
-                break;
-            case 'sword':
-                weapon = new Sword(id, player, {
-                    ...defaultStats,
-                    cooldown: 1.5,
-                    damage: 30,
-                    areaSize: 3
-                });
-                break;
-            default:
-                console.warn(`[武器系统] 未知武器类型: ${type}`);
-                break;
+        
+        // 针对不同武器的特定配置覆盖
+        // 注意：这里仍然保留了一些硬编码的配置逻辑，这部分其实应该移到配置系统或者 WeaponRegistry 的元数据中
+        // 但为了简化重构，先保留在这里，或者通过 Registry 获取默认配置
+        let specificStats = { ...defaultStats };
+        if (type === 'pistol') {
+            specificStats = { ...defaultStats, cooldown: 0.8, damage: 15 };
+        } else if (type === 'sword') {
+            specificStats = { ...defaultStats, cooldown: 1.5, damage: 30, areaSize: 3 };
         }
+
+        const weapon = WeaponRegistry.create(type, id, player, specificStats);
 
         if (weapon) {
             this.activeWeapons.push(weapon);
             console.log(`[武器系统] 添加武器: ${type}`);
             this.eventBus.fire('weapon:added', weapon);
+        } else {
+            console.warn(`[武器系统] 未知武器类型: ${type}`);
         }
     }
 

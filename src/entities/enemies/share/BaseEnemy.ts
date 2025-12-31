@@ -41,7 +41,7 @@ export abstract class BaseEnemy {
 
         // 标记为敌人
         this.entity.tags.add('enemy');
-        
+
         // 监听实体事件
         this.entity.on('damage', (amount: number) => this.takeDamage(amount));
 
@@ -132,12 +132,14 @@ export abstract class BaseEnemy {
             this.attackCooldown = this.attackInterval;
 
             // 触发攻击事件
-            console.log('Enemy attacking player!');
+            // console.log('Enemy attacking player!');
             // 这里可以播放攻击动画
 
-            // 直接造成伤害 (或通过事件)
-            // 方案：发送 'player:hit' 事件，携带伤害值
-            this.context.getEventBus().fire('player:hit', this.stats.damage);
+            // 直接造成伤害 (通过实体事件)
+            const player = this.context.getPlayer();
+            if (player) {
+                player.fire('damage', this.stats.damage);
+            }
         }
     }
 

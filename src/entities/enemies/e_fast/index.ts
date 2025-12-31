@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { BaseEnemy } from '../share/BaseEnemy';
+import { EnemyRegistry } from '../EnemyRegistry';
 
 export class FastEnemy extends BaseEnemy {
     constructor() {
@@ -26,3 +27,5 @@ export class FastEnemy extends BaseEnemy {
         this.entity.model!.material = material;
     }
 }
+
+EnemyRegistry.register('fast', FastEnemy);

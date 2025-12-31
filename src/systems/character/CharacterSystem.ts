@@ -2,7 +2,11 @@ import * as pc from 'playcanvas';
 import { IGameSystem } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
-import { BaseCharacter, CharacterAAA } from '../../entities/characters';
+import { BaseCharacter } from '../../entities/characters';
+import { CharacterRegistry } from '../../entities/characters/CharacterRegistry';
+
+// 确保引用被加载，从而触发自注册
+import '../../entities/characters/c_AAA';
 
 /**
  * 角色系统 (CharacterSystem)
@@ -37,24 +41,15 @@ export class CharacterSystem implements IGameSystem {
     }
 
     /**
-     * 获取当前角色等级
+     * 初始化 UI 状态
      */
-    public getLevel() {
-        return this.character?.getLevel();
-    }
-
-    /**
-     * 获取当前角色经验
-     */
-    public getCurrentExp() {
-        return this.character?.getCurrentExp();
-    }
-
-    /**
-     * 获取当前角色最大经验
-     */
-    public getMaxExp() {
-        return this.character?.getMaxExp();
+    private initializeCharacterState() {
+        if (!this.character) return;
+        
+        // 初始更新 UI
+        this.eventBus.fire('ui:updateHealth', this.character.stats.currentHealth, this.character.stats.maxHealth);
+        this.eventBus.fire('ui:updateExp', 0, this.character.getMaxExp());
+        this.eventBus.fire('ui:updateLevel', this.character.getLevel());
     }
 
     /**
@@ -80,37 +75,21 @@ export class CharacterSystem implements IGameSystem {
         // 绑定到 GameContext
         this.context.setPlayer(playerEntity);
 
-        // 实例化具体角色逻辑
-        switch (type) {
-            case 'c_AAA':
-                this.character = new CharacterAAA(playerEntity);
-                break;
-            default:
-                console.warn(`[角色系统] 未知的角色类型: ${type}`);
-                this.character = new CharacterAAA(playerEntity);
-                break;
+        // 使用注册表工厂创建角色
+        this.character = CharacterRegistry.create(type, playerEntity);
+        
+        if (!this.character) {
+            console.warn(`[CharacterSystem] Failed to create character type: ${type}. Falling back to default if available.`);
+            // Fallback logic could go here if we had a guaranteed default
+        } else {
+             console.log(`[CharacterSystem] 创建角色: ${type}`);
         }
-
-        console.log(`[角色系统] 创建角色: ${type}`);
 
         // 初始化 UI 状态
         this.initializeCharacterState();
 
         // 设置相机跟随
         this.setupCameraFollow();
-    }
-
-    private initializeCharacterState() {
-        if (!this.character) return;
-
-        this.eventBus.fire('player:init',
-            this.character.stats,
-            this.character.getLevel(),
-            this.character.getCurrentExp(),
-            this.character.getMaxExp()
-        );
-
-        console.log(`[角色系统] 初始化角色状态: ${JSON.stringify(this.character.stats)}`);
     }
 
     /**
@@ -136,6 +115,7 @@ export class CharacterSystem implements IGameSystem {
      */
     initialize(): void {
         console.log('[角色系统] 初始化...');
+        // 可以在这里根据游戏进度选择角色，暂时硬编码为 'c_AAA'
         this.createCharacter('c_AAA');
     }
 
@@ -148,7 +128,24 @@ export class CharacterSystem implements IGameSystem {
 
         if (!(this.character && joystick)) return;
 
+        // 获取摇杆输入
         this.joystickInput.set(joystick.value.x, joystick.value.y);
+        
+        // 将输入传递给角色 (如果需要的话，或者角色自己去拿?)
+        // 现在的 BaseCharacter.update 并没有处理移动，移动逻辑在哪里？
+        // 原来的 CharacterAAA.update 里写了移动逻辑。
+        // 我们应该把移动逻辑上移到 BaseCharacter 或者在这里统一处理。
+        // 更好的方式是 System 负责 Input -> Action 的转换，调用 Character.move()
+        
+        const input = this.joystickInput;
+        if (input.lengthSq() > 0.0001) {
+            const moveDir = new pc.Vec3(input.x, 0, input.y);
+            if (input.lengthSq() > 1) {
+                moveDir.normalize();
+            }
+            this.character.move(moveDir, dt);
+        }
+
         this.character.update(dt);
     }
 }
