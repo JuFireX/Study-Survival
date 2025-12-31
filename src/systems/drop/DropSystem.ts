@@ -64,7 +64,8 @@ export class DropSystem implements IGameSystem {
                 const distSq = new pc.Vec3().sub2(playerPos, dropPos).lengthSq();
 
                 if (distSq < this.pickUpRange * this.pickUpRange) {
-                    drop.onPickUp();
+                    // 使用实体事件通知拾取
+                    drop.entity.fire('pickup');
                 }
             }
 

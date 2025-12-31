@@ -41,8 +41,9 @@ export abstract class BaseEnemy {
 
         // 标记为敌人
         this.entity.tags.add('enemy');
-        // 绑定实例到实体，方便碰撞检测时获取
-        (this.entity as any).baseEnemy = this;
+        
+        // 监听实体事件
+        this.entity.on('damage', (amount: number) => this.takeDamage(amount));
 
         // 初始化血条
         const uiManager = this.context.getUIManager();

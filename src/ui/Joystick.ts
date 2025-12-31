@@ -1,3 +1,5 @@
+import * as pc from 'playcanvas';
+import { GameContext } from '../core/GameContext';
 import { JoystickComponent } from './components/JoystickComponent';
 
 /**
@@ -5,96 +7,66 @@ import { JoystickComponent } from './components/JoystickComponent';
  * 
  * 职责:
  * 1. 处理触摸屏上的虚拟摇杆输入。
- * 2. 计算摇杆的偏移量和方向向量。
- * 3. 将输入转换为游戏内的移动指令。
+ * 2. 监听键盘输入 (WASD/方向键)。
+ * 3. 统一输出移动向量。
  */
 export class Joystick {
     private component: JoystickComponent;
+    private app: pc.Application;
 
-    // 对外暴露的输入值 (-1 到 1)
     public value = { x: 0, y: 0 };
-
-    // 内部状态
     private touchInput = { x: 0, y: 0 };
-    private keyboardInput = { x: 0, y: 0 };
-    private keyState = { w: false, a: false, s: false, d: false };
-
-    // 外部回调
     private _onMove: ((x: number, y: number) => void) | null = null;
-
-    private boundKeyDown: (e: KeyboardEvent) => void;
-    private boundKeyUp: (e: KeyboardEvent) => void;
 
     constructor() {
         this.component = new JoystickComponent();
+        this.app = GameContext.getInstance().getApp();
 
         // 1. 处理触摸输入
         this.component.onMove = (x, y) => {
             this.touchInput.x = x;
             this.touchInput.y = y;
-            this.updateOutput();
         };
 
-        // 2. 处理键盘输入 (WASD)
-        this.boundKeyDown = this.onKeyDown.bind(this);
-        this.boundKeyUp = this.onKeyUp.bind(this);
-
-        window.addEventListener('keydown', this.boundKeyDown);
-        window.addEventListener('keyup', this.boundKeyUp);
+        // 2. 注册每帧更新，处理键盘输入并合并结果
+        this.app.on('update', this.update, this);
     }
 
-    private onKeyDown(e: KeyboardEvent) {
-        this.updateKeyState(e.key, true);
-    }
+    private update() {
+        // 处理键盘输入
+        let kx = 0;
+        let ky = 0;
+        const keyboard = this.app.keyboard;
 
-    private onKeyUp(e: KeyboardEvent) {
-        this.updateKeyState(e.key, false);
-    }
-
-    private updateKeyState(key: string, isPressed: boolean) {
-        const lowerKey = key.toLowerCase();
-        let changed = false;
-
-        if (lowerKey === 'w' || lowerKey === 'arrowup') { this.keyState.w = isPressed; changed = true; }
-        if (lowerKey === 'a' || lowerKey === 'arrowleft') { this.keyState.a = isPressed; changed = true; }
-        if (lowerKey === 's' || lowerKey === 'arrowdown') { this.keyState.s = isPressed; changed = true; }
-        if (lowerKey === 'd' || lowerKey === 'arrowright') { this.keyState.d = isPressed; changed = true; }
-
-        if (changed) {
-            this.updateKeyboardInput();
-        }
-    }
-
-    private updateKeyboardInput() {
-        let x = 0;
-        let y = 0;
-
-        if (this.keyState.w) y -= 1;
-        if (this.keyState.s) y += 1;
-        if (this.keyState.a) x -= 1;
-        if (this.keyState.d) x += 1;
-
-        const len = Math.sqrt(x * x + y * y);
-        if (len > 0) {
-            this.keyboardInput.x = x / len;
-            this.keyboardInput.y = y / len;
-        } else {
-            this.keyboardInput.x = 0;
-            this.keyboardInput.y = 0;
+        if (keyboard) {
+            if (keyboard.isPressed(pc.KEY_W) || keyboard.isPressed(pc.KEY_UP)) ky -= 1;
+            if (keyboard.isPressed(pc.KEY_S) || keyboard.isPressed(pc.KEY_DOWN)) ky += 1;
+            if (keyboard.isPressed(pc.KEY_A) || keyboard.isPressed(pc.KEY_LEFT)) kx -= 1;
+            if (keyboard.isPressed(pc.KEY_D) || keyboard.isPressed(pc.KEY_RIGHT)) kx += 1;
         }
 
-        this.updateOutput();
-    }
+        // 归一化键盘输入
+        if (kx !== 0 || ky !== 0) {
+            const len = Math.sqrt(kx * kx + ky * ky);
+            kx /= len;
+            ky /= len;
+        }
 
-    private updateOutput() {
         // 合并触摸和键盘输入
-        const x = this.touchInput.x + this.keyboardInput.x;
-        const y = this.touchInput.y + this.keyboardInput.y;
+        const x = this.touchInput.x + kx;
+        const y = this.touchInput.y + ky;
+
+        // 检查值是否变化
+        const oldX = this.value.x;
+        const oldY = this.value.y;
 
         this.value.x = x;
         this.value.y = y;
 
-        this._onMove?.(x, y);
+        // 如果值有显著变化，触发回调
+        if (Math.abs(x - oldX) > 0.001 || Math.abs(y - oldY) > 0.001) {
+            this._onMove?.(x, y);
+        }
     }
 
     public set onMove(callback: (x: number, y: number) => void) {
@@ -103,7 +75,6 @@ export class Joystick {
 
     public destroy() {
         this.component.destroy();
-        window.removeEventListener('keydown', this.boundKeyDown);
-        window.removeEventListener('keyup', this.boundKeyUp);
+        this.app.off('update', this.update, this);
     }
 }

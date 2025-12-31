@@ -23,8 +23,10 @@ export abstract class BaseCharacter {
         this.entity = entity;
         this.stats = { ...stats };
 
-        // 绑定逻辑类到实体，方便从 Entity 获取 Logic
-        (this.entity as any).baseCharacter = this;
+        // 监听实体事件
+        this.entity.on('damage', (amount: number) => this.takeDamage(amount));
+        this.entity.on('heal', (amount: number) => this.heal(amount));
+        this.entity.on('exp', (amount: number) => this.addExp(amount));
 
         // 确保实体有标识
         if (!this.entity.name) {

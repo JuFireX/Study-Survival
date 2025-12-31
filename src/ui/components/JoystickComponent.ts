@@ -31,8 +31,8 @@ export class JoystickComponent {
         this.container.style.position = 'absolute';
         this.container.style.bottom = '8vmin';
         this.container.style.left = '8vmin';
-        this.container.style.width = '25vmin';
-        this.container.style.height = '25vmin';
+        this.container.style.width = '45vmin';
+        this.container.style.height = '45vmin';
         this.container.style.zIndex = '100';
         this.container.style.userSelect = 'none';
         this.container.style.touchAction = 'none';
@@ -160,8 +160,6 @@ export class JoystickComponent {
         this.knob.style.transform = `translate(calc(-50% + ${this.currentX}px), calc(-50% + ${this.currentY}px))`;
 
         if (this.onMove) {
-            // 直接线性映射：当前偏移 / 最大半径
-            // 结果范围 [-1, 1]
             const x = this.currentX / this.maxRadius;
             const y = this.currentY / this.maxRadius;
             this.onMove(x, y);

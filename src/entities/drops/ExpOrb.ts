@@ -1,6 +1,5 @@
 import * as pc from 'playcanvas';
 import { BaseDrop } from './BaseDrop';
-import { BaseCharacter } from '../characters';
 import { VFXConfig } from '../../config/game';
 /**
  * 经验球 (ExpOrb)
@@ -21,7 +20,6 @@ export class ExpOrb extends BaseDrop {
     private cameraEntity: pc.Entity | null = null;
     private cam: pc.CameraComponent | null = null;
     private playerEntity: pc.Entity | null = null;
-    private playerLogic: BaseCharacter | null = null;
 
     private startScr = new pc.Vec3();
     private retreatScr = new pc.Vec3();
@@ -69,23 +67,22 @@ export class ExpOrb extends BaseDrop {
         this.isPicked = true;
 
         const playerEntity = this.context.getPlayer();
-        const playerLogic = playerEntity ? ((playerEntity as any).baseCharacter as BaseCharacter) : null;
 
         const cfg = VFXConfig;
         if (!cfg.enabled || !cfg.expOrb.enabled) {
-            this.finish(playerLogic);
+            this.finish();
             return;
         }
 
         if (ExpOrb.activeAnims >= cfg.expOrb.maxConcurrentAnimations) {
-            this.finish(playerLogic);
+            this.finish();
             return;
         }
 
         const cameraEntity = this.context.getCamera();
         const cam = cameraEntity?.camera ?? null;
-        if (!cameraEntity || !cam || !playerEntity || !playerLogic || typeof playerLogic.addExp !== 'function') {
-            this.finish(playerLogic);
+        if (!cameraEntity || !cam || !playerEntity) {
+            this.finish();
             return;
         }
 
@@ -94,7 +91,6 @@ export class ExpOrb extends BaseDrop {
         this.cameraEntity = cameraEntity;
         this.cam = cam;
         this.playerEntity = playerEntity;
-        this.playerLogic = playerLogic;
 
         this.flyDur = Math.max(0.001, this.rand(flyCfg.durationMin, flyCfg.durationMax));
 
@@ -177,13 +173,9 @@ export class ExpOrb extends BaseDrop {
         if (t >= 1) this.finish();
     }
 
-    private finish(logic?: BaseCharacter | null) {
-        const l =
-            logic ??
-            this.playerLogic ??
-            ((this.context.getPlayer() as any)?.baseCharacter as BaseCharacter | undefined) ??
-            null;
-        if (l && typeof l.addExp === 'function') l.addExp(this.expValue);
+    private finish() {
+        const playerEntity = this.playerEntity ?? this.context.getPlayer();
+        playerEntity?.fire('exp', this.expValue);
 
         if (this.counted) {
             this.counted = false;

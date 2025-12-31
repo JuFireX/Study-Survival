@@ -64,13 +64,10 @@ export class PistolBullet extends pc.Script {
             // 使用自定义的距离计算替代不存在的 distance 方法
             const distSq = new pc.Vec3().sub2(enemyEntity.getPosition(), myPos).lengthSq();
             if (distSq < radiusSq) {
-                // 获取绑定的 BaseEnemy 实例
-                const enemy = (enemyEntity as any).baseEnemy;
-                if (enemy && typeof enemy.takeDamage === 'function') {
-                    enemy.takeDamage(this.damage);
-                    this.destroyBullet();
-                    return; // 一次只打一个
-                }
+                // 使用实体事件通知伤害，无需获取 Logic 实例
+                enemyEntity.fire('damage', this.damage);
+                this.destroyBullet();
+                return; // 一次只打一个
             }
         }
     }

@@ -23,7 +23,9 @@ export abstract class BaseDrop {
         
         // 标记
         this.entity.tags.add('drop');
-        (this.entity as any).baseDrop = this;
+        
+        // 监听实体事件
+        this.entity.on('pickup', () => this.onPickUp());
     }
 
     public setPosition(x: number, y: number, z: number) {
