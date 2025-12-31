@@ -1,5 +1,5 @@
 import { IGameSystem } from '../../config/types';
-import { EventBus } from '../../core/EventBus';
+// import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
 import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
 
@@ -21,16 +21,16 @@ export class EnemySystem implements IGameSystem {
     private maxSpawnPerTick = 2;
 
     private context: GameContext;
-    private eventBus: EventBus;
+    // private eventBus: EventBus;
 
     constructor() {
         this.context = GameContext.getInstance();
-        this.eventBus = this.context.getEventBus();
+        // this.eventBus = this.context.getEventBus();
     }
 
     initialize(): void {
         console.log(`[EnemySystem] Initializing...`);
-        this.eventBus.on('player:hit', this.update, this);
+        // this.eventBus.on('player:hit', this.update, this);
 
         const initial = Math.max(1, Math.floor(this.minAlive / 2));
         for (let i = 0; i < initial; i++) {
@@ -79,7 +79,7 @@ export class EnemySystem implements IGameSystem {
         }
 
         // 随机生成位置 (在玩家周围一定距离)
-        const player = GameContext.getInstance().getPlayer();
+        const player = this.context.getPlayer();
         if (player) {
             const playerPos = player.getPosition();
             const angle = Math.random() * Math.PI * 2;
