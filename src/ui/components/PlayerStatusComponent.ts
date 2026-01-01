@@ -19,7 +19,7 @@ export class PlayerStatusComponent {
         this.container = document.createElement('div');
         this.container.id = 'player-status-container';
         this.container.style.position = 'absolute';
-        this.container.style.bottom = '2vmin';
+        this.container.style.bottom = '5vmin';
         this.container.style.left = '50%';
         this.container.style.transform = 'translateX(-50%)';
         this.container.style.width = '40vmin';

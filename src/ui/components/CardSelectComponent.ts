@@ -151,7 +151,7 @@ export class CardSelectComponent {
     private createCardElement(pair: CardPair): HTMLElement {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
-        wrapper.style.width = '30vw'; // 接近屏幕宽度的1/3
+        wrapper.style.width = '24vw'; // 接近屏幕宽度的1/3
         wrapper.style.height = '80vh'; // 占据大部分高度
         wrapper.style.position = 'relative';
 
