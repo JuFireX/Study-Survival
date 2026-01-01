@@ -19,6 +19,7 @@ export class EnemyHealthBarComponent {
         this.container.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
         this.container.style.border = '1px solid rgba(0,0,0,0.8)';
         this.container.style.borderRadius = '3px';
+        this.container.style.overflow = 'hidden'; // 修复圆角被填充遮挡的问题
         this.container.style.pointerEvents = 'none'; // 点击穿透
         this.container.style.display = 'none'; // 初始隐藏
         this.container.style.zIndex = '50';

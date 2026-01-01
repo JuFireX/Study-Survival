@@ -29,10 +29,10 @@ export class JoystickComponent {
         this.container = document.createElement('div');
         this.container.id = 'joystick-container';
         this.container.style.position = 'absolute';
-        this.container.style.bottom = '8vmin';
-        this.container.style.left = '8vmin';
-        this.container.style.width = '45vmin';
-        this.container.style.height = '45vmin';
+        this.container.style.bottom = '10vmin';
+        this.container.style.left = '10vmin';
+        this.container.style.width = '60vmin';
+        this.container.style.height = '60vmin';
         this.container.style.zIndex = '100';
         this.container.style.userSelect = 'none';
         this.container.style.touchAction = 'none';
@@ -48,8 +48,8 @@ export class JoystickComponent {
 
         // 摇杆头部
         this.knob = document.createElement('div');
-        this.knob.style.width = '10vmin';
-        this.knob.style.height = '10vmin';
+        this.knob.style.width = '15vmin';
+        this.knob.style.height = '15vmin';
         this.knob.style.borderRadius = '50%';
         this.knob.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
         this.knob.style.position = 'absolute';
