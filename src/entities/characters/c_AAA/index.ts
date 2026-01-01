@@ -17,9 +17,6 @@ export class CharacterAAA extends BaseCharacter {
         };
         super(entity, { ...defaultStats, ...stats });
         this.initializeVisuals();
-
-        // 订阅事件
-        // this.eventBus.on('player:hit', this.onPlayerHit, this);
     }
 
     private initializeVisuals() {
@@ -28,8 +25,9 @@ export class CharacterAAA extends BaseCharacter {
             type: 'capsule'
         });
 
+        // 设置胶囊体颜色为青色
         const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(0, 1, 0); // 绿色
+        material.diffuse = new pc.Color(60 / 255, 90 / 255, 250 / 255);
         material.update();
         if (this.entity.model) {
             this.entity.model.material = material;
@@ -39,17 +37,13 @@ export class CharacterAAA extends BaseCharacter {
         const eye = new pc.Entity('Eye');
         eye.addComponent('model', { type: 'box' });
         eye.setLocalScale(0.5, 0.2, 0.5);
-        eye.setLocalPosition(0, 0.5, 0.4);
+        eye.setLocalPosition(0, 0.5, 0.3);
         const eyeMat = new pc.StandardMaterial();
-        eyeMat.diffuse = new pc.Color(0, 0, 0);
+        eyeMat.diffuse = new pc.Color(200 / 255, 200 / 255, 200 / 255);
         eyeMat.update();
         if (eye.model) eye.model.material = eyeMat;
         this.entity.addChild(eye);
     }
-
-    // private onPlayerHit() {
-    //     console.log('Player AAA hit!');
-    // }
 }
 
 // 自动注册
