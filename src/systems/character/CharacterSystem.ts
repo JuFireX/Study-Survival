@@ -27,6 +27,13 @@ export class CharacterSystem implements IGameSystem {
         CharacterSystem.instance = this;
         this.context = GameContext.getInstance();
         this.eventBus = this.context.getEventBus();
+
+        // 监听输入事件
+        this.eventBus.on('input:joystick', this.onJoystickInput, this);
+    }
+
+    private onJoystickInput(x: number, y: number) {
+        this.joystickInput.set(x, y);
     }
 
     public static getInstance(): CharacterSystem {
@@ -45,7 +52,7 @@ export class CharacterSystem implements IGameSystem {
      */
     private initializeCharacterState() {
         if (!this.character) return;
-        
+
         // 初始更新 UI
         this.eventBus.fire('ui:updateHealth', this.character.stats.currentHealth, this.character.stats.maxHealth);
         this.eventBus.fire('ui:updateExp', 0, this.character.getMaxExp());
@@ -77,12 +84,12 @@ export class CharacterSystem implements IGameSystem {
 
         // 使用注册表工厂创建角色
         this.character = CharacterRegistry.create(type, playerEntity);
-        
+
         if (!this.character) {
             console.warn(`[CharacterSystem] Failed to create character type: ${type}. Falling back to default if available.`);
             // Fallback logic could go here if we had a guaranteed default
         } else {
-             console.log(`[CharacterSystem] 创建角色: ${type}`);
+            console.log(`[CharacterSystem] 创建角色: ${type}`);
         }
 
         // 初始化 UI 状态
@@ -123,20 +130,11 @@ export class CharacterSystem implements IGameSystem {
      * 更新角色系统
      */
     update(dt: number): void {
-        const uiManager = this.context.getUIManager();
-        const joystick = uiManager?.getJoystick();
-
-        if (!(this.character && joystick)) return;
+        if (!this.character) return;
 
         // 获取摇杆输入
-        this.joystickInput.set(joystick.value.x, joystick.value.y);
-        
-        // 将输入传递给角色 (如果需要的话，或者角色自己去拿?)
-        // 现在的 BaseCharacter.update 并没有处理移动，移动逻辑在哪里？
-        // 原来的 CharacterAAA.update 里写了移动逻辑。
-        // 我们应该把移动逻辑上移到 BaseCharacter 或者在这里统一处理。
-        // 更好的方式是 System 负责 Input -> Action 的转换，调用 Character.move()
-        
+        // 输入现在通过事件驱动更新到 this.joystickInput 中
+
         const input = this.joystickInput;
         if (input.lengthSq() > 0.0001) {
             const moveDir = new pc.Vec3(input.x, 0, input.y);

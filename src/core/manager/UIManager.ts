@@ -5,6 +5,8 @@ import { BossStatus } from "../../ui/BossStatus";
 import { PlayerEffects } from "../../ui/PlayerEffects";
 import { FloatingTextManager } from "../../ui/FloatingTextManager";
 import { EnemyHealthBarManager } from "../../ui/EnemyHealthBarManager";
+import { EventBus } from "../EventBus";
+import { QuestionCard, BuffCard, WeaponCard } from "../../config/types";
 
 /**
  * UI 管理器 (UIManager)
@@ -28,6 +30,20 @@ export class UIManager {
 
     constructor() {
         this.initialize();
+        this.bindEvents();
+    }
+
+    private bindEvents() {
+        const eventBus = EventBus.getInstance();
+        eventBus.on('ui:showCardSelection', this.onShowCardSelection, this);
+    }
+
+    private onShowCardSelection(data: { questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[] }) {
+        if (this.cardSelect) {
+            this.cardSelect.start(data.questions, data.rewards, (selectedIds) => {
+                EventBus.getInstance().fire('card:selectionCompleted', selectedIds);
+            });
+        }
     }
 
     /**

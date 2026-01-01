@@ -93,6 +93,10 @@ export class EnemySystem implements IGameSystem {
         }
 
         this.enemies.push(enemy);
+
+        // 广播生成事件，供 UI (血条) 等系统监听
+        this.context.getEventBus().fire('enemy:spawn', enemy);
+
         console.log(`[EnemySystem] Spawned ${type} enemy. Total: ${this.enemies.length}`);
     }
 

@@ -16,7 +16,6 @@ export class Joystick {
 
     public value = { x: 0, y: 0 };
     private touchInput = { x: 0, y: 0 };
-    private _onMove: ((x: number, y: number) => void) | null = null;
 
     constructor() {
         this.component = new JoystickComponent();
@@ -63,14 +62,22 @@ export class Joystick {
         this.value.x = x;
         this.value.y = y;
 
-        // 如果值有显著变化，触发回调
-        if (Math.abs(x - oldX) > 0.001 || Math.abs(y - oldY) > 0.001) {
-            this._onMove?.(x, y);
-        }
-    }
+        // 总是触发事件，以便系统每帧都能获取输入状态（或者只在变化时触发？）
+        // CharacterSystem 需要每帧持续移动，所以最好是持续触发或者由 CharacterSystem 自己持有状态
+        // 既然 CharacterSystem 每一帧都跑，它只需要知道当前的 Input 值。
+        // 但如果我们想完全解耦，Joystick 可以每帧广播 'input:move'，或者 CharacterSystem 每一帧来问（但这又耦合了）。
+        // 这种情况下，Joystick 更新一个全局的 InputState 单例，或者广播事件是比较好的。
+        // 为了避免每帧产生事件对象，我们只在值变化时广播，或者 CharacterSystem 自己缓存状态。
+        // 但是 CharacterSystem 的 update 是每帧跑的，如果 Joystick 停了，CharacterSystem 也得知道停了。
 
-    public set onMove(callback: (x: number, y: number) => void) {
-        this._onMove = callback;
+        // 方案：Joystick 依然负责产生数据，通过 EventBus 广播 'input:joystick'
+        // 为了性能，只在值变化时广播。如果没变化，接收方保持上一次的值？
+        // 不，如果是键盘，你按住不放，值是不变的 (1, 0)，CharacterSystem 每一帧都要用这个 (1, 0) 来移动。
+        // 所以 CharacterSystem 需要缓存这个值。
+
+        if (Math.abs(x - oldX) > 0.001 || Math.abs(y - oldY) > 0.001) {
+            GameContext.getInstance().getEventBus().fire('input:joystick', x, y);
+        }
     }
 
     public destroy() {

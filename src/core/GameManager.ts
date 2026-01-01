@@ -1,6 +1,5 @@
 import * as pc from 'playcanvas';
 import { GameContext } from './GameContext';
-import { ScriptRegistry } from './ScriptRegistry';
 import { ResourceManager } from './manager/ResourceManager';
 import { SceneManager } from './manager/SceneManager';
 import { UIManager } from './manager/UIManager';
@@ -43,8 +42,6 @@ export class GameManager {
         eventBus.on('game:pause', this.onGamePause, this);
         eventBus.on('game:resume', this.onGameResume, this);
 
-        // 1. 注册脚本
-        ScriptRegistry.init();
         // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();
         this.context.setResourceManager(resourceManager);

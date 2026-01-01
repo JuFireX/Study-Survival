@@ -1,8 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from '../../../core/GameContext';
 
-import type { EnemyHealthBar } from '../../../ui/EnemyHealthBar';
-
 export interface EnemyStats {
     maxHealth: number;
     health: number;
@@ -25,9 +23,6 @@ export abstract class BaseEnemy {
     protected context: GameContext;
     protected isDead: boolean = false;
 
-    // UI 组件
-    protected healthBar: EnemyHealthBar;
-
     constructor(stats: EnemyStats) {
         this.context = GameContext.getInstance();
         this.stats = { ...stats }; // Copy stats
@@ -44,15 +39,6 @@ export abstract class BaseEnemy {
 
         // 监听实体事件
         this.entity.on('damage', (amount: number) => this.takeDamage(amount));
-
-        // 初始化血条
-        const uiManager = this.context.getUIManager();
-        if (uiManager && uiManager.getEnemyHealthBarManager()) {
-            this.healthBar = uiManager.getEnemyHealthBarManager()!.create(this.entity, 2.5);
-        } else {
-            console.error("UIManager not found when creating enemy!");
-            throw new Error("UIManager not initialized");
-        }
     }
 
     protected setupModel() {
@@ -152,7 +138,7 @@ export abstract class BaseEnemy {
         this.stats.health -= amount;
 
         // 更新血条
-        this.healthBar.updateHealth(this.stats.health / this.stats.maxHealth);
+        this.entity.fire('health:change', this.stats.health / this.stats.maxHealth);
 
         // UI 跳字 (通过 EventBus)
         // 确保 FloatingText 监听的是 'combat:damage'
@@ -172,11 +158,6 @@ export abstract class BaseEnemy {
         this.isDead = true;
 
         console.log('Enemy died!');
-
-        // 销毁血条
-        // 通知 Manager 移除自己，或者直接 destroy (Manager 会在 update 中检测到无效引用)
-        // 但这里我们显式调用 destroy，EnemyHealthBar 会标记自己为无效
-        this.healthBar.destroy();
 
         // 广播死亡事件 (用于掉落经验、任务进度等)
         this.context.getEventBus().fire('enemy:die', this, this.stats.expDrop);
