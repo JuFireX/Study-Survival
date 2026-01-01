@@ -19,10 +19,10 @@ export class TankEnemy extends BaseEnemy {
         });
 
         // 大一点
-        this.entity.setLocalScale(1.5, 1.5, 1.5);
+        this.entity.setLocalScale(1.0, 1.0, 1.0);
 
         const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(0, 0, 1); // 蓝色
+        material.diffuse = new pc.Color(0, 0, 1);
         material.update();
         this.entity.model!.material = material;
     }

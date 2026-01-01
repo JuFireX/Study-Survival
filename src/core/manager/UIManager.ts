@@ -61,7 +61,7 @@ export class UIManager {
      */
     private initialize() {
         try {
-            console.log("[UIManager] Initializing UI components...");
+            console.log("[UI管理器] 初始化 UI 组件...");
 
             this.joystick = new Joystick();
             this.playerStatus = new PlayerStatus();
@@ -71,9 +71,9 @@ export class UIManager {
             this.floatingTextManager = new FloatingTextManager();
             this.enemyHealthBarManager = new EnemyHealthBarManager();
 
-            console.log("[UIManager] UI components initialized successfully.");
+            console.log("[UI管理器] UI 组件初始化成功.");
         } catch (error) {
-            console.error("[UIManager] Failed to initialize UI components:", error);
+            console.error("[UI管理器] 初始化 UI 组件时发生错误:", error);
         }
     }
 

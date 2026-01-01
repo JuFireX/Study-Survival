@@ -15,10 +15,10 @@ export class WeaponRegistry {
      */
     public static register(type: string, ctor: WeaponConstructor) {
         if (this.registry.has(type)) {
-            console.warn(`[WeaponRegistry] Weapon type '${type}' is already registered. Overwriting.`);
+            console.warn(`[武器注册表] 武器类型 '${type}' 已注册. 覆盖.`);
         }
         this.registry.set(type, ctor);
-        console.log(`[WeaponRegistry] Registered: ${type}`);
+        console.log(`[武器注册表] 注册: ${type}`);
     }
 
     /**
@@ -27,7 +27,7 @@ export class WeaponRegistry {
     public static create(type: string, id: string, owner: pc.Entity, stats: WeaponStats): BaseWeapon | null {
         const Ctor = this.registry.get(type);
         if (!Ctor) {
-            console.error(`[WeaponRegistry] Unknown weapon type: ${type}`);
+            console.error(`[武器注册表] 未知武器类型: ${type}`);
             return null;
         }
         return new Ctor(id, owner, stats);

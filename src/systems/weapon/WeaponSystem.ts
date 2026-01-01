@@ -48,14 +48,14 @@ export class WeaponSystem implements IGameSystem {
         };
 
         const id = `${type}_${Date.now()}`;
-        
+
         // 针对不同武器的特定配置覆盖
         // 注意：这里仍然保留了一些硬编码的配置逻辑，这部分其实应该移到配置系统或者 WeaponRegistry 的元数据中
         // 但为了简化重构，先保留在这里，或者通过 Registry 获取默认配置
         let specificStats = { ...defaultStats };
-        if (type === 'pistol') {
+        if (type === 'w_Pistol') {
             specificStats = { ...defaultStats, cooldown: 0.8, damage: 15 };
-        } else if (type === 'sword') {
+        } else if (type === 'w_Sword') {
             specificStats = { ...defaultStats, cooldown: 1.5, damage: 30, areaSize: 3 };
         }
 
@@ -83,12 +83,12 @@ export class WeaponSystem implements IGameSystem {
 
         this.player = this.context.getPlayer();
         if (this.player) {
-            this.addWeapon('pistol');
+            this.addWeapon('w_Pistol');
             return;
         }
 
         this.eventBus.once('player:init', () => {
-            this.addWeapon('pistol');
+            this.addWeapon('w_Pistol');
         }, this);
     }
 

@@ -22,7 +22,7 @@ export class FastEnemy extends BaseEnemy {
         this.entity.setLocalScale(0.8, 0.8, 0.8);
 
         const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(1, 1, 0); // 黄色
+        material.diffuse = new pc.Color(1, 1, 0);
         material.update();
         this.entity.model!.material = material;
     }

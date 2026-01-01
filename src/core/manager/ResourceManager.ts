@@ -35,7 +35,7 @@ export class ResourceManager {
      * 自动扫描 `src/assets` 目录下的图片和音频文件
      */
     public async loadAll(): Promise<void> {
-        console.log("[ResourceManager] Start loading assets...");
+        console.log("[资源管理器] 加载资源...");
 
         try {
             // 扫描 src/assets 下的图片和音频
@@ -61,10 +61,10 @@ export class ResourceManager {
             }
 
             await Promise.all(loadPromises);
-            console.log(`[ResourceManager] All assets loaded. Total: ${this.assets.size}`);
+            console.log(`[资源管理器] 所有资源加载完成. 总数: ${this.assets.size}`);
 
         } catch (error) {
-            console.error("[ResourceManager] Fatal error during asset loading:", error);
+            console.error("[资源管理器] 加载资源时发生致命错误:", error);
             throw error;
         }
     }
@@ -87,7 +87,7 @@ export class ResourceManager {
         return new Promise((resolve) => {
             this.app.assets.loadFromUrl(url, type, (err, asset) => {
                 if (err) {
-                    console.error(`[ResourceManager] Failed to load ${name} (${url}):`, err);
+                    console.error(`[资源管理器] 加载 ${name} (${url}) 失败:`, err);
                     // 即使失败也 resolve，避免阻塞整个游戏流程，但会打印错误
                     resolve();
                     return;
@@ -96,7 +96,7 @@ export class ResourceManager {
                 if (asset) {
                     asset.name = name;
                     this.assets.set(name, asset);
-                    console.log(`[ResourceManager] Loaded: ${name} (${type})`);
+                    console.log(`[资源管理器] 加载成功: ${name} (${type})`);
                 }
                 resolve();
             });

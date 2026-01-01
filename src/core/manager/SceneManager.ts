@@ -66,9 +66,9 @@ export class SceneManager {
             poster.model!.material = material;
 
             this.app.root.addChild(poster);
-            console.log('[SceneManager] Test poster created with texture "test".');
+            console.log('[场景管理器] 测试海报创建成功, 纹理: "test".');
         } else {
-            console.warn('[SceneManager] Texture "test" not found. Make sure test.jpeg exists in assets/image.');
+            console.warn('[场景管理器] 纹理 "test" 未找到. 请确保 test.jpeg 存在于 assets/image 目录.');
         }
     }
 

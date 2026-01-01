@@ -67,7 +67,7 @@ export class EnemySystem implements IGameSystem {
         const enemy = EnemyRegistry.create(type);
 
         if (!enemy) {
-            console.warn(`[EnemySystem] Unknown enemy type: ${type}`);
+            console.warn(`[敌人系统] 未知敌人类型: ${type}`);
             return;
         }
 
@@ -92,7 +92,7 @@ export class EnemySystem implements IGameSystem {
         // 广播生成事件，供 UI (血条) 等系统监听
         this.context.getEventBus().fire('enemy:spawn', enemy);
 
-        console.log(`[EnemySystem] Spawned ${type} enemy. Total: ${this.enemies.length}`);
+        console.log(`[敌人系统] 生成 ${type} 敌人. 总数: ${this.enemies.length}`);
     }
 
     private getTargetAliveCount(): number {

@@ -37,7 +37,7 @@ export class CardSystem implements IGameSystem {
     }
 
     initialize(): void {
-        console.log('[CardSystem] Initializing...');
+        console.log('[卡牌系统] 初始化...');
         this.loadPoolsFromManager();
         this.resetDecks();
         this.bindEvents();
@@ -101,6 +101,7 @@ export class CardSystem implements IGameSystem {
         this.lastSelectionSnapshot = { questions, rewards };
         this.publishPiles();
 
+        console.log('[卡牌系统] 显示选卡界面...');
         this.context.getEventBus().fire('ui:showCardSelection', { questions, rewards });
     }
 

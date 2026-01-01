@@ -64,7 +64,7 @@ export class GameContext {
      */
     public getApp(): pc.Application {
         if (!this.app) {
-            throw new Error("[GameContext] Application not initialized!");
+            throw new Error("[游戏上下文] 应用实例未初始化!");
         }
         return this.app;
     }

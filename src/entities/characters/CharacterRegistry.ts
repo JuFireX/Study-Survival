@@ -21,10 +21,10 @@ export class CharacterRegistry {
      */
     public static register(type: string, ctor: CharacterConstructor) {
         if (this.registry.has(type)) {
-            console.warn(`[CharacterRegistry] Character type '${type}' is already registered. Overwriting.`);
+            console.warn(`[角色注册表] 角色类型 '${type}' 已注册. 覆盖.`);
         }
         this.registry.set(type, ctor);
-        console.log(`[CharacterRegistry] Registered: ${type}`);
+        console.log(`[角色注册表] 注册: ${type}`);
     }
 
     /**
@@ -36,7 +36,7 @@ export class CharacterRegistry {
     public static create(type: string, entity: pc.Entity): BaseCharacter | null {
         const Ctor = this.registry.get(type);
         if (!Ctor) {
-            console.error(`[CharacterRegistry] Unknown character type: ${type}`);
+            console.error(`[角色注册表] 未知角色类型: ${type}`);
             return null;
         }
         return new Ctor(entity);

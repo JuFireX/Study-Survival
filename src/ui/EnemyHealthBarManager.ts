@@ -29,6 +29,9 @@ export class EnemyHealthBarManager {
         this.eventBus.on('enemy:spawn', this.onEnemySpawn, this);
     }
 
+    /**
+     * 当敌人生成时自动创建血条
+     */
     private onEnemySpawn(enemy: BaseEnemy) {
         this.create(enemy.entity);
     }

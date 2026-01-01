@@ -21,11 +21,14 @@ export class DropSystem implements IGameSystem {
     }
 
     initialize(): void {
-        console.log('[DropSystem] Initializing...');
+        console.log('[掉落物系统] 初始化...');
         // 监听敌人死亡事件
         this.context.getEventBus().on('enemy:die', this.onEnemyDie, this);
     }
 
+    /**
+     * 敌人死亡时触发
+     */
     private onEnemyDie(enemy: BaseEnemy, expDrop: number) {
         if (expDrop > 0) {
             const pos = enemy.getPosition();
@@ -34,6 +37,9 @@ export class DropSystem implements IGameSystem {
         }
     }
 
+    /**
+     * 生成经验 orb
+     */
     private spawnExpOrb(x: number, y: number, z: number, amount: number) {
         const orb = new ExpOrb(amount);
         orb.setPosition(x, y, z);

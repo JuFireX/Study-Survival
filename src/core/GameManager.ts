@@ -62,7 +62,7 @@ export class GameManager {
         this.app.on('update', this.update, this);
         // 9. 播放背景音乐
         this.playBackgroundMusic();
-        console.log("[GameManager] Initialized successfully.");
+        console.log("[游戏管理器] 初始化成功.");
     }
 
     private playBackgroundMusic() {
@@ -70,7 +70,7 @@ export class GameManager {
         const bgmAsset = resourceManager.getAsset('main theme');
 
         if (bgmAsset) {
-            console.log('[GameManager] Playing background music: main theme');
+            console.log('[游戏管理器] 播放背景音乐: main theme');
             const bgmEntity = new pc.Entity('BackgroundMusic');
             bgmEntity.addComponent('sound');
 
@@ -86,7 +86,7 @@ export class GameManager {
             this.app.root.addChild(bgmEntity);
             bgmEntity.sound!.play('bgm');
         } else {
-            console.warn('[GameManager] Background music "main theme" not found!');
+            console.warn('[游戏管理器] 背景音乐 "main theme" 未找到!');
         }
     }
 
@@ -130,7 +130,7 @@ export class GameManager {
 
         // 执行初始化
         this.systems.forEach(sys => {
-            console.log(`[GameManager] Initializing system: ${sys.constructor.name}`);
+            console.log(`[游戏管理器] 初始化系统: ${sys.constructor.name}`);
             sys.initialize();
         });
     }

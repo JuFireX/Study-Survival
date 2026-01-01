@@ -30,7 +30,7 @@ export class PistolBullet {
         this.range = range;
         this.direction.copy(direction).normalize();
 
-        console.log('[PistolBullet] Created:', { speed, damage, range, direction });
+        console.log('[手枪子弹] 创建实体:', { speed, damage, range, direction });
     }
 
     /**

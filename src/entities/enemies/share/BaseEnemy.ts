@@ -142,7 +142,7 @@ export abstract class BaseEnemy {
 
         // UI 跳字 (通过 EventBus)
         // 确保 FloatingText 监听的是 'combat:damage'
-        console.log(`[BaseEnemy] takeDamage: ${amount} at ${this.entity.getPosition()}`);
+        console.log(`[敌人基类] 受到伤害: ${amount} 在 ${this.entity.getPosition()}`);
         this.context.getEventBus().fire('combat:damage', amount, this.entity.getPosition());
 
         if (this.stats.health <= 0) {
@@ -157,7 +157,7 @@ export abstract class BaseEnemy {
         if (this.isDead) return;
         this.isDead = true;
 
-        console.log('Enemy died!');
+        console.log('[敌人基类] 敌人死亡!');
 
         // 广播死亡事件 (用于掉落经验、任务进度等)
         this.context.getEventBus().fire('enemy:die', this, this.stats.expDrop);
