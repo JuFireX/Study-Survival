@@ -11,12 +11,12 @@ import { LevelConfig } from './types';
 export const WorldLevelConfig: LevelConfig[] = [
     {
         level: 1,
-        expRequired: 100,
+        expRequired: 50,
         playerStats: {
             maxHealth: 100,
             currentHealth: 100,
-            defense: 0,
-            magicDefense: 0,
+            defense: 10,
+            magicDefense: 10,
             moveSpeed: 10,
             pickupRange: 3.0,
             expEfficiency: 1.0,
@@ -33,14 +33,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 2,
-        expRequired: 150,
+        expRequired: 100,
         playerStats: {
             maxHealth: 110,
             currentHealth: 110,
-            defense: 1,
-            magicDefense: 0,
+            defense: 11,
+            magicDefense: 11,
             moveSpeed: 10,
-            pickupRange: 3.1,
+            pickupRange: 5.0,
             expEfficiency: 1.0,
             luck: 1.0
         },
@@ -55,14 +55,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 3,
-        expRequired: 225,
+        expRequired: 125,
         playerStats: {
             maxHealth: 120,
             currentHealth: 120,
-            defense: 2,
-            magicDefense: 0,
+            defense: 12,
+            magicDefense: 12,
             moveSpeed: 10.2,
-            pickupRange: 3.2,
+            pickupRange: 10.0,
             expEfficiency: 1.05,
             luck: 1.0
         },
@@ -77,14 +77,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 4,
-        expRequired: 340,
+        expRequired: 150,
         playerStats: {
             maxHealth: 130,
             currentHealth: 130,
-            defense: 3,
-            magicDefense: 1,
+            defense: 13,
+            magicDefense: 13,
             moveSpeed: 10.2,
-            pickupRange: 3.3,
+            pickupRange: 10.0,
             expEfficiency: 1.05,
             luck: 1.05
         },
@@ -99,14 +99,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 5,
-        expRequired: 510,
+        expRequired: 150,
         playerStats: {
             maxHealth: 140,
             currentHealth: 140,
-            defense: 4,
-            magicDefense: 2,
+            defense: 14,
+            magicDefense: 14,
             moveSpeed: 10.5,
-            pickupRange: 3.5,
+            pickupRange: 10.0,
             expEfficiency: 1.1,
             luck: 1.1
         },
@@ -121,14 +121,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 6,
-        expRequired: 765,
+        expRequired: 150,
         playerStats: {
             maxHealth: 150,
             currentHealth: 150,
-            defense: 5,
-            magicDefense: 3,
+            defense: 15,
+            magicDefense: 15,
             moveSpeed: 10.5,
-            pickupRange: 3.6,
+            pickupRange: 10.0,
             expEfficiency: 1.15,
             luck: 1.15
         },
@@ -143,14 +143,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 7,
-        expRequired: 1150,
+        expRequired: 200,
         playerStats: {
             maxHealth: 160,
             currentHealth: 160,
-            defense: 6,
-            magicDefense: 4,
+            defense: 16,
+            magicDefense: 16,
             moveSpeed: 10.8,
-            pickupRange: 3.7,
+            pickupRange: 15.0,
             expEfficiency: 1.2,
             luck: 1.2
         },
@@ -165,14 +165,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 8,
-        expRequired: 1725,
+        expRequired: 200,
         playerStats: {
             maxHealth: 175,
             currentHealth: 175,
-            defense: 7,
-            magicDefense: 5,
+            defense: 17,
+            magicDefense: 17,
             moveSpeed: 10.8,
-            pickupRange: 3.8,
+            pickupRange: 15.0,
             expEfficiency: 1.25,
             luck: 1.25
         },
@@ -187,14 +187,14 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 9,
-        expRequired: 2590,
+        expRequired: 200,
         playerStats: {
             maxHealth: 190,
             currentHealth: 190,
-            defense: 8,
-            magicDefense: 6,
+            defense: 18,
+            magicDefense: 18,
             moveSpeed: 11.0,
-            pickupRange: 4.0,
+            pickupRange: 30.0,
             expEfficiency: 1.3,
             luck: 1.3
         },
@@ -209,12 +209,12 @@ export const WorldLevelConfig: LevelConfig[] = [
     },
     {
         level: 10,
-        expRequired: 3885,
+        expRequired: 200,
         playerStats: {
             maxHealth: 210,
             currentHealth: 210,
-            defense: 10,
-            magicDefense: 8,
+            defense: 19,
+            magicDefense: 19,
             moveSpeed: 11.2,
             pickupRange: 4.2,
             expEfficiency: 1.35,

@@ -22,6 +22,9 @@ export abstract class BaseEnemy {
     public stats: EnemyStats;
     protected context: GameContext;
     protected isDead: boolean = false;
+    protected wanderRange: number = 50; // 随机游走范围
+    protected wanderTimer: number = 0; // 随机游走定时器
+    protected wanderVector: pc.Vec3 = new pc.Vec3(); // 随机游走向量
 
     constructor(stats: EnemyStats) {
         this.context = GameContext.getInstance();
@@ -100,12 +103,33 @@ export abstract class BaseEnemy {
         if (direction.lengthSq() > 0.1) {
             direction.normalize();
 
+            // 增加随机游走逻辑
+            this.updateWander(dt);
+
+            // 混合追踪向量和随机向量
+            // 权重: 追踪 1.0, 随机 0.6 (可调整)
+            // 这样怪物会大致向玩家移动，但会有不规则的偏移，避免完全重叠
+            direction.add(this.wanderVector.clone().mulScalar(0.6));
+            direction.normalize();
+
             // 移动
             const moveStep = direction.mulScalar(this.stats.speed * dt);
             this.entity.translate(moveStep);
 
             // 朝向玩家
             this.entity.lookAt(playerPos.x, enemyPos.y, playerPos.z);
+        }
+    }
+
+    private updateWander(dt: number) {
+        this.wanderTimer -= dt;
+        if (this.wanderTimer <= 0) {
+            // 每 0.3 ~ 0.8 秒改变一次随机方向
+            this.wanderTimer = 0.3 + Math.random() * 0.5;
+
+            // 随机生成一个平面方向
+            const angle = Math.random() * Math.PI * 2;
+            this.wanderVector.set(Math.cos(angle), 0, Math.sin(angle));
         }
     }
 

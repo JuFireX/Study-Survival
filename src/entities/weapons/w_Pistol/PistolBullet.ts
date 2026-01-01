@@ -16,7 +16,7 @@ export class PistolBullet {
     // 基础属性
     public speed: number = 20;
     public damage: number = 10;
-    public range: number = 20;
+    public range: number = 50;
 
     // 运行时状态
     private direction: pc.Vec3 = new pc.Vec3();

@@ -3,6 +3,7 @@ import { PlayerStats } from '../../../config/types';
 import { GameContext } from '../../../core/GameContext';
 import { EventBus } from '../../../core/EventBus';
 import { WorldLevelConfig } from '../../../config/evolution';
+import { DropSystem } from '../../../systems/drop/DropSystem';
 
 /**
  * 角色基类 (BaseCharacter)
@@ -22,6 +23,9 @@ export abstract class BaseCharacter {
     protected level: number = 1;        // 角色等级
     protected currentExp: number = 0;   // 当前经验值
     protected maxExp: number = 100;     // 最大经验值
+
+    // 临时向量用于计算
+    private tmpVec: pc.Vec3 = new pc.Vec3();
 
     constructor(entity: pc.Entity, stats: PlayerStats) {
         this.entity = entity;
@@ -66,6 +70,40 @@ export abstract class BaseCharacter {
      */
     public update(_dt: number) {
         // 子类可以在此添加特定逻辑
+        this.checkPickup();
+    }
+
+    /**
+     * 检查并拾取范围内的掉落物
+     */
+    private checkPickup() {
+        if (this.isDead) return;
+
+        // 获取掉落系统实例
+        const dropSystem = DropSystem.getInstance();
+        if (!dropSystem) return;
+
+        const drops = dropSystem.getDrops();
+        if (drops.length === 0) return;
+
+        const myPos = this.entity.getPosition();
+        // 拾取范围平方
+        const rangeSq = this.stats.pickupRange * this.stats.pickupRange;
+
+        for (const drop of drops) {
+            // 跳过已拾取的物品
+            if (drop.isPickedUp()) continue;
+
+            const dropPos = drop.getPosition();
+
+            // 计算距离
+            this.tmpVec.sub2(myPos, dropPos);
+
+            if (this.tmpVec.lengthSq() < rangeSq) {
+                // 触发拾取
+                drop.entity.fire('pickup');
+            }
+        }
     }
 
     /**

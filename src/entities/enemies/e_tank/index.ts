@@ -7,9 +7,9 @@ export class TankEnemy extends BaseEnemy {
         super({
             maxHealth: 100,
             health: 100,
-            speed: 1.5, // 较慢
-            damage: 15,
-            expDrop: 30
+            speed: 1.5,
+            damage: 10,
+            expDrop: 50
         });
     }
 
@@ -19,7 +19,7 @@ export class TankEnemy extends BaseEnemy {
         });
 
         // 大一点
-        this.entity.setLocalScale(1.0, 1.0, 1.0);
+        this.entity.setLocalScale(1.0, 1.5, 1.0);
 
         const material = new pc.StandardMaterial();
         material.diffuse = new pc.Color(0, 0, 1);
