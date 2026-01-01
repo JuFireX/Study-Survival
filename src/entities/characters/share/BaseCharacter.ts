@@ -2,6 +2,7 @@ import * as pc from 'playcanvas';
 import { PlayerStats } from '../../../config/types';
 import { GameContext } from '../../../core/GameContext';
 import { EventBus } from '../../../core/EventBus';
+import { WorldLevelConfig } from '../../../config/evolution';
 
 /**
  * 角色基类 (BaseCharacter)
@@ -24,9 +25,18 @@ export abstract class BaseCharacter {
 
     constructor(entity: pc.Entity, stats: PlayerStats) {
         this.entity = entity;
-        this.stats = { ...stats };
         this.context = GameContext.getInstance();
         this.eventBus = this.context.getEventBus();
+
+        // 初始化等级 1 的配置（如果存在），确保初始状态一致
+        const initialConfig = WorldLevelConfig.find(c => c.level === 1);
+        if (initialConfig && initialConfig.playerStats) {
+            // 优先使用 Config 中的基础值，stats 参数作为覆盖或补充
+            this.stats = { ...initialConfig.playerStats as PlayerStats, ...stats };
+            this.maxExp = initialConfig.expRequired;
+        } else {
+            this.stats = { ...stats };
+        }
 
         // 监听实体事件
         this.entity.on('damage', (amount: number) => this.takeDamage(amount));
@@ -130,12 +140,30 @@ export abstract class BaseCharacter {
     protected levelUp() {
         this.level++;
         this.currentExp -= this.maxExp;
-        this.maxExp = Math.floor(this.maxExp * 1.2); // 经验需求递增
 
-        // 提升属性 (示例)
-        this.stats.maxHealth += 10;
-        this.stats.currentHealth = this.stats.maxHealth; // 升级回满血?
-        this.stats.defense += 1;
+        // 从配置获取下一级数据
+        const nextLevelConfig = WorldLevelConfig.find(c => c.level === this.level);
+
+        if (nextLevelConfig) {
+            this.maxExp = nextLevelConfig.expRequired;
+
+            // 应用属性成长
+            if (nextLevelConfig.playerStats) {
+                // 覆盖基础属性 (注意：这里直接覆盖可能会丢失之前的临时 buff，但 BaseCharacter 主要管理基础属性)
+                // 更好的做法可能是：计算增量，或者假定 playerStats 就是当前等级的"裸"属性
+                // 鉴于这是一个简化系统，我们直接更新 stats
+                Object.assign(this.stats, nextLevelConfig.playerStats);
+
+                // 确保当前生命值不超过新的最大生命值 (或者你可以选择在这里回满血)
+                this.stats.currentHealth = Math.min(this.stats.currentHealth, this.stats.maxHealth);
+            }
+        } else {
+            // 超出配置等级时的 Fallback
+            this.maxExp = Math.floor(this.maxExp * 1.2);
+            // 简单的属性提升
+            this.stats.maxHealth += 10;
+            this.stats.defense += 1;
+        }
 
         this.eventBus.fire('player:levelup', this.level);
     }

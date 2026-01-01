@@ -1,5 +1,5 @@
 import * as pc from 'playcanvas';
-import { IGameSystem } from '../../config/types';
+import { IGameSystem, Card, BuffCard, CardType, CardEffect } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
 import { BaseCharacter } from '../../entities/characters';
@@ -30,10 +30,57 @@ export class CharacterSystem implements IGameSystem {
 
         // 监听输入事件
         this.eventBus.on('input:joystick', this.onJoystickInput, this);
+        // 监听卡牌选择
+        this.eventBus.on('card:selected', this.onCardSelected, this);
     }
 
     private onJoystickInput(x: number, y: number) {
         this.joystickInput.set(x, y);
+    }
+
+    private onCardSelected(_id: string, card: Card) {
+        if (!this.character) return;
+
+        if (card.type === CardType.Buff) {
+            const buffCard = card as BuffCard;
+            buffCard.effects.forEach(effect => {
+                // 检查目标是否是角色 (c_^)
+                if (effect.target === 'c_^') {
+                    this.applyEffect(effect);
+                }
+            });
+        }
+    }
+
+    private applyEffect(effect: CardEffect) {
+        if (!this.character) return;
+
+        // 简单的属性修改逻辑
+        const stats: any = this.character.stats;
+        const key = effect.stat;
+
+        if (stats[key] !== undefined) {
+            const originalValue = stats[key];
+
+            if (effect.type === 'add') {
+                stats[key] += effect.value;
+            } else if (effect.type === 'multiply') {
+                stats[key] *= (1 + effect.value);
+            }
+
+            console.log(`[角色系统] 应用 Buff: ${key} ${originalValue} -> ${stats[key]}`);
+
+            // 如果修改了最大生命值，可能需要处理当前生命值
+            if (key === 'maxHealth') {
+                // 保持生命值比例，或者只是增加上限？这里选择保持上限增加部分加到当前血量
+                if (effect.type === 'add') {
+                    stats.currentHealth += effect.value;
+                }
+            }
+
+            // 触发 UI 更新
+            this.initializeCharacterState();
+        }
     }
 
     public static getInstance(): CharacterSystem {

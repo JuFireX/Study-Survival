@@ -50,4 +50,4 @@ export class Sword extends BaseWeapon {
     }
 }
 
-WeaponRegistry.register('w_Sword', Sword);
+WeaponRegistry.register('w_sword', Sword);
