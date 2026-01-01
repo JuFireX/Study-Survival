@@ -75,7 +75,6 @@ export abstract class BaseCharacter {
             this.entity.setPosition(newPos);
 
             // 旋转朝向移动方向
-            // PlayCanvas Y-up system: atan2(x, z) gives angle in radians
             const angle = Math.atan2(direction.x, direction.z) * pc.math.RAD_TO_DEG;
             const targetRotation = new pc.Quat().setFromAxisAngle(pc.Vec3.UP, angle);
 

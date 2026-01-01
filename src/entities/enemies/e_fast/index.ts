@@ -28,4 +28,4 @@ export class FastEnemy extends BaseEnemy {
     }
 }
 
-EnemyRegistry.register('fast', FastEnemy);
+EnemyRegistry.register('e_Fast', FastEnemy);

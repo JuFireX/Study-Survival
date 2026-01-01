@@ -28,4 +28,4 @@ export class TankEnemy extends BaseEnemy {
     }
 }
 
-EnemyRegistry.register('tank', TankEnemy);
+EnemyRegistry.register('e_Tank', TankEnemy);

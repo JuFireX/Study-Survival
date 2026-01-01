@@ -1,8 +1,8 @@
+import * as pc from 'playcanvas';
 import { IGameSystem } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { BaseDrop, ExpOrb } from '../../entities/drops';
 import { BaseEnemy } from '../../entities/enemies';
-import * as pc from 'playcanvas';
 
 /**
  * 掉落物系统 (DropSystem)

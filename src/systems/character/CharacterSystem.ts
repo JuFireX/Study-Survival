@@ -86,17 +86,13 @@ export class CharacterSystem implements IGameSystem {
         this.character = CharacterRegistry.create(type, playerEntity);
 
         if (!this.character) {
-            console.warn(`[CharacterSystem] Failed to create character type: ${type}. Falling back to default if available.`);
-            // Fallback logic could go here if we had a guaranteed default
+            console.warn(`[角色系统] 无法创建角色类型: ${type}. 回退到默认角色.`);
         } else {
-            console.log(`[CharacterSystem] 创建角色: ${type}`);
+            console.log(`[角色系统] 创建角色: ${type}`);
         }
 
-        // 初始化 UI 状态
-        this.initializeCharacterState();
-
-        // 设置相机跟随
-        this.setupCameraFollow();
+        this.initializeCharacterState();    // 初始化 UI 状态
+        this.setupCameraFollow();           // 设置相机跟随
     }
 
     /**
@@ -122,7 +118,6 @@ export class CharacterSystem implements IGameSystem {
      */
     initialize(): void {
         console.log('[角色系统] 初始化...');
-        // 可以在这里根据游戏进度选择角色，暂时硬编码为 'c_AAA'
         this.createCharacter('c_AAA');
     }
 
@@ -133,8 +128,6 @@ export class CharacterSystem implements IGameSystem {
         if (!this.character) return;
 
         // 获取摇杆输入
-        // 输入现在通过事件驱动更新到 this.joystickInput 中
-
         const input = this.joystickInput;
         if (input.lengthSq() > 0.0001) {
             const moveDir = new pc.Vec3(input.x, 0, input.y);

@@ -1,5 +1,4 @@
 import { IGameSystem } from '../../config/types';
-// import { EventBus } from '../../core/EventBus';
 import { GameContext } from '../../core/GameContext';
 import { BaseEnemy } from '../../entities/enemies';
 import { EnemyRegistry } from '../../entities/enemies/EnemyRegistry';
@@ -16,30 +15,26 @@ import '../../entities/enemies/e_Tank';
  * 2. 处理波次逻辑 (简单的定时生成).
  */
 export class EnemySystem implements IGameSystem {
-    private enemies: BaseEnemy[] = [];
+    private context: GameContext;
 
+    private enemies: BaseEnemy[] = [];
     private elapsedTime = 0;
     private spawnTimer = 0;
-
     private minAlive = 6;
     private maxAlive = 18;
     private maxSpawnPerTick = 2;
 
-    private context: GameContext;
-    // private eventBus: EventBus;
 
     constructor() {
         this.context = GameContext.getInstance();
-        // this.eventBus = this.context.getEventBus();
     }
 
     initialize(): void {
-        console.log(`[EnemySystem] Initializing...`);
-        // this.eventBus.on('player:hit', this.update, this);
+        console.log(`[敌人系统] 初始化...`);
 
         const initial = Math.max(1, Math.floor(this.minAlive / 2));
         for (let i = 0; i < initial; i++) {
-            this.spawnEnemy('fast');
+            this.spawnEnemy('e_Fast');
         }
     }
 
@@ -119,7 +114,7 @@ export class EnemySystem implements IGameSystem {
         const maxTankChance = 0.35;
         const ramp = Math.min(1, Math.max(0, this.elapsedTime / 180));
         const tankChance = baseTankChance + (maxTankChance - baseTankChance) * ramp;
-        return Math.random() < tankChance ? 'tank' : 'fast';
+        return Math.random() < tankChance ? 'e_Tank' : 'e_Fast';
     }
 
     private spawnUpToTarget(): void {
