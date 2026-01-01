@@ -5,6 +5,7 @@ import { BossStatus } from "../../ui/BossStatus";
 import { PlayerEffects } from "../../ui/PlayerEffects";
 import { FloatingTextManager } from "../../ui/FloatingTextManager";
 import { EnemyHealthBarManager } from "../../ui/EnemyHealthBarManager";
+import { GameOver } from "../../ui/GameOver";
 import { EventBus } from "../EventBus";
 import { QuestionCard, BuffCard, WeaponCard } from "../../config/types";
 
@@ -27,6 +28,7 @@ export class UIManager {
     private playerEffects: PlayerEffects | null = null;
     private floatingTextManager: FloatingTextManager | null = null;
     private enemyHealthBarManager: EnemyHealthBarManager | null = null;
+    private gameOver: GameOver | null = null;
 
     constructor() {
         this.initialize();
@@ -70,6 +72,7 @@ export class UIManager {
             this.playerEffects = new PlayerEffects();
             this.floatingTextManager = new FloatingTextManager();
             this.enemyHealthBarManager = new EnemyHealthBarManager();
+            this.gameOver = new GameOver();
 
             console.log("[UI管理器] UI 组件初始化成功.");
         } catch (error) {
@@ -127,5 +130,6 @@ export class UIManager {
         this.playerEffects?.destroy();
         this.floatingTextManager?.destroy();
         this.enemyHealthBarManager?.destroy();
+        this.gameOver?.destroy();
     }
 }

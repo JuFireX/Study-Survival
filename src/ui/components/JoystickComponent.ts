@@ -29,8 +29,8 @@ export class JoystickComponent {
         this.container = document.createElement('div');
         this.container.id = 'joystick-container';
         this.container.style.position = 'absolute';
-        this.container.style.bottom = '5vmin'; // 往左下稍微偏一点
-        this.container.style.left = '5vmin';
+        this.container.style.bottom = '12vmin'; // 往右上挪一些，避免操作憋屈
+        this.container.style.left = '12vmin';
         this.container.style.width = '40vmin'; // 尺寸减小
         this.container.style.height = '40vmin';
         this.container.style.zIndex = '100';
