@@ -10,7 +10,7 @@ export class CharacterAAA extends BaseCharacter {
             maxHealth: 100,
             defense: 5,
             magicDefense: 0,
-            moveSpeed: 8, // 稍微快一点
+            moveSpeed: 8,
             pickupRange: 3,
             expEfficiency: 1.0,
             luck: 0
