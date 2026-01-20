@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { BaseWeapon } from '../share/BaseWeapon';
+import { WeaponRegistry } from '../WeaponRegistry';
 
 export class Sword extends BaseWeapon {
 
@@ -30,14 +31,17 @@ export class Sword extends BaseWeapon {
         app.root.addChild(slash);
 
         // 4. 伤害判定 (AOE)
-        // 理想实现: 获取 EntitySystem 或 SpatialHash 中的敌人列表进行距离检测
-        // 伪代码:
-        // const enemies = gameManager.getSystem(EnemySystem).getEnemies();
-        // enemies.forEach(enemy => {
-        //     if (enemy.getPosition().distance(slashPos) < size) {
-        //         enemy.takeDamage(this.stats.damage);
-        //     }
-        // });
+        // 获取所有敌人
+        const enemies = app.root.findByTag('enemy');
+        const rangeSq = size * size; // 简单用范围平方近似
+
+        enemies.forEach(enemyEntity => {
+            const distSq = new pc.Vec3().sub2(enemyEntity.getPosition(), slashPos).lengthSq();
+            if (distSq < rangeSq) {
+                // 触发实体伤害事件
+                enemyEntity.fire('damage', this.stats.damage);
+            }
+        });
 
         // 5. 短暂延迟后销毁特效
         setTimeout(() => {
@@ -45,3 +49,5 @@ export class Sword extends BaseWeapon {
         }, 200); // 200ms 持续时间
     }
 }
+
+WeaponRegistry.register('w_sword', Sword);

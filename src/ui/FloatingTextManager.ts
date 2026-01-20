@@ -28,7 +28,7 @@ export class FloatingTextManager {
     }
 
     private onDamage(damage: number, worldPos: pc.Vec3, color: string = 'white') {
-        console.log(`[FloatingTextManager] onDamage: ${damage}`);
+        console.log(`[伤害跳字管理器] 受到伤害: ${damage} 在 ${worldPos}`);
         this.spawn(Math.floor(damage).toString(), worldPos, color);
     }
 

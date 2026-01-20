@@ -1,6 +1,11 @@
 import { IGameSystem } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
-import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
+import { BaseEnemy } from '../../entities/enemies';
+import { EnemyRegistry } from '../../entities/enemies/EnemyRegistry';
+
+// 导入以触发注册
+import '../../entities/enemies/e_Fast';
+import '../../entities/enemies/e_Tank';
 
 /**
  * 敌人系统 (EnemySystem)
@@ -10,27 +15,26 @@ import { BaseEnemy, FastEnemy, TankEnemy } from '../../entities/enemies';
  * 2. 处理波次逻辑 (简单的定时生成).
  */
 export class EnemySystem implements IGameSystem {
-    private enemies: BaseEnemy[] = [];
+    private context: GameContext;
 
+    private enemies: BaseEnemy[] = [];
     private elapsedTime = 0;
     private spawnTimer = 0;
-
     private minAlive = 6;
     private maxAlive = 18;
     private maxSpawnPerTick = 2;
 
-    private context: GameContext;
 
     constructor() {
         this.context = GameContext.getInstance();
     }
 
     initialize(): void {
-        console.log(`[EnemySystem] Initializing...`);
+        console.log(`[敌人系统] 初始化...`);
 
         const initial = Math.max(1, Math.floor(this.minAlive / 2));
         for (let i = 0; i < initial; i++) {
-            this.spawnEnemy('fast');
+            this.spawnEnemy('e_Fast');
         }
     }
 
@@ -60,22 +64,15 @@ export class EnemySystem implements IGameSystem {
     }
 
     private spawnEnemy(type: string) {
-        let enemy: BaseEnemy;
+        const enemy = EnemyRegistry.create(type);
 
-        switch (type) {
-            case 'fast':
-                enemy = new FastEnemy();
-                break;
-            case 'tank':
-                enemy = new TankEnemy();
-                break;
-            default:
-                console.warn(`[EnemySystem] Unknown enemy type: ${type}`);
-                return;
+        if (!enemy) {
+            console.warn(`[敌人系统] 未知敌人类型: ${type}`);
+            return;
         }
 
         // 随机生成位置 (在玩家周围一定距离)
-        const player = GameContext.getInstance().getPlayer();
+        const player = this.context.getPlayer();
         if (player) {
             const playerPos = player.getPosition();
             const angle = Math.random() * Math.PI * 2;
@@ -91,7 +88,11 @@ export class EnemySystem implements IGameSystem {
         }
 
         this.enemies.push(enemy);
-        console.log(`[EnemySystem] Spawned ${type} enemy. Total: ${this.enemies.length}`);
+
+        // 广播生成事件，供 UI (血条) 等系统监听
+        this.context.getEventBus().fire('enemy:spawn', enemy);
+
+        console.log(`[敌人系统] 生成 ${type} 敌人. 总数: ${this.enemies.length}`);
     }
 
     private getTargetAliveCount(): number {
@@ -113,7 +114,7 @@ export class EnemySystem implements IGameSystem {
         const maxTankChance = 0.35;
         const ramp = Math.min(1, Math.max(0, this.elapsedTime / 180));
         const tankChance = baseTankChance + (maxTankChance - baseTankChance) * ramp;
-        return Math.random() < tankChance ? 'tank' : 'fast';
+        return Math.random() < tankChance ? 'e_Tank' : 'e_Fast';
     }
 
     private spawnUpToTarget(): void {

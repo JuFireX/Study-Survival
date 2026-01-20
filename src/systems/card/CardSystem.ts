@@ -37,7 +37,7 @@ export class CardSystem implements IGameSystem {
     }
 
     initialize(): void {
-        console.log('[CardSystem] Initializing...');
+        console.log('[卡牌系统] 初始化...');
         this.loadPoolsFromManager();
         this.resetDecks();
         this.bindEvents();
@@ -58,6 +58,7 @@ export class CardSystem implements IGameSystem {
         eventBus.on('card:discard', this.onDiscard, this);
         eventBus.on('card:discardAll', this.onDiscardAll, this);
         eventBus.on('card:showSelect', this.onShowSelect, this);
+        eventBus.on('card:selectionCompleted', (ids: string[]) => this.onSelectionCompleted(ids), this);
     }
 
     private loadPoolsFromManager(): void {
@@ -92,14 +93,6 @@ export class CardSystem implements IGameSystem {
         if (this.isSelecting) return;
         this.isSelecting = true;
 
-        const ui = this.context.getUIManager();
-        const cardSelect = ui?.getCardSelect();
-        if (!cardSelect) {
-            this.isSelecting = false;
-            this.context.getEventBus().fire('card:selectionFailed');
-            return;
-        }
-
         this.context.getEventBus().fire('game:pause');
 
         const questions = this.drawQuestions(3);
@@ -108,9 +101,8 @@ export class CardSystem implements IGameSystem {
         this.lastSelectionSnapshot = { questions, rewards };
         this.publishPiles();
 
-        cardSelect.start(questions, rewards, (selectedCardIds) => {
-            this.onSelectionCompleted(selectedCardIds);
-        });
+        console.log('[卡牌系统] 显示选卡界面...');
+        this.context.getEventBus().fire('ui:showCardSelection', { questions, rewards });
     }
 
     private onSelectionCompleted(selectedCardIds: string[]): void {

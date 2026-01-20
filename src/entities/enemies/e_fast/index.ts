@@ -1,5 +1,6 @@
 import * as pc from 'playcanvas';
 import { BaseEnemy } from '../share/BaseEnemy';
+import { EnemyRegistry } from '../EnemyRegistry';
 
 export class FastEnemy extends BaseEnemy {
     constructor() {
@@ -21,8 +22,10 @@ export class FastEnemy extends BaseEnemy {
         this.entity.setLocalScale(0.8, 0.8, 0.8);
 
         const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(1, 1, 0); // 黄色
+        material.diffuse = new pc.Color(1, 1, 0);
         material.update();
         this.entity.model!.material = material;
     }
 }
+
+EnemyRegistry.register('e_Fast', FastEnemy);

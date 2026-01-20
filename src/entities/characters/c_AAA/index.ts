@@ -1,8 +1,7 @@
 import * as pc from 'playcanvas';
 import { BaseCharacter } from '../share/BaseCharacter';
 import { PlayerStats } from '../../../config/types';
-import { CharacterSystem } from '../../../systems/character/CharacterSystem';
-import { GameContext } from '../../../core/GameContext';
+import { CharacterRegistry } from '../CharacterRegistry';
 
 export class CharacterAAA extends BaseCharacter {
     constructor(entity: pc.Entity, stats?: Partial<PlayerStats>) {
@@ -11,60 +10,41 @@ export class CharacterAAA extends BaseCharacter {
             maxHealth: 100,
             defense: 5,
             magicDefense: 0,
-            moveSpeed: 8, // 稍微快一点
+            moveSpeed: 8,
             pickupRange: 3,
             expEfficiency: 1.0,
             luck: 0
         };
         super(entity, { ...defaultStats, ...stats });
         this.initializeVisuals();
-
-        // 订阅事件
-        GameContext.getInstance().getEventBus().on('player:hit', this.onPlayerHit, this);
     }
 
     private initializeVisuals() {
-        // 如果实体没有模型，添加一个简单的胶囊体作为占位
-        if (!this.entity.model) {
-            this.entity.addComponent('model', {
-                type: 'capsule',
-            });
+        // 创建一个简单的胶囊体代表角色
+        this.entity.addComponent('model', {
+            type: 'capsule'
+        });
 
-            // 添加材质颜色区分
-            const material = new pc.StandardMaterial();
-            material.diffuse = new pc.Color(0.2, 0.6, 1.0); // 蓝色
-            material.update();
-            this.entity.model!.material = material;
-        }
-    }
-
-    private onPlayerHit(damage: number) {
-        this.takeDamage(damage);
-    }
-
-    public update(dt: number) {
-        super.update(dt);
-
-        // 获取输入并移动
-        const system = CharacterSystem.getInstance();
-        if (system) {
-            const input = system.getJoystickInput();
-            const inputLenSq = input.lengthSq();
-
-            if (inputLenSq > 0.0001) {
-                const moveDir = new pc.Vec3(input.x, 0, input.y);
-                if (inputLenSq > 1) {
-                    moveDir.normalize();
-                }
-                this.move(moveDir, dt);
-            }
+        // 设置胶囊体颜色为青色
+        const material = new pc.StandardMaterial();
+        material.diffuse = new pc.Color(60 / 255, 90 / 255, 250 / 255);
+        material.update();
+        if (this.entity.model) {
+            this.entity.model.material = material;
         }
 
-        // AAA 特有的逻辑
-    }
-
-    public destroy() {
-        GameContext.getInstance().getEventBus().off('player:hit', this.onPlayerHit, this);
-        super.destroy();
+        // 添加一个小眼睛指示方向
+        const eye = new pc.Entity('Eye');
+        eye.addComponent('model', { type: 'box' });
+        eye.setLocalScale(0.5, 0.2, 0.5);
+        eye.setLocalPosition(0, 0.5, 0.3);
+        const eyeMat = new pc.StandardMaterial();
+        eyeMat.diffuse = new pc.Color(200 / 255, 200 / 255, 200 / 255);
+        eyeMat.update();
+        if (eye.model) eye.model.material = eyeMat;
+        this.entity.addChild(eye);
     }
 }
+
+// 自动注册
+CharacterRegistry.register('c_AAA', CharacterAAA);

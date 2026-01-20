@@ -8,7 +8,7 @@
 export class JoystickComponent {
     private container: HTMLElement;
     private knob: HTMLElement;
-    private base: HTMLElement;
+    // private base: HTMLElement;
     private touching: boolean = false;
     private startX: number = 0;
     private startY: number = 0;
@@ -29,27 +29,28 @@ export class JoystickComponent {
         this.container = document.createElement('div');
         this.container.id = 'joystick-container';
         this.container.style.position = 'absolute';
-        this.container.style.bottom = '8vmin';
-        this.container.style.left = '8vmin';
-        this.container.style.width = '25vmin';
-        this.container.style.height = '25vmin';
+        this.container.style.bottom = '12vmin'; // 往右上挪一些，避免操作憋屈
+        this.container.style.left = '12vmin';
+        this.container.style.width = '40vmin'; // 尺寸减小
+        this.container.style.height = '40vmin';
         this.container.style.zIndex = '100';
         this.container.style.userSelect = 'none';
         this.container.style.touchAction = 'none';
+        // this.container.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'; // Debug: 可视化触摸区域
 
-        // 摇杆底座
-        this.base = document.createElement('div');
-        this.base.style.width = '100%';
-        this.base.style.height = '100%';
-        this.base.style.borderRadius = '50%';
-        this.base.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        this.base.style.border = '0.4vmin solid rgba(255, 255, 255, 0.3)';
-        this.container.appendChild(this.base);
+        // 摇杆底座 (移除)
+        // this.base = document.createElement('div');
+        // this.base.style.width = '100%';
+        // this.base.style.height = '100%';
+        // this.base.style.borderRadius = '50%';
+        // this.base.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        // this.base.style.border = '0.4vmin solid rgba(255, 255, 255, 0.3)';
+        // this.container.appendChild(this.base);
 
         // 摇杆头部
         this.knob = document.createElement('div');
-        this.knob.style.width = '10vmin';
-        this.knob.style.height = '10vmin';
+        this.knob.style.width = '12vmin'; // 稍微减小
+        this.knob.style.height = '12vmin';
         this.knob.style.borderRadius = '50%';
         this.knob.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
         this.knob.style.position = 'absolute';
@@ -164,8 +165,6 @@ export class JoystickComponent {
         this.knob.style.transform = `translate(calc(-50% + ${this.currentX}px), calc(-50% + ${this.currentY}px))`;
 
         if (this.onMove) {
-            // 直接线性映射：当前偏移 / 最大半径
-            // 结果范围 [-1, 1]
             const x = this.currentX / this.maxRadius;
             const y = this.currentY / this.maxRadius;
             this.onMove(x, y);

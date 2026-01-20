@@ -21,7 +21,7 @@ export class GameApplication {
         this.canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
 
         if (!this.canvas) {
-            throw new Error("[GameApplication] Canvas element not found!");
+            throw new Error("[游戏应用程序] 画布元素未找到!");
         }
 
         // 创建 PlayCanvas 应用实例
@@ -67,7 +67,7 @@ export class GameApplication {
      * 包括资源加载和启动主循环
      */
     public async start() {
-        console.log("[GameApplication] Starting...");
+        console.log("[游戏应用程序] 启动...");
 
         try {
             // 注册 ResourceManager 到 Context
@@ -83,10 +83,10 @@ export class GameApplication {
 
             // 启动 PlayCanvas 循环
             this.app.start();
-            console.log("[GameApplication] Started successfully.");
+            console.log("[游戏应用程序] 启动成功.");
 
         } catch (error) {
-            console.error("[GameApplication] Failed to start:", error);
+            console.error("[游戏应用程序] 启动失败:", error);
         }
     }
 

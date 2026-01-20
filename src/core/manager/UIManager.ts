@@ -30,6 +30,20 @@ export class UIManager {
 
     constructor() {
         this.initialize();
+        this.bindEvents();
+    }
+
+    private bindEvents() {
+        const eventBus = EventBus.getInstance();
+        eventBus.on('ui:showCardSelection', this.onShowCardSelection, this);
+    }
+
+    private onShowCardSelection(data: { questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[] }) {
+        if (this.cardSelect) {
+            this.cardSelect.start(data.questions, data.rewards, (selectedIds) => {
+                EventBus.getInstance().fire('card:selectionCompleted', selectedIds);
+            });
+        }
     }
 
     /**
@@ -47,7 +61,7 @@ export class UIManager {
      */
     private initialize() {
         try {
-            console.log("[UIManager] Initializing UI components...");
+            console.log("[UI管理器] 初始化 UI 组件...");
 
             this.joystick = new Joystick();
             this.playerStatus = new PlayerStatus();
@@ -58,9 +72,9 @@ export class UIManager {
             this.enemyHealthBarManager = new EnemyHealthBarManager();
             this.lobby = new Lobby();
 
-            console.log("[UIManager] UI components initialized successfully.");
+            console.log("[UI管理器] UI 组件初始化成功.");
         } catch (error) {
-            console.error("[UIManager] Failed to initialize UI components:", error);
+            console.error("[UI管理器] 初始化 UI 组件时发生错误:", error);
         }
     }
 
@@ -145,5 +159,6 @@ export class UIManager {
         this.playerEffects?.destroy();
         this.floatingTextManager?.destroy();
         this.enemyHealthBarManager?.destroy();
+        this.gameOver?.destroy();
     }
 }

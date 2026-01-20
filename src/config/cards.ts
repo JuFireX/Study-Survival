@@ -45,10 +45,10 @@ export const BuffCards: BuffCard[] = [
     {
         id: 'b_armor',
         name: '铁甲',
-        description: '增加 1 点物理防御',
+        description: '增加 5 点物理防御',
         type: CardType.Buff,
         rarity: CardRarity.Rare,
-        effects: [{ target: 'c_^', stat: 'defense', value: 1, type: 'add' }]
+        effects: [{ target: 'c_^', stat: 'defense', value: 5, type: 'add' }]
     },
     {
         id: 'b_magnet',

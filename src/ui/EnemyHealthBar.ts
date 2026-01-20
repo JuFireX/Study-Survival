@@ -24,6 +24,20 @@ export class EnemyHealthBar {
         this.targetEntity = target;
         this.offset = new pc.Vec3(0, offsetY, 0);
         this.app = GameContext.getInstance().getApp();
+
+        // 监听实体事件
+        this.targetEntity.on('health:change', this.onHealthChange, this);
+        this.targetEntity.once('destroy', this.onDestroyEntity, this);
+    }
+
+    private onHealthChange(percent: number) {
+        this.updateHealth(percent);
+    }
+
+    private onDestroyEntity() {
+        // 实体销毁时，标记自己无效，Manager 会在下一帧清理
+        this._isValid = false;
+        this.component.setVisible(false);
     }
 
     /**
@@ -87,6 +101,11 @@ export class EnemyHealthBar {
 
     public destroy() {
         this._isValid = false;
+        // 解绑事件
+        if (this.targetEntity) {
+            this.targetEntity.off('health:change', this.onHealthChange, this);
+            this.targetEntity.off('destroy', this.onDestroyEntity, this);
+        }
         this.component.destroy();
     }
 }

@@ -1,8 +1,12 @@
 import * as pc from 'playcanvas';
-import { BuffCard,IGameSystem,CardEffect,WeaponCard } from '../../config/types';
+import { IGameSystem, Card, BuffCard, CardType, CardEffect } from '../../config/types';
 import { GameContext } from '../../core/GameContext';
 import { EventBus } from '../../core/EventBus';
-import { BaseCharacter, CharacterAAA } from '../../entities/characters';
+import { BaseCharacter } from '../../entities/characters';
+import { CharacterRegistry } from '../../entities/characters/CharacterRegistry';
+
+// 确保引用被加载，从而触发自注册
+import '../../entities/characters/c_AAA';
 
 /**
  * 角色系统 (CharacterSystem)
@@ -23,6 +27,60 @@ export class CharacterSystem implements IGameSystem {
         CharacterSystem.instance = this;
         this.context = GameContext.getInstance();
         this.eventBus = this.context.getEventBus();
+
+        // 监听输入事件
+        this.eventBus.on('input:joystick', this.onJoystickInput, this);
+        // 监听卡牌选择
+        this.eventBus.on('card:selected', this.onCardSelected, this);
+    }
+
+    private onJoystickInput(x: number, y: number) {
+        this.joystickInput.set(x, y);
+    }
+
+    private onCardSelected(_id: string, card: Card) {
+        if (!this.character) return;
+
+        if (card.type === CardType.Buff) {
+            const buffCard = card as BuffCard;
+            buffCard.effects.forEach(effect => {
+                // 检查目标是否是角色 (c_^)
+                if (effect.target === 'c_^') {
+                    this.applyEffect(effect);
+                }
+            });
+        }
+    }
+
+    private applyEffect(effect: CardEffect) {
+        if (!this.character) return;
+
+        // 简单的属性修改逻辑
+        const stats: any = this.character.stats;
+        const key = effect.stat;
+
+        if (stats[key] !== undefined) {
+            const originalValue = stats[key];
+
+            if (effect.type === 'add') {
+                stats[key] += effect.value;
+            } else if (effect.type === 'multiply') {
+                stats[key] *= (1 + effect.value);
+            }
+
+            console.log(`[角色系统] 应用 Buff: ${key} ${originalValue} -> ${stats[key]}`);
+
+            // 如果修改了最大生命值，可能需要处理当前生命值
+            if (key === 'maxHealth') {
+                // 保持生命值比例，或者只是增加上限？这里选择保持上限增加部分加到当前血量
+                if (effect.type === 'add') {
+                    stats.currentHealth += effect.value;
+                }
+            }
+
+            // 触发 UI 更新
+            this.initializeCharacterState();
+        }
     }
 
     public static getInstance(): CharacterSystem {
@@ -37,24 +95,15 @@ export class CharacterSystem implements IGameSystem {
     }
 
     /**
-     * 获取当前角色等级
+     * 初始化 UI 状态
      */
-    public getLevel() {
-        return this.character?.getLevel();
-    }
+    private initializeCharacterState() {
+        if (!this.character) return;
 
-    /**
-     * 获取当前角色经验
-     */
-    public getCurrentExp() {
-        return this.character?.getCurrentExp();
-    }
-
-    /**
-     * 获取当前角色最大经验
-     */
-    public getMaxExp() {
-        return this.character?.getMaxExp();
+        // 初始更新 UI
+        this.eventBus.fire('ui:updateHealth', this.character.stats.currentHealth, this.character.stats.maxHealth);
+        this.eventBus.fire('ui:updateExp', 0, this.character.getMaxExp());
+        this.eventBus.fire('ui:updateLevel', this.character.getLevel());
     }
 
     /**
@@ -80,37 +129,17 @@ export class CharacterSystem implements IGameSystem {
         // 绑定到 GameContext
         this.context.setPlayer(playerEntity);
 
-        // 实例化具体角色逻辑
-        switch (type) {
-            case 'c_AAA':
-                this.character = new CharacterAAA(playerEntity);
-                break;
-            default:
-                console.warn(`[角色系统] 未知的角色类型: ${type}`);
-                this.character = new CharacterAAA(playerEntity);
-                break;
+        // 使用注册表工厂创建角色
+        this.character = CharacterRegistry.create(type, playerEntity);
+
+        if (!this.character) {
+            console.warn(`[角色系统] 无法创建角色类型: ${type}. 回退到默认角色.`);
+        } else {
+            console.log(`[角色系统] 创建角色: ${type}`);
         }
 
-        console.log(`[角色系统] 创建角色: ${type}`);
-
-        // 初始化 UI 状态
-        this.initializeCharacterState();
-
-        // 设置相机跟随
-        this.setupCameraFollow();
-    }
-
-    private initializeCharacterState() {
-        if (!this.character) return;
-
-        this.eventBus.fire('player:init',
-            this.character.stats,
-            this.character.getLevel(),
-            this.character.getCurrentExp(),
-            this.character.getMaxExp()
-        );
-
-        console.log(`[角色系统] 初始化角色状态: ${JSON.stringify(this.character.stats)}`);
+        this.initializeCharacterState();    // 初始化 UI 状态
+        this.setupCameraFollow();           // 设置相机跟随
     }
 
     /**
@@ -143,12 +172,18 @@ export class CharacterSystem implements IGameSystem {
      * 更新角色系统
      */
     update(dt: number): void {
-        const uiManager = this.context.getUIManager();
-        const joystick = uiManager?.getJoystick();
+        if (!this.character) return;
 
-        if (!(this.character && joystick)) return;
+        // 获取摇杆输入
+        const input = this.joystickInput;
+        if (input.lengthSq() > 0.0001) {
+            const moveDir = new pc.Vec3(input.x, 0, input.y);
+            if (input.lengthSq() > 1) {
+                moveDir.normalize();
+            }
+            this.character.move(moveDir, dt);
+        }
 
-        this.joystickInput.set(joystick.value.x, joystick.value.y);
         this.character.update(dt);
     }
 }

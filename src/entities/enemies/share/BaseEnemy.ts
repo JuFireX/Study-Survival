@@ -1,8 +1,6 @@
 import * as pc from 'playcanvas';
 import { GameContext } from '../../../core/GameContext';
 
-import type { EnemyHealthBar } from '../../../ui/EnemyHealthBar';
-
 export interface EnemyStats {
     maxHealth: number;
     health: number;
@@ -24,9 +22,9 @@ export abstract class BaseEnemy {
     public stats: EnemyStats;
     protected context: GameContext;
     protected isDead: boolean = false;
-
-    // UI 组件
-    protected healthBar: EnemyHealthBar;
+    protected wanderRange: number = 50; // 随机游走范围
+    protected wanderTimer: number = 0; // 随机游走定时器
+    protected wanderVector: pc.Vec3 = new pc.Vec3(); // 随机游走向量
 
     constructor(stats: EnemyStats) {
         this.context = GameContext.getInstance();
@@ -41,17 +39,9 @@ export abstract class BaseEnemy {
 
         // 标记为敌人
         this.entity.tags.add('enemy');
-        // 绑定实例到实体，方便碰撞检测时获取
-        (this.entity as any).baseEnemy = this;
 
-        // 初始化血条
-        const uiManager = this.context.getUIManager();
-        if (uiManager && uiManager.getEnemyHealthBarManager()) {
-            this.healthBar = uiManager.getEnemyHealthBarManager()!.create(this.entity, 2.5);
-        } else {
-            console.error("UIManager not found when creating enemy!");
-            throw new Error("UIManager not initialized");
-        }
+        // 监听实体事件
+        this.entity.on('damage', (amount: number) => this.takeDamage(amount));
     }
 
     protected setupModel() {
@@ -113,12 +103,33 @@ export abstract class BaseEnemy {
         if (direction.lengthSq() > 0.1) {
             direction.normalize();
 
+            // 增加随机游走逻辑
+            this.updateWander(dt);
+
+            // 混合追踪向量和随机向量
+            // 权重: 追踪 1.0, 随机 0.6 (可调整)
+            // 这样怪物会大致向玩家移动，但会有不规则的偏移，避免完全重叠
+            direction.add(this.wanderVector.clone().mulScalar(0.6));
+            direction.normalize();
+
             // 移动
             const moveStep = direction.mulScalar(this.stats.speed * dt);
             this.entity.translate(moveStep);
 
             // 朝向玩家
             this.entity.lookAt(playerPos.x, enemyPos.y, playerPos.z);
+        }
+    }
+
+    private updateWander(dt: number) {
+        this.wanderTimer -= dt;
+        if (this.wanderTimer <= 0) {
+            // 每 0.3 ~ 0.8 秒改变一次随机方向
+            this.wanderTimer = 0.3 + Math.random() * 0.5;
+
+            // 随机生成一个平面方向
+            const angle = Math.random() * Math.PI * 2;
+            this.wanderVector.set(Math.cos(angle), 0, Math.sin(angle));
         }
     }
 
@@ -131,12 +142,14 @@ export abstract class BaseEnemy {
             this.attackCooldown = this.attackInterval;
 
             // 触发攻击事件
-            console.log('Enemy attacking player!');
+            // console.log('Enemy attacking player!');
             // 这里可以播放攻击动画
 
-            // 直接造成伤害 (或通过事件)
-            // 方案：发送 'player:hit' 事件，携带伤害值
-            this.context.getEventBus().fire('player:hit', this.stats.damage);
+            // 直接造成伤害 (通过实体事件)
+            const player = this.context.getPlayer();
+            if (player) {
+                player.fire('damage', this.stats.damage);
+            }
         }
     }
 
@@ -149,11 +162,11 @@ export abstract class BaseEnemy {
         this.stats.health -= amount;
 
         // 更新血条
-        this.healthBar.updateHealth(this.stats.health / this.stats.maxHealth);
+        this.entity.fire('health:change', this.stats.health / this.stats.maxHealth);
 
         // UI 跳字 (通过 EventBus)
         // 确保 FloatingText 监听的是 'combat:damage'
-        console.log(`[BaseEnemy] takeDamage: ${amount} at ${this.entity.getPosition()}`);
+        console.log(`[敌人基类] 受到伤害: ${amount} 在 ${this.entity.getPosition()}`);
         this.context.getEventBus().fire('combat:damage', amount, this.entity.getPosition());
 
         if (this.stats.health <= 0) {
@@ -168,12 +181,7 @@ export abstract class BaseEnemy {
         if (this.isDead) return;
         this.isDead = true;
 
-        console.log('Enemy died!');
-
-        // 销毁血条
-        // 通知 Manager 移除自己，或者直接 destroy (Manager 会在 update 中检测到无效引用)
-        // 但这里我们显式调用 destroy，EnemyHealthBar 会标记自己为无效
-        this.healthBar.destroy();
+        console.log('[敌人基类] 敌人死亡!');
 
         // 广播死亡事件 (用于掉落经验、任务进度等)
         this.context.getEventBus().fire('enemy:die', this, this.stats.expDrop);

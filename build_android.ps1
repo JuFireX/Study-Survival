@@ -39,6 +39,32 @@ if (-not (Test-Path $CordovaAppPath)) {
 Write-Host "Entering directory: $CordovaAppPath"
 Set-Location -Path $CordovaAppPath
 
+# Ask for version
+$Version = Read-Host "Please enter the build version (current version will be overwritten)"
+if (-not [string]::IsNullOrWhiteSpace($Version)) {
+    $Utf8NoBom = New-Object System.Text.UTF8Encoding $False
+
+    # Update config.xml
+    $ConfigXmlPath = "config.xml"
+    if (Test-Path $ConfigXmlPath) {
+        $ConfigContent = Get-Content $ConfigXmlPath -Raw
+        # Replace version="x.x.x" inside <widget> tag
+        $ConfigContent = $ConfigContent -replace '(<widget\s+(?:[^>]*\s)?version=")[^"]+(")', "`${1}$Version`${2}"
+        [System.IO.File]::WriteAllText((Resolve-Path $ConfigXmlPath).Path, $ConfigContent, $Utf8NoBom)
+        Write-Host "Updated config.xml version to $Version"
+    }
+
+    # Update package.json
+    $PackageJsonPath = "package.json"
+    if (Test-Path $PackageJsonPath) {
+        $PackageContent = Get-Content $PackageJsonPath -Raw
+        # Replace "version": "x.x.x" with new version, preserving indentation
+        $PackageContent = $PackageContent -replace '(?m)(^\s*"version":\s*")[^"]+(")', "`${1}$Version`${2}"
+        [System.IO.File]::WriteAllText((Resolve-Path $PackageJsonPath).Path, $PackageContent, $Utf8NoBom)
+        Write-Host "Updated package.json version to $Version"
+    }
+}
+
 # Try to build
 Write-Host "Starting build..."
 cmd /c "npx cordova build android"
@@ -48,7 +74,13 @@ $ApkPath = Join-Path $CordovaAppPath "platforms\android\app\build\outputs\apk\de
 $BuildSuccess = ($LASTEXITCODE -eq 0) -and (Test-Path $ApkPath)
 
 if ($BuildSuccess) {
-    Write-Host "Build SUCCESS! APK located at: $ApkPath" -ForegroundColor Green
+    # Rename/Move to StudyGame.apk in the root directory
+    $TargetApkName = "StudyGame.apk"
+    $TargetApkPath = Join-Path $CurrentDir $TargetApkName
+    
+    Copy-Item -Path $ApkPath -Destination $TargetApkPath -Force
+    
+    Write-Host "Build SUCCESS! APK located at: $TargetApkPath" -ForegroundColor Green
 } else {
     Write-Host "Build FAILED." -ForegroundColor Red
     if (-not (Test-Path $ApkPath)) {
