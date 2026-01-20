@@ -16,6 +16,8 @@ export class Lobby {
     private portal: pc.Entity | null = null;
     private portalRadius = 2.2;
     private characterRadius = 1.8;
+    private skillRadius = 1.8;
+    private equipmentRadius = 1.8;
     private tempVec = new pc.Vec3();
     private characterModule: CharacterHandler;
     private skillStand: SkillStand;
@@ -35,6 +37,8 @@ export class Lobby {
         this.isVisible = visible;
         if (!visible) {
             this.setCharacterSelectVisible(false);
+            this.skillStand.setPanelVisible(false);
+            this.equipmentStand.setPanelVisible(false);
             return;
         }
         this.characterModule.ensureStand();
@@ -58,7 +62,7 @@ export class Lobby {
 
     private onPointerDown(e: PointerEvent) {
         if (!this.isVisible) return;
-        if (this.characterModule.isSelectionVisible()) return;
+        if (this.characterModule.isSelectionVisible() || this.skillStand.isPanelVisible() || this.equipmentStand.isPanelVisible()) return;
         if ((e as MouseEvent).button !== undefined && (e as MouseEvent).button !== 0) return;
 
         const cameraEntity = GameContext.getInstance().getCamera();
@@ -76,15 +80,23 @@ export class Lobby {
 
         const portal = this.getPortal();
         const stand = this.characterModule.getStand();
+        const skillStand = this.skillStand.getStand();
+        const equipmentStand = this.equipmentStand.getStand();
         const portalHit = portal && this.canEnterPortal ? this.raycastSphere(ray, portal.getPosition(), this.portalRadius) : null;
         const standHit = stand && this.canOpenCharacter ? this.raycastSphere(ray, stand.getPosition(), this.characterRadius) : null;
+        const skillHit = skillStand ? this.raycastSphere(ray, skillStand.getPosition(), this.skillRadius) : null;
+        const equipmentHit = equipmentStand ? this.raycastSphere(ray, equipmentStand.getPosition(), this.equipmentRadius) : null;
 
-        if (portalHit === null && standHit === null) return;
-        if (portalHit !== null && (standHit === null || portalHit <= standHit)) {
-            this.enterHandler?.();
-            return;
+        const hits = [
+            { distance: portalHit, handler: this.enterHandler },
+            { distance: standHit, handler: this.characterHandler },
+            { distance: skillHit, handler: () => this.skillStand.setPanelVisible(true) },
+            { distance: equipmentHit, handler: () => this.equipmentStand.setPanelVisible(true) }
+        ].filter(hit => hit.distance !== null).sort((a, b) => a.distance! - b.distance!);
+
+        if (hits.length > 0) {
+            hits[0].handler?.();
         }
-        this.characterHandler?.();
     }
 
     private getPortal(): pc.Entity | null {
