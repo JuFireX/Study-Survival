@@ -102,6 +102,10 @@ export class PlayerStatusComponent {
         this.expText.innerText = levelText;
     }
 
+    public setVisible(visible: boolean) {
+        this.container.style.display = visible ? 'flex' : 'none';
+    }
+
     public destroy() {
         this.container.remove();
     }

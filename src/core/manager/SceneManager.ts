@@ -35,10 +35,29 @@ export class SceneManager {
      * @returns 返回摄像机实体，供其他系统使用
      */
     public buildScene(): pc.Entity {
-        this.createGround();
+        this.clearScene();
+        this.createGround(100, 20);
         this.createLight();
         this.createTestPoster();
         return this.createCamera();
+    }
+
+    public buildLobbyScene(): { camera: pc.Entity; portal: pc.Entity; halfSize: number } {
+        this.clearScene();
+        const halfSize = 20;
+        this.createGround(halfSize * 2, 8);
+        this.createLight();
+        this.createLobbyWalls(halfSize);
+        const portal = this.createPortal();
+        const camera = this.createCamera();
+        camera.setPosition(0, 12, 16);
+        camera.lookAt(0, 0, 0);
+        return { camera, portal, halfSize };
+    }
+
+    private clearScene() {
+        const children = this.app.root.children.slice();
+        children.forEach(child => child.destroy());
     }
 
     /**
@@ -75,26 +94,20 @@ export class SceneManager {
     /**
      * 创建地面
      */
-    private createGround() {
+    private createGround(size: number, tiling: number) {
         const ground = new pc.Entity('Ground');
         ground.addComponent('model', { type: 'plane' });
-        ground.setLocalScale(100, 1, 100); // 扩大地面
+        ground.setLocalScale(size, 1, size);
 
-        // 创建程序化网格材质
         const material = new pc.StandardMaterial();
         material.diffuse = new pc.Color(0.8, 0.8, 0.8);
 
-        // 生成网格纹理
         const texture = this.createGridTexture();
         material.diffuseMap = texture;
-        material.diffuseMapTiling = new pc.Vec2(20, 20); // 纹理重复
+        material.diffuseMapTiling = new pc.Vec2(tiling, tiling);
         material.update();
 
         ground.model!.material = material;
-
-        // 启用物理碰撞（如果有物理系统，这里暂仅作为视觉地面）
-        // ground.addComponent('collision', { type: 'box', halfExtents: new pc.Vec3(50, 0.5, 50) });
-        // ground.addComponent('rigidbody', { type: 'static' });
 
         this.app.root.addChild(ground);
     }
@@ -149,36 +162,111 @@ export class SceneManager {
      * 创建灯光
      */
     private createLight() {
-        // 1. 设置全局环境光
-        this.app.scene.ambientLight = new pc.Color(0.2, 0.2, 0.25); // 微微偏蓝的暗色
+        this.app.scene.ambientLight = new pc.Color(0.2, 0.2, 0.25);
 
-        // 2. 主平行光 (模拟太阳，暖色)
         const mainLight = new pc.Entity('Main Light');
         mainLight.addComponent('light', {
             type: pc.LIGHTTYPE_DIRECTIONAL,
-            color: new pc.Color(1, 0.95, 0.9), // 暖白
+            color: new pc.Color(1, 0.95, 0.9),
             intensity: 1.0,
-            castShadows: true,
+            castShadows: false,
             shadowBias: 0.2,
-            shadowDistance: 60, // 增加阴影距离
+            shadowDistance: 60,
             normalOffsetBias: 0.05,
-            shadowResolution: 2048 // 提高阴影质量
+            shadowResolution: 2048
         });
-        // 设置更好的光照角度
         mainLight.setEulerAngles(45, 135, 0);
         this.app.root.addChild(mainLight);
 
-        // 3. 补光 (Fill Light, 模拟天光反射，冷色，无阴影)
         const fillLight = new pc.Entity('Fill Light');
         fillLight.addComponent('light', {
             type: pc.LIGHTTYPE_DIRECTIONAL,
-            color: new pc.Color(0.4, 0.5, 0.6), // 冷蓝
+            color: new pc.Color(0.4, 0.5, 0.6),
             intensity: 0.4,
             castShadows: false
         });
-        // 与主光相对的角度
         fillLight.setEulerAngles(45, -45, 0);
         this.app.root.addChild(fillLight);
+    }
+
+    private createPortal(): pc.Entity {
+        const portal = new pc.Entity('LobbyPortal');
+        portal.setPosition(6, 0.1, 0);
+
+        const base = new pc.Entity('PortalBase');
+        base.addComponent('model', { type: 'cylinder' });
+        base.setLocalScale(2.6, 0.25, 2.6);
+        const baseMaterial = new pc.StandardMaterial();
+        baseMaterial.diffuse = new pc.Color(0.15, 0.15, 0.18);
+        baseMaterial.update();
+        base.model!.material = baseMaterial;
+
+        const ring = new pc.Entity('PortalRing');
+        ring.addComponent('model', { type: 'cylinder' });
+        ring.setLocalScale(2.6, 0.18, 2.6);
+        ring.setLocalEulerAngles(90, 0, 0);
+        ring.setLocalPosition(0, 2.5, 0);
+        const ringMaterial = new pc.StandardMaterial();
+        ringMaterial.diffuse = new pc.Color(0.1, 0.6, 1.0);
+        ringMaterial.emissive = new pc.Color(0.1, 0.6, 1.0);
+        ringMaterial.emissiveIntensity = 1.2;
+        ringMaterial.update();
+        ring.model!.material = ringMaterial;
+
+        const core = new pc.Entity('PortalCore');
+        core.addComponent('model', { type: 'plane' });
+        core.setLocalScale(2.2, 1, 3.2);
+        core.setLocalEulerAngles(90, 0, 0);
+        core.setLocalPosition(0, 2.5, 0);
+        const coreMaterial = new pc.StandardMaterial();
+        coreMaterial.diffuse = new pc.Color(0.05, 0.3, 0.6);
+        coreMaterial.emissive = new pc.Color(0.05, 0.3, 0.6);
+        coreMaterial.emissiveIntensity = 1.5;
+        coreMaterial.update();
+        core.model!.material = coreMaterial;
+
+        portal.addChild(base);
+        portal.addChild(ring);
+        portal.addChild(core);
+        this.app.root.addChild(portal);
+        return portal;
+    }
+
+    private createLobbyWalls(halfSize: number) {
+        const wallHeight = 3;
+        const wallThickness = 1;
+        const wallMaterial = new pc.StandardMaterial();
+        wallMaterial.diffuse = new pc.Color(0.1, 0.1, 0.15);
+        wallMaterial.update();
+
+        const north = new pc.Entity('LobbyWallNorth');
+        north.addComponent('model', { type: 'box' });
+        north.setLocalScale(halfSize * 2, wallHeight, wallThickness);
+        north.setPosition(0, wallHeight / 2, -halfSize);
+        north.model!.material = wallMaterial;
+
+        const south = new pc.Entity('LobbyWallSouth');
+        south.addComponent('model', { type: 'box' });
+        south.setLocalScale(halfSize * 2, wallHeight, wallThickness);
+        south.setPosition(0, wallHeight / 2, halfSize);
+        south.model!.material = wallMaterial;
+
+        const west = new pc.Entity('LobbyWallWest');
+        west.addComponent('model', { type: 'box' });
+        west.setLocalScale(wallThickness, wallHeight, halfSize * 2);
+        west.setPosition(-halfSize, wallHeight / 2, 0);
+        west.model!.material = wallMaterial;
+
+        const east = new pc.Entity('LobbyWallEast');
+        east.addComponent('model', { type: 'box' });
+        east.setLocalScale(wallThickness, wallHeight, halfSize * 2);
+        east.setPosition(halfSize, wallHeight / 2, 0);
+        east.model!.material = wallMaterial;
+
+        this.app.root.addChild(north);
+        this.app.root.addChild(south);
+        this.app.root.addChild(west);
+        this.app.root.addChild(east);
     }
 
     /**

@@ -68,6 +68,10 @@ export class PlayerStatus {
         // 为简单起见，这里不做特殊处理，依赖 player:exp 更新
     }
 
+    public setVisible(visible: boolean) {
+        this.component.setVisible(visible);
+    }
+
     public destroy() {
         this.eventBus.off('player:damage', this.onPlayerDamage, this);
         this.eventBus.off('player:heal', this.onPlayerHeal, this);

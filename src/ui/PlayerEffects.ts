@@ -25,6 +25,10 @@ export class PlayerEffects {
         this.component.updateIcons(count);
     }
 
+    public setVisible(visible: boolean) {
+        this.component.setVisible(visible);
+    }
+
     public destroy() {
         this.eventBus.off('ui:updateBuffCount', this.onUpdateBuffCount, this);
         this.component.destroy();

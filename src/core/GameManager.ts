@@ -32,6 +32,15 @@ export class GameManager {
     private ui: UIManager;
     private pauseCount = 0;
     private previousTimeScale = 1;
+    private mode: 'lobby' | 'game' = 'lobby';
+    private systemsInitialized = false;
+    private lobbyPlayer: pc.Entity | null = null;
+    private lobbyPortal: pc.Entity | null = null;
+    private lobbyCharacterStand: pc.Entity | null = null;
+    private lobbyMoveSpeed = 6;
+    private lobbyInteractRadius = 3.5;
+    private lobbyBoundsHalf = 20;
+    private bgmEntity: pc.Entity | null = null;
 
     private constructor() {
         this.context = GameContext.getInstance();
@@ -43,32 +52,24 @@ export class GameManager {
         eventBus.on('game:pause', this.onGamePause, this);
         eventBus.on('game:resume', this.onGameResume, this);
 
-        // 1. 注册脚本
         ScriptRegistry.init();
-        // 2. 初始化资产管理器
         const resourceManager = ResourceManager.getInstance();
         this.context.setResourceManager(resourceManager);
-        // 3. 构建基础场景 (Camera, Lights, Ground)
         const sceneManager = SceneManager.getInstance();
         this.context.setSceneManager(sceneManager);
-        const camera = sceneManager.buildScene();
-        this.context.setCamera(camera);
-        // 4. 初始化 UI 管理器
         this.ui = UIManager.getInstance();
         this.context.setUIManager(this.ui);
-        // 5. 初始化卡牌管理器
         const cardManager = CardManager.getInstance();
         this.context.setCardManager(cardManager);
-        // 6. 初始化所有游戏系统
-        this.initializeSystems();
-        // 8. 启动 Update 循环
         this.app.on('update', this.update, this);
-        // 9. 播放背景音乐
-        this.playBackgroundMusic();
         console.log("[GameManager] Initialized successfully.");
     }
 
     private playBackgroundMusic() {
+        if (this.bgmEntity) {
+            return;
+        }
+
         const resourceManager = ResourceManager.getInstance();
         const bgmAsset = resourceManager.getAsset('main theme');
 
@@ -84,10 +85,11 @@ export class GameManager {
                 volume: 0.5
             });
 
-            bgmEntity.sound!.positional = false; // 设置为非空间音频
+            bgmEntity.sound!.positional = false;
 
             this.app.root.addChild(bgmEntity);
             bgmEntity.sound!.play('bgm');
+            this.bgmEntity = bgmEntity;
         } else {
             console.warn('[GameManager] Background music "main theme" not found!');
         }
@@ -119,6 +121,142 @@ export class GameManager {
         return GameManager.instance;
     }
 
+    public startLobby() {
+        const sceneManager = this.context.getSceneManager();
+        if (!sceneManager) return;
+
+        const lobby = sceneManager.buildLobbyScene();
+        this.context.setCamera(lobby.camera);
+        this.lobbyPortal = lobby.portal;
+        this.lobbyBoundsHalf = lobby.halfSize;
+
+        if (this.lobbyPlayer) {
+            this.lobbyPlayer.destroy();
+        }
+
+        this.lobbyPlayer = this.createLobbyPlayer();
+        this.mode = 'lobby';
+
+        this.ui.setLobbyHandlers(() => this.startGameLoop(), () => this.openCharacterSelection());
+        this.ui.setLobbyVisible(true);
+        this.ui.setHUDVisible(false);
+        this.ui.setJoystickVisible(true);
+        this.ui.setCharacterSelectVisible(false);
+        const characterStand = this.app.root.findByName('CharacterStand');
+        this.lobbyCharacterStand = characterStand instanceof pc.Entity ? characterStand : null;
+        this.updateLobbyActionState();
+    }
+
+    public startGameLoop() {
+        if (this.mode === 'game') return;
+
+        const sceneManager = this.context.getSceneManager();
+        if (!sceneManager) return;
+
+        const camera = sceneManager.buildScene();
+        this.context.setCamera(camera);
+
+        this.lobbyPlayer = null;
+        this.lobbyPortal = null;
+        this.lobbyCharacterStand = null;
+        this.mode = 'game';
+
+        this.ui.setLobbyVisible(false);
+        this.ui.setHUDVisible(true);
+        this.ui.setJoystickVisible(true);
+        this.ui.setCharacterSelectVisible(false);
+
+        if (!this.systemsInitialized) {
+            this.initializeSystems();
+            this.systemsInitialized = true;
+        }
+
+        this.playBackgroundMusic();
+        this.context.getEventBus().fire('game:start');
+    }
+
+    public openCharacterSelection() {
+        this.ui.setCharacterSelectVisible(true);
+    }
+
+    private createLobbyPlayer(): pc.Entity {
+        const player = new pc.Entity('LobbyPlayer');
+        player.addComponent('model', { type: 'capsule' });
+
+        const material = new pc.StandardMaterial();
+        material.diffuse = new pc.Color(0.3, 0.8, 0.9);
+        material.update();
+        player.model!.material = material;
+
+        player.setLocalScale(0.7, 0.7, 0.7);
+        player.setPosition(0, 0.8, 0);
+        this.app.root.addChild(player);
+        return player;
+    }
+
+    private updateLobby(dt: number) {
+        const joystick = this.ui.getJoystick();
+
+        if (this.lobbyPlayer && joystick) {
+            const input = new pc.Vec3(joystick.value.x, 0, joystick.value.y);
+            if (input.lengthSq() > 0.0001) {
+                if (input.lengthSq() > 1) {
+                    input.normalize();
+                }
+                this.moveLobbyPlayer(input, dt);
+            }
+        }
+
+        if (this.lobbyPortal) {
+            this.lobbyPortal.rotate(0, 30 * dt, 0);
+        }
+
+        const camera = this.context.getCamera();
+        if (this.lobbyPlayer && camera) {
+            const pos = this.lobbyPlayer.getPosition();
+            camera.setPosition(pos.x, 12, pos.z + 16);
+            camera.lookAt(pos.x, 0, pos.z);
+        }
+
+        this.updateLobbyActionState();
+    }
+
+    private moveLobbyPlayer(direction: pc.Vec3, dt: number) {
+        if (!this.lobbyPlayer) return;
+
+        const moveVec = direction.clone().mulScalar(this.lobbyMoveSpeed * dt);
+        const currentPos = this.lobbyPlayer.getPosition();
+        const newPos = currentPos.add(moveVec);
+        const limit = Math.max(1, this.lobbyBoundsHalf - 1);
+        newPos.x = pc.math.clamp(newPos.x, -limit, limit);
+        newPos.z = pc.math.clamp(newPos.z, -limit, limit);
+        this.lobbyPlayer.setPosition(newPos);
+
+        const angle = Math.atan2(direction.x, direction.z) * pc.math.RAD_TO_DEG;
+        const targetRotation = new pc.Quat().setFromAxisAngle(pc.Vec3.UP, angle);
+        const currentRotation = this.lobbyPlayer.getRotation();
+        const newRotation = new pc.Quat().slerp(currentRotation, targetRotation, 10 * dt);
+        this.lobbyPlayer.setRotation(newRotation);
+    }
+
+    private updateLobbyActionState() {
+        if (!this.lobbyPlayer) return;
+
+        const playerPos = this.lobbyPlayer.getPosition();
+        let canEnterPortal = false;
+        let canOpenCharacter = false;
+
+        if (this.lobbyPortal) {
+            canEnterPortal = playerPos.distance(this.lobbyPortal.getPosition()) <= this.lobbyInteractRadius;
+        }
+
+        if (this.lobbyCharacterStand) {
+            canOpenCharacter = playerPos.distance(this.lobbyCharacterStand.getPosition()) <= this.lobbyInteractRadius;
+        }
+
+        this.ui.setLobbyActionState(canEnterPortal, canOpenCharacter);
+    }
+
     /**
      * 初始化系统列表
      * 注意：初始化顺序很重要
@@ -143,6 +281,11 @@ export class GameManager {
      * @param dt Delta time (seconds)
      */
     private update(dt: number) {
+        if (this.mode === 'lobby') {
+            this.updateLobby(dt);
+            return;
+        }
+
         for (const sys of this.systems) {
             sys.update(dt);
         }

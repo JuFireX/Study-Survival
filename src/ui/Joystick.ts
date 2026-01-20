@@ -101,6 +101,10 @@ export class Joystick {
         this._onMove = callback;
     }
 
+    public setVisible(visible: boolean) {
+        this.component.setVisible(visible);
+    }
+
     public destroy() {
         this.component.destroy();
         window.removeEventListener('keydown', this.boundKeyDown);
