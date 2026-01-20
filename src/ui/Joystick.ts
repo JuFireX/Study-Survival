@@ -80,6 +80,10 @@ export class Joystick {
         }
     }
 
+    public setVisible(visible: boolean) {
+        this.component.setVisible(visible);
+    }
+
     public destroy() {
         this.component.destroy();
         this.app.off('update', this.update, this);

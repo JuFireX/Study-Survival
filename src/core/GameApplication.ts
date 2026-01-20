@@ -77,8 +77,9 @@ export class GameApplication {
             // 加载所有核心资源
             await resourceManager.loadAll();
 
-            // 初始化 GameManager (这将构建场景、UI 和系统)
-            GameManager.getInstance();
+            // 初始化 GameManager
+            const gameManager = GameManager.getInstance();
+            gameManager.startLobby();
 
             // 启动 PlayCanvas 循环
             this.app.start();

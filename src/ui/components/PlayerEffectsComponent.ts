@@ -43,6 +43,10 @@ export class PlayerEffectsComponent {
         }
     }
 
+    public setVisible(visible: boolean) {
+        this.container.style.display = visible ? 'flex' : 'none';
+    }
+
     public destroy() {
         this.container.remove();
     }

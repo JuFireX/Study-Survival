@@ -5,9 +5,7 @@ import { BossStatus } from "../../ui/BossStatus";
 import { PlayerEffects } from "../../ui/PlayerEffects";
 import { FloatingTextManager } from "../../ui/FloatingTextManager";
 import { EnemyHealthBarManager } from "../../ui/EnemyHealthBarManager";
-import { GameOver } from "../../ui/GameOver";
-import { EventBus } from "../EventBus";
-import { QuestionCard, BuffCard, WeaponCard } from "../../config/types";
+import { Lobby } from "../../ui/Lobby";
 
 /**
  * UI 管理器 (UIManager)
@@ -28,7 +26,7 @@ export class UIManager {
     private playerEffects: PlayerEffects | null = null;
     private floatingTextManager: FloatingTextManager | null = null;
     private enemyHealthBarManager: EnemyHealthBarManager | null = null;
-    private gameOver: GameOver | null = null;
+    private lobby: Lobby | null = null;
 
     constructor() {
         this.initialize();
@@ -72,7 +70,7 @@ export class UIManager {
             this.playerEffects = new PlayerEffects();
             this.floatingTextManager = new FloatingTextManager();
             this.enemyHealthBarManager = new EnemyHealthBarManager();
-            this.gameOver = new GameOver();
+            this.lobby = new Lobby();
 
             console.log("[UI管理器] UI 组件初始化成功.");
         } catch (error) {
@@ -122,7 +120,38 @@ export class UIManager {
     /**
      * 清理所有 UI 组件
      */
+
+    public setHUDVisible(visible: boolean) {
+        this.playerStatus?.setVisible(visible);
+        this.playerEffects?.setVisible(visible);
+        if (!visible) {
+            this.bossStatus?.hide();
+        }
+    }
+
+    public setJoystickVisible(visible: boolean) {
+        this.joystick?.setVisible(visible);
+    }
+
+    public setLobbyVisible(visible: boolean) {
+        this.lobby?.setVisible(visible);
+    }
+
+    public setCharacterSelectVisible(visible: boolean) {
+        this.lobby?.setCharacterSelectVisible(visible);
+    }
+
+    public setLobbyActionState(canEnterPortal: boolean, canOpenCharacter: boolean) {
+        this.lobby?.setActionState(canEnterPortal, canOpenCharacter);
+    }
+
+    public setLobbyHandlers(onEnter: () => void, onCharacter: () => void) {
+        this.lobby?.setHandlers(onEnter, onCharacter);
+    }
+
     public destroy() {
+        this.lobby?.destroy();
+        this.lobby = null;
         this.joystick?.destroy();
         this.playerStatus?.destroy();
         this.cardSelect?.destroy();

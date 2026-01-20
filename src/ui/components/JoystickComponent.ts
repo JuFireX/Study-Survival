@@ -83,6 +83,10 @@ export class JoystickComponent {
         }
     }
 
+    public setVisible(visible: boolean) {
+        this.container.style.display = visible ? 'block' : 'none';
+    }
+
     public destroy() {
         this.container.remove();
         window.removeEventListener('mousemove', this.boundMouseMove);

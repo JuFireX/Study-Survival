@@ -81,7 +81,7 @@ export class CardSelectComponent {
         // 卡牌容器
         this.cardsContainer = document.createElement('div');
         this.cardsContainer.style.display = 'flex';
-        this.cardsContainer.style.gap = '3vmin';
+        this.cardsContainer.style.gap = '6vmin';
         this.cardsContainer.style.perspective = '1000px'; // 3D 透视
         this.cardsContainer.style.flexWrap = 'wrap';
         this.cardsContainer.style.justifyContent = 'center';
@@ -151,8 +151,8 @@ export class CardSelectComponent {
     private createCardElement(pair: CardPair): HTMLElement {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
-        wrapper.style.width = '24vw'; // 接近屏幕宽度的1/3
-        wrapper.style.height = '80vh'; // 占据大部分高度
+        wrapper.style.width = '28vmin';
+        wrapper.style.height = '45vmin';
         wrapper.style.position = 'relative';
 
         const inner = document.createElement('div');
