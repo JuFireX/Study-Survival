@@ -51,7 +51,6 @@ export class GameManager {
         eventBus.on('game:pause', this.onGamePause, this);
         eventBus.on('game:resume', this.onGameResume, this);
 
-        ScriptRegistry.init();
         const resourceManager = ResourceManager.getInstance();
         this.context.setResourceManager(resourceManager);
         const sceneManager = SceneManager.getInstance();
