@@ -43,6 +43,9 @@ export class ResourceManager {
             // 注意: 相对路径基于当前文件位置 (src/core/manager/)
             const images = import.meta.glob('../../assets/image/*.{png,jpg,jpeg}', { query: '?url', import: 'default', eager: true });
             const audio = import.meta.glob('../../assets/music/*.{mp3,wav,ogg}', { query: '?url', import: 'default', eager: true });
+            const modelsInSrc = import.meta.glob('../../assets/model/**/*.{glb,gltf}', { query: '?url', import: 'default', eager: true });
+            const modelsInRoot = import.meta.glob('../../../assets/**/*.{glb,gltf}', { query: '?url', import: 'default', eager: true });
+            const models = { ...modelsInSrc, ...modelsInRoot };
 
             const loadPromises: Promise<void>[] = [];
 
@@ -58,6 +61,13 @@ export class ResourceManager {
                 const url = audio[path] as string;
                 const name = this.extractName(path);
                 loadPromises.push(this.loadAsset(name, 'audio', url));
+            }
+
+            // 加载模型资源
+            for (const path in models) {
+                const url = models[path] as string;
+                const name = this.extractName(path);
+                loadPromises.push(this.loadAsset(name, 'container', url));
             }
 
             await Promise.all(loadPromises);

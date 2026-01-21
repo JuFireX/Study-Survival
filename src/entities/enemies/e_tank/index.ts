@@ -1,6 +1,7 @@
 import * as pc from 'playcanvas';
 import { BaseEnemy } from '../share/BaseEnemy';
 import { EnemyRegistry } from '../EnemyRegistry';
+import { ResourceManager } from '../../../core/manager/ResourceManager';
 
 export class TankEnemy extends BaseEnemy {
     constructor() {
@@ -14,6 +15,19 @@ export class TankEnemy extends BaseEnemy {
     }
 
     protected setupModel() {
+        const resourceManager = ResourceManager.getInstance();
+        const modelAsset = resourceManager.getAsset('monster_draft_40_min');
+
+        if (modelAsset && modelAsset.resource) {
+            const container = modelAsset.resource as pc.ContainerResource;
+            const modelEntity = container.instantiateRenderEntity();
+            modelEntity.setLocalScale(0.6, 0.6, 0.6);
+            modelEntity.setLocalEulerAngles(0, 180, 0);
+
+            this.entity.addChild(modelEntity);
+            return;
+        }
+
         this.entity.addComponent('model', {
             type: 'box'
         });

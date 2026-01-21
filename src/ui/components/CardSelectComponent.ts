@@ -72,8 +72,7 @@ export class CardSelectComponent {
         const title = document.createElement('h2');
         title.innerText = 'Choose Your Reward';
         title.style.color = '#fff';
-        title.style.fontSize = '5vmin';
-        title.style.marginBottom = '3vmin';
+        title.style.marginBottom = '5vmin';
         title.style.fontFamily = 'Arial, sans-serif';
         title.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.5)';
         this.container.appendChild(title);
@@ -81,7 +80,7 @@ export class CardSelectComponent {
         // 卡牌容器
         this.cardsContainer = document.createElement('div');
         this.cardsContainer.style.display = 'flex';
-        this.cardsContainer.style.gap = '6vmin';
+        this.cardsContainer.style.gap = '5vmin';
         this.cardsContainer.style.perspective = '1000px'; // 3D 透视
         this.cardsContainer.style.flexWrap = 'wrap';
         this.cardsContainer.style.justifyContent = 'center';
@@ -151,8 +150,8 @@ export class CardSelectComponent {
     private createCardElement(pair: CardPair): HTMLElement {
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
-        wrapper.style.width = '28vmin';
-        wrapper.style.height = '45vmin';
+        wrapper.style.width = '32vmin';
+        wrapper.style.height = '50vmin';
         wrapper.style.position = 'relative';
 
         const inner = document.createElement('div');
@@ -202,103 +201,52 @@ export class CardSelectComponent {
         face.style.height = '100%';
         face.style.backfaceVisibility = 'hidden'; // 关键：隐藏背面
         face.style.borderRadius = '1vmin';
-        face.style.backgroundColor = '#333'; // 深灰色背景
-        face.style.border = `0.2vmin solid ${RarityColor[card.rarity]}`;
-        // face.style.boxShadow = `0 0 1vmin ${RarityColor[card.rarity]}`; // 减弱辉光
+        face.style.backgroundColor = '#222';
+        face.style.border = `0.3vmin solid ${RarityColor[card.rarity]}`;
+        face.style.boxShadow = `0 0 2vmin ${RarityColor[card.rarity]}`; // 辉光
         face.style.display = 'flex';
         face.style.flexDirection = 'column';
-        face.style.padding = '2vmin';
+        face.style.padding = '1vmin';
         face.style.boxSizing = 'border-box';
         face.style.overflow = 'hidden';
-        face.style.gap = '1.5vmin'; // 元素间距
 
-        // 顶部 Header: 类型 + 名称
-        const header = document.createElement('div');
-        header.style.display = 'flex';
-        header.style.flexDirection = 'column';
-        header.style.alignItems = 'center';
-        header.style.marginBottom = '1vmin';
+        // 内容区域
+        const content = document.createElement('div');
+        content.style.flex = '1';
+        content.style.display = 'flex';
+        content.style.flexDirection = 'column';
+        content.style.alignItems = 'center';
+        content.style.color = '#fff';
 
-        // 类型标签
-        const typeLabel = document.createElement('div');
-        typeLabel.innerText = card.type.toUpperCase();
-        typeLabel.style.fontSize = '2vmin';
-        typeLabel.style.color = '#fff';
-        typeLabel.style.opacity = '0.8';
-        typeLabel.style.marginBottom = '0.5vmin';
-        header.appendChild(typeLabel);
-
-        // 名称
-        const nameLabel = document.createElement('div');
-        nameLabel.style.fontSize = '3.5vmin';
-        nameLabel.style.fontWeight = 'bold';
-        nameLabel.style.color = '#fff';
-        if (card.type === CardType.Buff) nameLabel.innerText = (card as BuffCard).name;
-        else if (card.type === CardType.Weapon) nameLabel.innerText = (card as WeaponCard).name;
-        else if (card.type === CardType.Question) nameLabel.innerText = (card as QuestionCard).question.subject || '题目科目'; // 假设有 subject 字段，或者默认
-        header.appendChild(nameLabel);
-
-        face.appendChild(header);
-
-        // 内容块 1: 描述/题干
-        const contentBlock1 = document.createElement('div');
-        contentBlock1.style.flex = '1';
-        contentBlock1.style.backgroundColor = '#555'; // 浅一点的灰
-        contentBlock1.style.borderRadius = '1vmin';
-        contentBlock1.style.padding = '1.5vmin';
-        contentBlock1.style.color = '#fff';
-        contentBlock1.style.display = 'flex';
-        contentBlock1.style.flexDirection = 'column';
-        // contentBlock1.style.justifyContent = 'center'; // 垂直居中还是顶部对齐？看图是顶部
-        contentBlock1.style.overflowY = 'auto';
-
-        // 内容块 2: 详情/答案区
-        const contentBlock2 = document.createElement('div');
-        contentBlock2.style.flex = '1';
-        contentBlock2.style.backgroundColor = '#555';
-        contentBlock2.style.borderRadius = '1vmin';
-        contentBlock2.style.padding = '1.5vmin';
-        contentBlock2.style.color = '#fff';
-        contentBlock2.style.display = 'flex';
-        contentBlock2.style.flexDirection = 'column';
-        contentBlock2.style.overflowY = 'auto';
-
-        // 渲染卡牌内容到两个块中
-        this.renderCardContentBlocks(contentBlock1, contentBlock2, card, pair);
-
-        face.appendChild(contentBlock1);
-        face.appendChild(contentBlock2);
+        // 渲染卡牌内容
+        this.renderCardContent(content, card, pair);
+        face.appendChild(content);
 
         // 按钮区域
         const btnGroup = document.createElement('div');
-        btnGroup.style.height = '6vmin';
+        btnGroup.style.height = '5vmin';
         btnGroup.style.display = 'flex';
-        btnGroup.style.justifyContent = 'space-around'; // 均匀分布
+        btnGroup.style.justifyContent = 'space-around';
         btnGroup.style.alignItems = 'center';
         btnGroup.style.marginTop = '1vmin';
-        btnGroup.style.gap = '2vmin'; // 按钮间距
 
         // 翻转按钮
-        const flipBtn = this.createButton('', '#2196f3', () => { // 图标用 CSS 或 SVG 更好，这里暂空
+        const flipBtn = this.createButton('↻', '#2196f3', () => {
             if (this.onFlip) this.onFlip(pair.id);
         });
         flipBtn.classList.add('btn-flip');
-        // 添加简单图标
-        flipBtn.innerHTML = '<span style="font-size: 3vmin">↻</span>';
 
         // 弃置按钮
-        const discardBtn = this.createButton('', '#f44336', () => {
+        const discardBtn = this.createButton('✕', '#f44336', () => {
             if (this.onDiscard) this.onDiscard(pair.id);
         });
         discardBtn.classList.add('btn-discard');
-        discardBtn.innerHTML = '<span style="font-size: 3vmin">✕</span>';
 
         // 选择按钮
-        const selectBtn = this.createButton('', '#4caf50', () => {
+        const selectBtn = this.createButton('✓', '#4caf50', () => {
             if (this.onSelect) this.onSelect(pair.id);
         });
         selectBtn.classList.add('btn-select');
-        selectBtn.innerHTML = '<span style="font-size: 3vmin">✓</span>';
 
         btnGroup.appendChild(flipBtn);
         btnGroup.appendChild(discardBtn);
@@ -309,175 +257,208 @@ export class CardSelectComponent {
         return face;
     }
 
-    private renderCardContentBlocks(block1: HTMLElement, block2: HTMLElement, card: Card, pair: CardPair) {
+    private renderCardContent(container: HTMLElement, card: Card, pair: CardPair) {
+        const typeLabel = document.createElement('div');
+        typeLabel.innerText = card.type.toUpperCase();
+        typeLabel.style.fontSize = '1.7vmin';
+        typeLabel.style.color = RarityColor[card.rarity];
+        typeLabel.style.marginBottom = '1vmin';
+        container.appendChild(typeLabel);
+
         if (card.type === CardType.Question) {
-            const qCard = card as QuestionCard;
+            this.renderQuestionCard(container, card as QuestionCard, pair);
+            return;
+        }
 
-            // Block 1: 题干
-            const qText = document.createElement('div');
-            qText.innerText = qCard.question.text;
-            qText.style.fontSize = '2.5vmin';
-            qText.style.lineHeight = '1.4';
-            block1.appendChild(qText);
+        if (card.type === CardType.Buff) {
+            this.renderBuffCard(container, card as BuffCard);
+            return;
+        }
 
-            // Block 2: 答题区
-            if (!pair.isAnswered) {
-                const optionsContainer = document.createElement('div');
-                optionsContainer.style.display = 'flex';
-                optionsContainer.style.flexDirection = 'column';
-                optionsContainer.style.gap = '1vmin';
-                optionsContainer.style.width = '100%';
+        if (card.type === CardType.Weapon) {
+            this.renderWeaponCard(container, card as WeaponCard);
+        }
+    }
 
-                if (qCard.question.type === 'fill' || !qCard.question.options) {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.placeholder = '请输入答案';
-                    input.style.padding = '1vmin';
-                    input.style.fontSize = '2vmin';
-                    input.style.borderRadius = '0.5vmin';
-                    input.style.border = 'none';
-                    input.style.background = 'rgba(0,0,0,0.3)';
-                    input.style.color = '#fff';
-                    input.style.outline = 'none';
-                    input.style.marginBottom = '1vmin';
+    private renderQuestionCard(container: HTMLElement, qCard: QuestionCard, pair: CardPair) {
+        const qText = document.createElement('div');
+        qText.innerText = qCard.question.text;
+        qText.style.fontSize = '2.0vmin';
+        qText.style.textAlign = 'center';
+        qText.style.marginBottom = '2vmin';
+        container.appendChild(qText);
 
-                    const submit = document.createElement('button');
-                    submit.innerText = '提交';
-                    submit.style.padding = '1vmin';
-                    submit.style.fontSize = '2vmin';
-                    submit.style.cursor = 'pointer';
-                    submit.style.border = 'none';
-                    submit.style.borderRadius = '0.5vmin';
-                    submit.style.backgroundColor = '#ddd';
-                    submit.style.color = '#333';
+        if (!pair.isAnswered) {
+            const optionsContainer = document.createElement('div');
+            optionsContainer.style.display = 'flex';
+            optionsContainer.style.flexDirection = 'column';
+            optionsContainer.style.gap = '1vmin';
+            optionsContainer.style.width = '100%';
 
-                    const submitAnswer = (e: Event) => {
-                        e.stopPropagation();
-                        const value = input.value;
-                        if (this.onAnswer) this.onAnswer(pair.id, value);
-                    };
+            if (qCard.question.type === 'fill' || !qCard.question.options) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = '请输入答案';
+                input.style.padding = '0.8vmin';
+                input.style.fontSize = '1.8vmin';
+                input.style.borderRadius = '0.5vmin';
+                input.style.border = '0.2vmin solid rgba(255,255,255,0.3)';
+                input.style.background = 'rgba(0,0,0,0.2)';
+                input.style.color = '#fff';
+                input.style.outline = 'none';
 
-                    submit.onclick = submitAnswer;
-                    input.onkeydown = (e) => {
-                        if (e.key === 'Enter') submitAnswer(e);
-                    };
+                const submit = document.createElement('button');
+                submit.innerText = '提交';
+                submit.style.padding = '0.7vmin';
+                submit.style.fontSize = '1.8vmin';
+                submit.style.cursor = 'pointer';
 
-                    optionsContainer.appendChild(input);
-                    optionsContainer.appendChild(submit);
-                } else {
-                    qCard.question.options.forEach((opt, idx) => {
-                        const optBtn = document.createElement('button');
-                        optBtn.innerText = opt;
-                        optBtn.style.padding = '1vmin';
-                        optBtn.style.fontSize = '2vmin';
-                        optBtn.style.cursor = 'pointer';
-                        optBtn.style.border = 'none';
-                        optBtn.style.borderRadius = '0.5vmin';
-                        optBtn.style.backgroundColor = 'rgba(0,0,0,0.3)';
-                        optBtn.style.color = '#fff';
-                        optBtn.style.textAlign = 'left';
+                const submitAnswer = (e: Event) => {
+                    e.stopPropagation();
+                    const value = input.value;
+                    if (this.onAnswer) this.onAnswer(pair.id, value);
+                };
 
-                        optBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            if (this.onAnswer) this.onAnswer(pair.id, idx);
-                        };
-                        optionsContainer.appendChild(optBtn);
-                    });
-                }
-                block2.appendChild(optionsContainer);
+                submit.onclick = submitAnswer;
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') submitAnswer(e);
+                };
+
+                optionsContainer.appendChild(input);
+                optionsContainer.appendChild(submit);
             } else {
-                // 已回答，显示结果
-                const result = document.createElement('div');
-                const isWrong = pair.answerState === 'wrong';
-                result.innerText = isWrong ? 'WRONG' : 'SOLVED';
-                result.style.fontSize = '3.5vmin';
-                result.style.color = isWrong ? '#f44336' : '#4caf50';
-                result.style.fontWeight = 'bold';
-                result.style.marginBottom = '1vmin';
-                block2.appendChild(result);
-
-                let standardAnswer = '';
-                if (qCard.question.type === 'fill' || !qCard.question.options) {
-                    if (typeof qCard.question.answer === 'string') {
-                        standardAnswer = qCard.question.answer;
-                    }
-                } else if (qCard.question.options) {
-                    const correct = qCard.question.correct;
-                    if (typeof correct === 'number') {
-                        standardAnswer = qCard.question.options[correct] ?? '';
-                        if (!standardAnswer) standardAnswer = `选项 ${correct + 1}`;
-                    } else if (Array.isArray(correct) && correct.length > 0) {
-                        const texts = correct
-                            .map(i => qCard.question.options?.[i])
-                            .filter((v): v is string => typeof v === 'string' && v.length > 0);
-                        standardAnswer = texts.length > 0 ? texts.join(' / ') : correct.map(i => `选项 ${i + 1}`).join(' / ');
-                    }
-                }
-
-                const answerLine = document.createElement('div');
-                answerLine.innerText = `答案：${standardAnswer || '（未配置）'}`;
-                answerLine.style.fontSize = '2vmin';
-                answerLine.style.color = 'rgba(255,255,255,0.7)';
-                block2.appendChild(answerLine);
+                qCard.question.options.forEach((opt, idx) => {
+                    const optBtn = document.createElement('button');
+                    optBtn.innerText = opt;
+                    optBtn.style.padding = '0.5vmin';
+                    optBtn.style.fontSize = '1.7vmin';
+                    optBtn.style.cursor = 'pointer';
+                    optBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (this.onAnswer) this.onAnswer(pair.id, idx);
+                    };
+                    optionsContainer.appendChild(optBtn);
+                });
             }
 
-        } else if (card.type === CardType.Buff) {
-            const bCard = card as BuffCard;
-
-            // Block 1: 描述
-            const desc = document.createElement('div');
-            desc.innerText = bCard.description;
-            desc.style.fontSize = '2.5vmin';
-            desc.style.lineHeight = '1.4';
-            block1.appendChild(desc);
-
-            // Block 2: 详细信息/挂载点
-            const detail = document.createElement('div');
-            detail.innerText = '挂载点: 玩家属性\n数值详细信息...'; // 占位
-            detail.style.fontSize = '2vmin';
-            detail.style.color = '#ccc';
-            block2.appendChild(detail);
-
-        } else if (card.type === CardType.Weapon) {
-            const wCard = card as WeaponCard;
-
-            // Block 1: 描述
-            const desc = document.createElement('div');
-            desc.innerText = wCard.description;
-            desc.style.fontSize = '2.5vmin';
-            desc.style.lineHeight = '1.4';
-            block1.appendChild(desc);
-
-            // Block 2: 详细信息
-            const stats = document.createElement('div');
-            stats.innerText = `挂载点: 武器槽\nDMG: ${wCard.stats.damage}\nRange: ${wCard.stats.range}`;
-            stats.style.fontSize = '2vmin';
-            stats.style.color = '#ccc';
-            stats.style.whiteSpace = 'pre-wrap';
-            block2.appendChild(stats);
+            container.appendChild(optionsContainer);
+            return;
         }
+
+        const resultGroup = document.createElement('div');
+        resultGroup.style.width = '100%';
+        resultGroup.style.display = 'flex';
+        resultGroup.style.flexDirection = 'column';
+        resultGroup.style.alignItems = 'flex-start';
+        resultGroup.style.boxSizing = 'border-box';
+        resultGroup.style.paddingLeft = '1.2vmin';
+        resultGroup.style.gap = '0.8vmin';
+        resultGroup.style.marginTop = 'auto';
+        resultGroup.style.marginBottom = 'auto';
+
+        const result = document.createElement('div');
+        const isWrong = pair.answerState === 'wrong';
+        result.innerText = isWrong ? 'WRONG' : 'SOLVED';
+        result.style.fontSize = '3.2vmin';
+        result.style.color = isWrong ? '#f44336' : '#4caf50';
+        result.style.fontWeight = 'bold';
+        result.style.textAlign = 'left';
+        resultGroup.appendChild(result);
+
+        const answerLine = document.createElement('div');
+        const standardAnswer = this.getStandardAnswerText(qCard);
+        answerLine.innerText = `答案：${standardAnswer || '（未配置）'}`;
+        answerLine.style.fontSize = '1.7vmin';
+        answerLine.style.color = 'rgba(255,255,255,0.55)';
+        answerLine.style.lineHeight = '1.3';
+        answerLine.style.whiteSpace = 'pre-wrap';
+        answerLine.style.wordBreak = 'break-word';
+        answerLine.style.paddingLeft = '1.2vmin';
+        answerLine.style.boxSizing = 'border-box';
+        resultGroup.appendChild(answerLine);
+
+        container.appendChild(resultGroup);
+    }
+
+    private getStandardAnswerText(qCard: QuestionCard): string {
+        if (qCard.question.type === 'fill' || !qCard.question.options) {
+            return typeof qCard.question.answer === 'string' ? qCard.question.answer : '';
+        }
+
+        if (qCard.question.options) {
+            const correct = qCard.question.correct;
+            if (typeof correct === 'number') {
+                const optionText = qCard.question.options[correct] ?? '';
+                return optionText || `选项 ${correct + 1}`;
+            }
+
+            if (Array.isArray(correct) && correct.length > 0) {
+                const texts = correct
+                    .map(i => qCard.question.options?.[i])
+                    .filter((v): v is string => typeof v === 'string' && v.length > 0);
+                return texts.length > 0 ? texts.join(' / ') : correct.map(i => `选项 ${i + 1}`).join(' / ');
+            }
+        }
+
+        return '';
+    }
+
+    private renderBuffCard(container: HTMLElement, bCard: BuffCard) {
+        const name = document.createElement('div');
+        name.innerText = bCard.name;
+        name.style.fontSize = '2.2vmin';
+        name.style.fontWeight = 'bold';
+        name.style.marginBottom = '1vmin';
+        container.appendChild(name);
+
+        const desc = document.createElement('div');
+        desc.innerText = bCard.description;
+        desc.style.fontSize = '1.7vmin';
+        desc.style.textAlign = 'center';
+        container.appendChild(desc);
+    }
+
+    private renderWeaponCard(container: HTMLElement, wCard: WeaponCard) {
+        const name = document.createElement('div');
+        name.innerText = wCard.name;
+        name.style.fontSize = '2vmin';
+        name.style.fontWeight = 'bold';
+        name.style.marginBottom = '1vmin';
+        container.appendChild(name);
+
+        const desc = document.createElement('div');
+        desc.innerText = wCard.description;
+        desc.style.fontSize = '1.5vmin';
+        desc.style.textAlign = 'center';
+        container.appendChild(desc);
+
+        const stats = document.createElement('div');
+        stats.innerText = `DMG: ${wCard.stats.damage}`;
+        stats.style.fontSize = '1.4vmin';
+        stats.style.marginTop = '1vmin';
+        stats.style.color = '#ccc';
+        container.appendChild(stats);
     }
 
     private createButton(text: string, color: string, onClick: () => void): HTMLElement {
         const btn = document.createElement('div');
         btn.innerText = text;
-        btn.style.width = '6vmin'; // 方形按钮
-        btn.style.height = '6vmin';
-        btn.style.borderRadius = '1vmin';
-        btn.style.backgroundColor = '#555'; // 按钮背景统一深灰，图标带色？或者保持原色
-        // 根据图示，按钮是有颜色的方块
+        btn.style.width = '4vmin';
+        btn.style.height = '4vmin';
+        btn.style.borderRadius = '0.5vmin';
         btn.style.backgroundColor = color;
-
         btn.style.color = '#fff';
         btn.style.display = 'flex';
         btn.style.alignItems = 'center';
         btn.style.justifyContent = 'center';
+        btn.style.fontSize = '2vmin';
         btn.style.cursor = 'pointer';
         btn.style.userSelect = 'none';
-        // btn.style.boxShadow = '0 0.2vmin 0.5vmin rgba(0,0,0,0.5)';
+        btn.style.boxShadow = '0 0.2vmin 0.5vmin rgba(0,0,0,0.5)';
 
         btn.onclick = (e) => {
             e.stopPropagation();
+            // 简单的点击动画
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => btn.style.transform = 'scale(1)', 100);
             onClick();
@@ -487,13 +468,6 @@ export class CardSelectComponent {
     }
 
     private updateButtons(pair: CardPair, face: HTMLElement, isVisualFront: boolean) {
-        // 判定当前面是否是逻辑上的 Front 或 Back
-        // 如果 currentFace 是 Front (0), 那么 visualFront 是当前显示面
-        // 如果 currentFace 是 Back (1), 那么 visualBack 是当前显示面
-
-        // 我们需要根据规则禁用/启用按钮
-
-        // 获取当前面的卡牌数据
         const card = isVisualFront ? pair.front : pair.back;
         const isCurrentFace = (isVisualFront && pair.currentFace === CardFaceState.Front) ||
             (!isVisualFront && pair.currentFace === CardFaceState.Back);
@@ -509,7 +483,6 @@ export class CardSelectComponent {
             return;
         }
 
-        // 默认都启用
         this.setButtonEnabled(btnFlip, true);
         this.setButtonEnabled(btnDiscard, true);
         this.setButtonEnabled(btnSelect, true);
@@ -518,25 +491,13 @@ export class CardSelectComponent {
             this.setButtonEnabled(btnSelect, false);
         }
 
-        // 规则 2: 如果该卡为问题卡卡面, 在回答问题前禁用其翻转功能
-        if (isCurrentFace && card.type === CardType.Question && !pair.isAnswered) {
-            this.setButtonEnabled(btnFlip, false);
-        }
-
-        // 规则 3: 如果该卡为其他卡卡面 (BW), 在回答问题前禁用其选择功能
-        if (isCurrentFace && card.type !== CardType.Question && !pair.isAnswered) {
-            this.setButtonEnabled(btnSelect, false);
-        }
-
-        // 额外逻辑：如果当前面是问题卡，且未回答，禁用选择（因为通常要答对才能选奖励，或者是说选了就代表开始答题？根据需求描述，"回答问题前禁用其选择功能"是针对BW卡面的。
-        // 对于问题卡面，需求没明说禁用选择，但逻辑上盲盒答题后才能拿奖励。
-        // 假设问题卡本身不能被"Select"作为最终奖励，Select 只能选增武卡？
-        // 或者 Select 意味着"我要这张卡(及其背面)"。
-        // 如果背面是增武卡，选了问题卡面等于选了背后的增武卡。
-        // 既然规定了“回答问题前禁用翻转”，说明必须先答题。
-        // 那么在答题前，能不能 Select？ -> 应该是不能。
-        if (isCurrentFace && card.type === CardType.Question && !pair.isAnswered) {
-            this.setButtonEnabled(btnSelect, false);
+        if (isCurrentFace && !pair.isAnswered) {
+            if (card.type === CardType.Question) {
+                this.setButtonEnabled(btnFlip, false);
+                this.setButtonEnabled(btnSelect, false);
+            } else {
+                this.setButtonEnabled(btnSelect, false);
+            }
         }
     }
 
