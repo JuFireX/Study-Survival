@@ -1,15 +1,28 @@
 import * as pc from 'playcanvas';
 import { GameContext } from '../core/GameContext';
+import { ResourceManager } from '../core/manager/ResourceManager';
 
 export class CharacterHandler {
     private app: pc.Application;
     private selectionPanel: HTMLDivElement | null = null;
     private stand: pc.Entity | null = null;
     private selectionVisible = false;
+    private previewLabel: HTMLDivElement | null = null;
+    private selectedType = 'c_AAA';
+    private options = [
+        { type: 'c_AAA', label: 'Barbarian', asset: 'barbarian', scale: 1.5, rotationX: 0, rotationY: 0, rotationZ: 0 }
+    ];
 
     constructor() {
         this.app = GameContext.getInstance().getApp();
+        if (this.options.length > 0) {
+            this.selectedType = this.options[0].type;
+        }
         this.createSelectionUI();
+        const option = this.getOption(this.selectedType);
+        if (option && this.previewLabel) {
+            this.previewLabel.innerText = `当前选择: ${option.label}`;
+        }
     }
 
     public ensureStand(): pc.Entity {
@@ -45,19 +58,78 @@ export class CharacterHandler {
         pedestalMaterial.update();
         pedestal.model!.material = pedestalMaterial;
 
-        const preview = new pc.Entity('CharacterPreview');
-        preview.addComponent('model', { type: 'capsule' });
-        preview.setLocalPosition(0, 1.6, 0);
-        preview.setLocalScale(0.8, 0.8, 0.8);
-        const previewMaterial = new pc.StandardMaterial();
-        previewMaterial.diffuse = new pc.Color(0.9, 0.7, 0.3);
-        previewMaterial.update();
-        preview.model!.material = previewMaterial;
+        const preview = this.buildPreviewEntity();
 
         stand.addChild(pedestal);
         stand.addChild(preview);
         this.app.root.addChild(stand);
         return stand;
+    }
+
+    private buildPreviewEntity(): pc.Entity {
+        const preview = new pc.Entity('CharacterPreview');
+        preview.setLocalPosition(0, 0.2, 0);
+
+        const option = this.getOption(this.selectedType);
+        const assetName = option?.asset ?? '';
+        const resourceManager = ResourceManager.getInstance();
+        const modelAsset = assetName ? resourceManager.getAsset(assetName) : null;
+
+        if (modelAsset && modelAsset.resource && option) {
+            const container = modelAsset.resource as pc.ContainerResource;
+            const modelEntity = container.instantiateModelEntity();
+            modelEntity.setLocalScale(option.scale, option.scale, option.scale);
+            modelEntity.setLocalEulerAngles(option.rotationX, option.rotationY, option.rotationZ);
+
+            const animations = (container as unknown as { animations?: pc.Asset[] }).animations ?? [];
+            if (animations.length > 0) {
+                modelEntity.addComponent('animation', {
+                    assets: animations.map((animation: pc.Asset) => animation.id),
+                    loop: true,
+                    activate: true
+                });
+                if (modelEntity.animation) {
+                    modelEntity.animation.play(animations[0].name);
+                }
+            }
+
+            preview.addChild(modelEntity);
+            return preview;
+        }
+
+        preview.addComponent('model', { type: 'capsule' });
+        preview.setLocalScale(1.2, 1.2, 1.2);
+        const previewMaterial = new pc.StandardMaterial();
+        previewMaterial.diffuse = new pc.Color(0.9, 0.7, 0.3);
+        previewMaterial.update();
+        preview.model!.material = previewMaterial;
+        return preview;
+    }
+
+    private updateStandPreview() {
+        if (!this.stand || !this.stand.parent) return;
+        const existing = this.stand.findByName('CharacterPreview');
+        if (existing instanceof pc.Entity) {
+            existing.destroy();
+        }
+        const preview = this.buildPreviewEntity();
+        this.stand.addChild(preview);
+    }
+
+    private getOption(type: string) {
+        return this.options.find(option => option.type === type) ?? null;
+    }
+
+    private selectCharacter(type: string) {
+        const option = this.getOption(type);
+        if (!option) return;
+        this.selectedType = type;
+        GameContext.getInstance().getEventBus().fire('character:select', type);
+        if (this.previewLabel) {
+            this.previewLabel.innerText = `当前选择: ${option.label}`;
+        }
+        this.updateStandPreview();
+        this.setSelectionVisible(false);
     }
 
     private createSelectionUI() {
@@ -86,21 +158,42 @@ export class CharacterHandler {
         card.style.gap = '3vmin';
 
         const title = document.createElement('div');
-        title.innerText = '角色选择（占位）';
+        title.innerText = '角色选择';
         title.style.color = '#fff';
         title.style.fontSize = '3vmin';
 
         const preview = document.createElement('div');
-        preview.style.width = '24vmin';
-        preview.style.height = '24vmin';
+        preview.style.width = '32vmin';
+        preview.style.minHeight = '6vmin';
         preview.style.borderRadius = '2vmin';
-        preview.style.background = 'linear-gradient(135deg, #4c8bf5, #7f5adf)';
+        preview.style.background = 'rgba(76, 139, 245, 0.15)';
         preview.style.display = 'flex';
         preview.style.alignItems = 'center';
         preview.style.justifyContent = 'center';
         preview.style.color = '#fff';
-        preview.style.fontSize = '2.2vmin';
-        preview.innerText = '角色模型占位';
+        preview.style.fontSize = '2.1vmin';
+        preview.innerText = '当前选择: -';
+        this.previewLabel = preview;
+
+        const list = document.createElement('div');
+        list.style.display = 'flex';
+        list.style.flexWrap = 'wrap';
+        list.style.gap = '1.5vmin';
+        list.style.justifyContent = 'center';
+
+        this.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option.label;
+            button.style.padding = '1vmin 3vmin';
+            button.style.fontSize = '1.8vmin';
+            button.style.borderRadius = '1vmin';
+            button.style.border = '0.2vmin solid rgba(255, 255, 255, 0.4)';
+            button.style.background = 'rgba(60, 90, 160, 0.9)';
+            button.style.color = '#fff';
+            button.style.cursor = 'pointer';
+            button.onclick = () => this.selectCharacter(option.type);
+            list.appendChild(button);
+        });
 
         const closeButton = document.createElement('button');
         closeButton.innerText = '关闭';
@@ -117,6 +210,7 @@ export class CharacterHandler {
 
         card.appendChild(title);
         card.appendChild(preview);
+        card.appendChild(list);
         card.appendChild(closeButton);
         panel.appendChild(card);
         document.body.appendChild(panel);
