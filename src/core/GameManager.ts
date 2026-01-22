@@ -40,6 +40,7 @@ export class GameManager {
     private lobbyInteractRadius = 3.5;
     private lobbyBoundsHalf = 20;
     private bgmEntity: pc.Entity | null = null;
+    private selectedCharacterType = 'c_AAA';
 
     private constructor() {
         this.context = GameContext.getInstance();
@@ -50,6 +51,7 @@ export class GameManager {
         const eventBus = this.context.getEventBus();
         eventBus.on('game:pause', this.onGamePause, this);
         eventBus.on('game:resume', this.onGameResume, this);
+        eventBus.on('character:select', this.onCharacterSelected, this);
 
         const resourceManager = ResourceManager.getInstance();
         this.context.setResourceManager(resourceManager);
@@ -121,6 +123,10 @@ export class GameManager {
         return GameManager.instance;
     }
 
+    public getSelectedCharacterType(): string {
+        return this.selectedCharacterType;
+    }
+
     public startLobby() {
         const sceneManager = this.context.getSceneManager();
         if (!sceneManager) return;
@@ -181,17 +187,47 @@ export class GameManager {
 
     private createLobbyPlayer(): pc.Entity {
         const player = new pc.Entity('LobbyPlayer');
-        player.addComponent('model', { type: 'capsule' });
+        const resourceManager = ResourceManager.getInstance();
+        const config = this.getCharacterModelConfig(this.selectedCharacterType);
+        const modelAsset = config ? resourceManager.getAsset(config.asset) : null;
 
-        const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(0.3, 0.8, 0.9);
-        material.update();
-        player.model!.material = material;
+        if (modelAsset && modelAsset.resource && config) {
+            const container = modelAsset.resource as pc.ContainerResource;
+            const modelEntity = container.instantiateRenderEntity();
+            modelEntity.setLocalScale(config.scale, config.scale, config.scale);
+            modelEntity.setLocalEulerAngles(config.rotationX, config.rotationY, config.rotationZ);
+            modelEntity.setLocalPosition(0, 0, 0);
+            player.addChild(modelEntity);
+        } else {
+            player.addComponent('model', { type: 'capsule' });
+            const material = new pc.StandardMaterial();
+            material.diffuse = new pc.Color(0.3, 0.8, 0.9);
+            material.update();
+            player.model!.material = material;
+            player.setLocalScale(0.7, 0.7, 0.7);
+        }
 
-        player.setLocalScale(0.7, 0.7, 0.7);
         player.setPosition(0, 0.8, 0);
         this.app.root.addChild(player);
         return player;
+    }
+
+    private getCharacterModelConfig(type: string) {
+        const configs = {
+            c_AAA: { asset: 'barbarian', scale: 1.2, rotationX: -90, rotationY: 0, rotationZ: 0 }
+        } as Record<string, { asset: string; scale: number; rotationX: number; rotationY: number; rotationZ: number }>;
+        return configs[type] ?? null;
+    }
+
+    private onCharacterSelected(type: string) {
+        if (!type || type === this.selectedCharacterType) return;
+        this.selectedCharacterType = type;
+        if (this.mode === 'lobby') {
+            if (this.lobbyPlayer) {
+                this.lobbyPlayer.destroy();
+            }
+            this.lobbyPlayer = this.createLobbyPlayer();
+        }
     }
 
     private updateLobby(dt: number) {

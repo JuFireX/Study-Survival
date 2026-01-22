@@ -2,6 +2,7 @@ import * as pc from 'playcanvas';
 import { BaseCharacter } from '../share/BaseCharacter';
 import { PlayerStats } from '../../../config/types';
 import { CharacterRegistry } from '../CharacterRegistry';
+import { ResourceManager } from '../../../core/manager/ResourceManager';
 
 export class CharacterAAA extends BaseCharacter {
     constructor(entity: pc.Entity, stats?: Partial<PlayerStats>) {
@@ -20,12 +21,22 @@ export class CharacterAAA extends BaseCharacter {
     }
 
     private initializeVisuals() {
-        // 创建一个简单的胶囊体代表角色
+        const resourceManager = ResourceManager.getInstance();
+        const modelAsset = resourceManager.getAsset('barbarian');
+
+        if (modelAsset && modelAsset.resource) {
+            const container = modelAsset.resource as pc.ContainerResource;
+            const modelEntity = container.instantiateRenderEntity();
+            modelEntity.setLocalScale(1.5, 1.5, 1.5);
+            modelEntity.setLocalEulerAngles(-90, 0, 0);
+            this.entity.addChild(modelEntity);
+            return;
+        }
+
         this.entity.addComponent('model', {
             type: 'capsule'
         });
 
-        // 设置胶囊体颜色为青色
         const material = new pc.StandardMaterial();
         material.diffuse = new pc.Color(60 / 255, 90 / 255, 250 / 255);
         material.update();
@@ -33,7 +44,6 @@ export class CharacterAAA extends BaseCharacter {
             this.entity.model.material = material;
         }
 
-        // 添加一个小眼睛指示方向
         const eye = new pc.Entity('Eye');
         eye.addComponent('model', { type: 'box' });
         eye.setLocalScale(0.5, 0.2, 0.5);

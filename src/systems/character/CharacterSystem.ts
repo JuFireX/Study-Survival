@@ -165,7 +165,8 @@ export class CharacterSystem implements IGameSystem {
      */
     initialize(): void {
         console.log('[角色系统] 初始化...');
-        this.createCharacter('c_AAA');
+        const selectedType = this.context.getGameManager()?.getSelectedCharacterType() ?? 'c_AAA';
+        this.createCharacter(selectedType);
     }
 
     /**

@@ -1,6 +1,7 @@
 import * as pc from 'playcanvas';
 import { BaseEnemy } from '../share/BaseEnemy';
 import { EnemyRegistry } from '../EnemyRegistry';
+import { ResourceManager } from '../../../core/manager/ResourceManager';
 
 export class FastEnemy extends BaseEnemy {
     constructor() {
@@ -14,11 +15,22 @@ export class FastEnemy extends BaseEnemy {
     }
 
     protected setupModel() {
+        const resourceManager = ResourceManager.getInstance();
+        const modelAsset = resourceManager.getAsset('bat1');
+
+        if (modelAsset && modelAsset.resource) {
+            const container = modelAsset.resource as pc.ContainerResource;
+            const modelEntity = container.instantiateRenderEntity();
+            modelEntity.setLocalScale(0.8, 0.8, 0.8);
+            modelEntity.setLocalEulerAngles(0, 180, 0);
+            this.entity.addChild(modelEntity);
+            return;
+        }
+
         this.entity.addComponent('model', {
-            type: 'capsule' // 用胶囊体区分
+            type: 'capsule'
         });
 
-        // 稍微瘦一点
         this.entity.setLocalScale(0.8, 0.8, 0.8);
 
         const material = new pc.StandardMaterial();

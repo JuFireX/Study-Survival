@@ -16,7 +16,7 @@ export class TankEnemy extends BaseEnemy {
 
     protected setupModel() {
         const resourceManager = ResourceManager.getInstance();
-        const modelAsset = resourceManager.getAsset('monster_draft_40_min');
+        const modelAsset = resourceManager.getAsset('dragon1');
 
         if (modelAsset && modelAsset.resource) {
             const container = modelAsset.resource as pc.ContainerResource;
