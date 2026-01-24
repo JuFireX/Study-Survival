@@ -1,231 +1,260 @@
-import * as pc from 'playcanvas';
-import { GameContext } from '../core/GameContext';
-import { ResourceManager } from '../core/manager/ResourceManager';
+import * as pc from "playcanvas";
+import { GameContext } from "../core/GameContext";
+import { ResourceManager } from "../core/manager/ResourceManager";
 
 export class CharacterHandler {
-    private app: pc.Application;
-    private selectionPanel: HTMLDivElement | null = null;
-    private stand: pc.Entity | null = null;
-    private selectionVisible = false;
-    private previewLabel: HTMLDivElement | null = null;
-    private selectedType = 'c_AAA';
-    private options = [
-        { type: 'c_AAA', label: 'Barbarian', asset: 'barbarian', scale: 1.5, rotationX: 0, rotationY: 0, rotationZ: 0 },
-        { type: 'c_BBB', label: 'Druid', asset: 'druid', scale: 1.4, rotationX: 0, rotationY: 0, rotationZ: 0 },
-        { type: 'c_CCC', label: 'Engineer', asset: 'engineer', scale: 1.3, rotationX: 0, rotationY: 0, rotationZ: 0 }
-    ];
+  private app: pc.Application;
+  private selectionPanel: HTMLDivElement | null = null;
+  private stand: pc.Entity | null = null;
+  private selectionVisible = false;
+  private previewLabel: HTMLDivElement | null = null;
+  private selectedType = "c_AAA";
+  private options = [
+    {
+      type: "c_AAA",
+      label: "Barbarian",
+      asset: "barbarian",
+      scale: 1.5,
+      rotationX: 0,
+      rotationY: 0,
+      rotationZ: 0,
+    },
+    {
+      type: "c_BBB",
+      label: "Druid",
+      asset: "druid",
+      scale: 1.4,
+      rotationX: 0,
+      rotationY: 0,
+      rotationZ: 0,
+    },
+    {
+      type: "c_CCC",
+      label: "Engineer",
+      asset: "engineer",
+      scale: 1.3,
+      rotationX: 0,
+      rotationY: 0,
+      rotationZ: 0,
+    },
+  ];
 
-    constructor() {
-        this.app = GameContext.getInstance().getApp();
-        if (this.options.length > 0) {
-            this.selectedType = this.options[0].type;
-        }
-        this.createSelectionUI();
-        const option = this.getOption(this.selectedType);
-        if (option && this.previewLabel) {
-            this.previewLabel.innerText = `当前选择: ${option.label}`;
-        }
+  constructor() {
+    this.app = GameContext.getInstance().getApp();
+    if (this.options.length > 0) {
+      this.selectedType = this.options[0].type;
     }
-
-    public ensureStand(): pc.Entity {
-        if (this.stand && this.stand.parent) return this.stand;
-        this.stand = this.createCharacterStand();
-        return this.stand;
+    this.createSelectionUI();
+    const option = this.getOption(this.selectedType);
+    if (option && this.previewLabel) {
+      this.previewLabel.innerText = `当前选择: ${option.label}`;
     }
+  }
 
-    public getStand(): pc.Entity | null {
-        if (this.stand && this.stand.parent) return this.stand;
-        return null;
-    }
+  public ensureStand(): pc.Entity {
+    if (this.stand && this.stand.parent) return this.stand;
+    this.stand = this.createCharacterStand();
+    return this.stand;
+  }
 
-    public setSelectionVisible(visible: boolean) {
-        this.selectionVisible = visible;
-        if (!this.selectionPanel) return;
-        this.selectionPanel.style.display = visible ? 'flex' : 'none';
-    }
+  public getStand(): pc.Entity | null {
+    if (this.stand && this.stand.parent) return this.stand;
+    return null;
+  }
 
-    public isSelectionVisible(): boolean {
-        return this.selectionVisible;
-    }
+  public setSelectionVisible(visible: boolean) {
+    this.selectionVisible = visible;
+    if (!this.selectionPanel) return;
+    this.selectionPanel.style.display = visible ? "flex" : "none";
+  }
 
-    private createCharacterStand(): pc.Entity {
-        const stand = new pc.Entity('CharacterStand');
-        stand.setPosition(-6, 0.1, 0);
+  public isSelectionVisible(): boolean {
+    return this.selectionVisible;
+  }
 
-        const pedestal = new pc.Entity('StandPedestal');
-        pedestal.addComponent('model', { type: 'cylinder' });
-        pedestal.setLocalScale(2.4, 0.45, 2.4);
-        const pedestalMaterial = new pc.StandardMaterial();
-        pedestalMaterial.diffuse = new pc.Color(0.2, 0.2, 0.25);
-        pedestalMaterial.update();
-        pedestal.model!.material = pedestalMaterial;
+  private createCharacterStand(): pc.Entity {
+    const stand = new pc.Entity("CharacterStand");
+    stand.setPosition(-6, 0.1, 0);
 
-        const preview = this.buildPreviewEntity();
+    const pedestal = new pc.Entity("StandPedestal");
+    pedestal.addComponent("model", { type: "cylinder" });
+    pedestal.setLocalScale(2.4, 0.45, 2.4);
+    const pedestalMaterial = new pc.StandardMaterial();
+    pedestalMaterial.diffuse = new pc.Color(0.2, 0.2, 0.25);
+    pedestalMaterial.update();
+    pedestal.model!.material = pedestalMaterial;
 
-        stand.addChild(pedestal);
-        stand.addChild(preview);
-        this.app.root.addChild(stand);
-        return stand;
-    }
+    const preview = this.buildPreviewEntity();
 
-    private buildPreviewEntity(): pc.Entity {
-        const preview = new pc.Entity('CharacterPreview');
-        preview.setLocalPosition(0, 0.2, 0);
+    stand.addChild(pedestal);
+    stand.addChild(preview);
+    this.app.root.addChild(stand);
+    return stand;
+  }
 
-        const option = this.getOption(this.selectedType);
-        const assetName = option?.asset ?? '';
-        const resourceManager = ResourceManager.getInstance();
-        const modelAsset = assetName ? resourceManager.getAsset(assetName) : null;
+  private buildPreviewEntity(): pc.Entity {
+    const preview = new pc.Entity("CharacterPreview");
+    preview.setLocalPosition(0, 0.2, 0);
 
-        if (modelAsset && modelAsset.resource && option) {
-            const container = modelAsset.resource as pc.ContainerResource;
-            const modelEntity = container.instantiateModelEntity();
-            modelEntity.setLocalScale(option.scale, option.scale, option.scale);
-            modelEntity.setLocalEulerAngles(option.rotationX, option.rotationY, option.rotationZ);
+    const option = this.getOption(this.selectedType);
+    const assetName = option?.asset ?? "";
+    const resourceManager = ResourceManager.getInstance();
+    const modelAsset = assetName ? resourceManager.getAsset(assetName) : null;
 
-            const animations = (container as unknown as { animations?: pc.Asset[] }).animations ?? [];
-            if (animations.length > 0) {
-                modelEntity.addComponent('animation', {
-                    assets: animations.map((animation: pc.Asset) => animation.id),
-                    loop: true,
-                    activate: true
-                });
-                if (modelEntity.animation) {
-                    modelEntity.animation.play(animations[0].name);
-                }
-            }
+    if (modelAsset && modelAsset.resource && option) {
+      const container = modelAsset.resource as pc.ContainerResource;
+      const modelEntity = container.instantiateModelEntity();
+      modelEntity.setLocalScale(option.scale, option.scale, option.scale);
+      modelEntity.setLocalEulerAngles(
+        option.rotationX,
+        option.rotationY,
+        option.rotationZ,
+      );
 
-            preview.addChild(modelEntity);
-            return preview;
-        }
-
-        preview.addComponent('model', { type: 'capsule' });
-        preview.setLocalScale(1.2, 1.2, 1.2);
-        const previewMaterial = new pc.StandardMaterial();
-        previewMaterial.diffuse = new pc.Color(0.9, 0.7, 0.3);
-        previewMaterial.update();
-        preview.model!.material = previewMaterial;
-        return preview;
-    }
-
-    private updateStandPreview() {
-        if (!this.stand || !this.stand.parent) return;
-        const existing = this.stand.findByName('CharacterPreview');
-        if (existing instanceof pc.Entity) {
-            existing.destroy();
-        }
-        const preview = this.buildPreviewEntity();
-        this.stand.addChild(preview);
-    }
-
-    private getOption(type: string) {
-        return this.options.find(option => option.type === type) ?? null;
-    }
-
-    private selectCharacter(type: string) {
-        const option = this.getOption(type);
-        if (!option) return;
-        this.selectedType = type;
-        GameContext.getInstance().getEventBus().fire('character:select', type);
-        if (this.previewLabel) {
-            this.previewLabel.innerText = `当前选择: ${option.label}`;
-        }
-        this.updateStandPreview();
-        this.setSelectionVisible(false);
-    }
-
-    private createSelectionUI() {
-        const panel = document.createElement('div');
-        panel.style.position = 'absolute';
-        panel.style.top = '0';
-        panel.style.left = '0';
-        panel.style.width = '100%';
-        panel.style.height = '100%';
-        panel.style.display = 'none';
-        panel.style.alignItems = 'center';
-        panel.style.justifyContent = 'center';
-        panel.style.background = 'rgba(0, 0, 0, 0.7)';
-        panel.style.zIndex = '150';
-
-        const card = document.createElement('div');
-        card.style.width = '60vmin';
-        card.style.maxWidth = '90vw';
-        card.style.padding = '4vmin';
-        card.style.background = 'rgba(30, 30, 40, 0.95)';
-        card.style.border = '0.3vmin solid rgba(255, 255, 255, 0.2)';
-        card.style.borderRadius = '2vmin';
-        card.style.display = 'flex';
-        card.style.flexDirection = 'column';
-        card.style.alignItems = 'center';
-        card.style.gap = '3vmin';
-
-        const title = document.createElement('div');
-        title.innerText = '角色选择';
-        title.style.color = '#fff';
-        title.style.fontSize = '3vmin';
-
-        const preview = document.createElement('div');
-        preview.style.width = '32vmin';
-        preview.style.minHeight = '6vmin';
-        preview.style.borderRadius = '2vmin';
-        preview.style.background = 'rgba(76, 139, 245, 0.15)';
-        preview.style.display = 'flex';
-        preview.style.alignItems = 'center';
-        preview.style.justifyContent = 'center';
-        preview.style.color = '#fff';
-        preview.style.fontSize = '2.1vmin';
-        preview.innerText = '当前选择: -';
-        this.previewLabel = preview;
-
-        const list = document.createElement('div');
-        list.style.display = 'flex';
-        list.style.flexWrap = 'wrap';
-        list.style.gap = '1.5vmin';
-        list.style.justifyContent = 'center';
-
-        this.options.forEach(option => {
-            const button = document.createElement('button');
-            button.innerText = option.label;
-            button.style.padding = '1vmin 3vmin';
-            button.style.fontSize = '1.8vmin';
-            button.style.borderRadius = '1vmin';
-            button.style.border = '0.2vmin solid rgba(255, 255, 255, 0.4)';
-            button.style.background = 'rgba(60, 90, 160, 0.9)';
-            button.style.color = '#fff';
-            button.style.cursor = 'pointer';
-            button.onclick = () => this.selectCharacter(option.type);
-            list.appendChild(button);
+      const animations =
+        (container as unknown as { animations?: pc.Asset[] }).animations ?? [];
+      if (animations.length > 0) {
+        modelEntity.addComponent("animation", {
+          assets: animations.map((animation: pc.Asset) => animation.id),
+          loop: true,
+          activate: true,
         });
-
-        const closeButton = document.createElement('button');
-        closeButton.innerText = '关闭';
-        closeButton.style.padding = '1.2vmin 4vmin';
-        closeButton.style.fontSize = '2vmin';
-        closeButton.style.borderRadius = '1vmin';
-        closeButton.style.border = '0.2vmin solid rgba(255, 255, 255, 0.6)';
-        closeButton.style.background = 'rgba(220, 80, 80, 0.9)';
-        closeButton.style.color = '#fff';
-        closeButton.style.cursor = 'pointer';
-        closeButton.onclick = () => {
-            this.setSelectionVisible(false);
-        };
-
-        card.appendChild(title);
-        card.appendChild(preview);
-        card.appendChild(list);
-        card.appendChild(closeButton);
-        panel.appendChild(card);
-        document.body.appendChild(panel);
-
-        this.selectionPanel = panel;
-    }
-
-    public destroy() {
-        if (this.stand) {
-            this.stand.destroy();
-            this.stand = null;
+        if (modelEntity.animation) {
+          modelEntity.animation.play(animations[0].name);
         }
-        this.selectionPanel?.remove();
-        this.selectionPanel = null;
+      }
+
+      preview.addChild(modelEntity);
+      return preview;
     }
+
+    preview.addComponent("model", { type: "capsule" });
+    preview.setLocalScale(1.2, 1.2, 1.2);
+    const previewMaterial = new pc.StandardMaterial();
+    previewMaterial.diffuse = new pc.Color(0.9, 0.7, 0.3);
+    previewMaterial.update();
+    preview.model!.material = previewMaterial;
+    return preview;
+  }
+
+  private updateStandPreview() {
+    if (!this.stand || !this.stand.parent) return;
+    const existing = this.stand.findByName("CharacterPreview");
+    if (existing instanceof pc.Entity) {
+      existing.destroy();
+    }
+    const preview = this.buildPreviewEntity();
+    this.stand.addChild(preview);
+  }
+
+  private getOption(type: string) {
+    return this.options.find((option) => option.type === type) ?? null;
+  }
+
+  private selectCharacter(type: string) {
+    const option = this.getOption(type);
+    if (!option) return;
+    this.selectedType = type;
+    GameContext.getInstance().getEventBus().fire("character:select", type);
+    if (this.previewLabel) {
+      this.previewLabel.innerText = `当前选择: ${option.label}`;
+    }
+    this.updateStandPreview();
+    this.setSelectionVisible(false);
+  }
+
+  private createSelectionUI() {
+    const panel = document.createElement("div");
+    panel.style.position = "absolute";
+    panel.style.top = "0";
+    panel.style.left = "0";
+    panel.style.width = "100%";
+    panel.style.height = "100%";
+    panel.style.display = "none";
+    panel.style.alignItems = "center";
+    panel.style.justifyContent = "center";
+    panel.style.background = "rgba(0, 0, 0, 0.7)";
+    panel.style.zIndex = "150";
+
+    const card = document.createElement("div");
+    card.style.width = "60vmin";
+    card.style.maxWidth = "90vw";
+    card.style.padding = "4vmin";
+    card.style.background = "rgba(30, 30, 40, 0.95)";
+    card.style.border = "0.3vmin solid rgba(255, 255, 255, 0.2)";
+    card.style.borderRadius = "2vmin";
+    card.style.display = "flex";
+    card.style.flexDirection = "column";
+    card.style.alignItems = "center";
+    card.style.gap = "3vmin";
+
+    const title = document.createElement("div");
+    title.innerText = "角色选择";
+    title.style.color = "#fff";
+    title.style.fontSize = "3vmin";
+
+    const preview = document.createElement("div");
+    preview.style.width = "32vmin";
+    preview.style.minHeight = "6vmin";
+    preview.style.borderRadius = "2vmin";
+    preview.style.background = "rgba(76, 139, 245, 0.15)";
+    preview.style.display = "flex";
+    preview.style.alignItems = "center";
+    preview.style.justifyContent = "center";
+    preview.style.color = "#fff";
+    preview.style.fontSize = "2.1vmin";
+    preview.innerText = "当前选择: -";
+    this.previewLabel = preview;
+
+    const list = document.createElement("div");
+    list.style.display = "flex";
+    list.style.flexWrap = "wrap";
+    list.style.gap = "1.5vmin";
+    list.style.justifyContent = "center";
+
+    this.options.forEach((option) => {
+      const button = document.createElement("button");
+      button.innerText = option.label;
+      button.style.padding = "1vmin 3vmin";
+      button.style.fontSize = "1.8vmin";
+      button.style.borderRadius = "1vmin";
+      button.style.border = "0.2vmin solid rgba(255, 255, 255, 0.4)";
+      button.style.background = "rgba(60, 90, 160, 0.9)";
+      button.style.color = "#fff";
+      button.style.cursor = "pointer";
+      button.onclick = () => this.selectCharacter(option.type);
+      list.appendChild(button);
+    });
+
+    const closeButton = document.createElement("button");
+    closeButton.innerText = "关闭";
+    closeButton.style.padding = "1.2vmin 4vmin";
+    closeButton.style.fontSize = "2vmin";
+    closeButton.style.borderRadius = "1vmin";
+    closeButton.style.border = "0.2vmin solid rgba(255, 255, 255, 0.6)";
+    closeButton.style.background = "rgba(220, 80, 80, 0.9)";
+    closeButton.style.color = "#fff";
+    closeButton.style.cursor = "pointer";
+    closeButton.onclick = () => {
+      this.setSelectionVisible(false);
+    };
+
+    card.appendChild(title);
+    card.appendChild(preview);
+    card.appendChild(list);
+    card.appendChild(closeButton);
+    panel.appendChild(card);
+    document.body.appendChild(panel);
+
+    this.selectionPanel = panel;
+  }
+
+  public destroy() {
+    if (this.stand) {
+      this.stand.destroy();
+      this.stand = null;
+    }
+    this.selectionPanel?.remove();
+    this.selectionPanel = null;
+  }
 }

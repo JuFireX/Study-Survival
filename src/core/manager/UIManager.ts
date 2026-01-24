@@ -12,158 +12,164 @@ import { BuffCard, QuestionCard, WeaponCard } from "../../config/types";
 
 /**
  * UI 管理器 (UIManager)
- * 
+ *
  * 职责:
  * 1. 实例化并管理所有具体的 UI 组件 (Joystick 等)。
  * 2. 提供统一的接口供其他系统 (Systems) 调用 UI 功能。
  * 3. 负责 UI 相关的摄像机绑定 (如 FloatingText)。
  */
 export class UIManager {
-    private static instance: UIManager;
+  private static instance: UIManager;
 
-    // UI Modules
-    private joystick: Joystick | null = null;
-    private playerStatus: PlayerStatus | null = null;
-    private cardSelect: CardSelect | null = null;
-    private bossStatus: BossStatus | null = null;
-    private playerEffects: PlayerEffects | null = null;
-    private floatingTextManager: FloatingTextManager | null = null;
-    private enemyHealthBarManager: EnemyHealthBarManager | null = null;
-    private lobby: Lobby | null = null;
-    private gameOver: GameOver | null = null;
+  // UI Modules
+  private joystick: Joystick | null = null;
+  private playerStatus: PlayerStatus | null = null;
+  private cardSelect: CardSelect | null = null;
+  private bossStatus: BossStatus | null = null;
+  private playerEffects: PlayerEffects | null = null;
+  private floatingTextManager: FloatingTextManager | null = null;
+  private enemyHealthBarManager: EnemyHealthBarManager | null = null;
+  private lobby: Lobby | null = null;
+  private gameOver: GameOver | null = null;
 
-    constructor() {
-        this.initialize();
-        this.bindEvents();
+  constructor() {
+    this.initialize();
+    this.bindEvents();
+  }
+
+  private bindEvents() {
+    const eventBus = EventBus.getInstance();
+    eventBus.on("ui:showCardSelection", this.onShowCardSelection, this);
+  }
+
+  private onShowCardSelection(data: {
+    questions: QuestionCard[];
+    rewards: (BuffCard | WeaponCard)[];
+  }) {
+    if (this.cardSelect) {
+      this.cardSelect.start(data.questions, data.rewards, (selectedIds) => {
+        EventBus.getInstance().fire("card:selectionCompleted", selectedIds);
+      });
     }
+  }
 
-    private bindEvents() {
-        const eventBus = EventBus.getInstance();
-        eventBus.on('ui:showCardSelection', this.onShowCardSelection, this);
+  /**
+   * 获取单例实例
+   */
+  public static getInstance(): UIManager {
+    if (!UIManager.instance) {
+      UIManager.instance = new UIManager();
     }
+    return UIManager.instance;
+  }
 
-    private onShowCardSelection(data: { questions: QuestionCard[], rewards: (BuffCard | WeaponCard)[] }) {
-        if (this.cardSelect) {
-            this.cardSelect.start(data.questions, data.rewards, (selectedIds) => {
-                EventBus.getInstance().fire('card:selectionCompleted', selectedIds);
-            });
-        }
+  /**
+   * 初始化所有 UI 组件
+   */
+  private initialize() {
+    try {
+      console.log("[UI管理器] 初始化 UI 组件...");
+
+      this.joystick = new Joystick();
+      this.playerStatus = new PlayerStatus();
+      this.cardSelect = new CardSelect();
+      this.bossStatus = new BossStatus();
+      this.playerEffects = new PlayerEffects();
+      this.floatingTextManager = new FloatingTextManager();
+      this.enemyHealthBarManager = new EnemyHealthBarManager();
+      this.lobby = new Lobby();
+      this.gameOver = new GameOver();
+
+      console.log("[UI管理器] UI 组件初始化成功.");
+    } catch (error) {
+      console.error("[UI管理器] 初始化 UI 组件时发生错误:", error);
     }
+  }
 
-    /**
-     * 获取单例实例
-     */
-    public static getInstance(): UIManager {
-        if (!UIManager.instance) {
-            UIManager.instance = new UIManager();
-        }
-        return UIManager.instance;
+  // ==========================================
+  // Accessors for UI Modules
+  // ==========================================
+
+  public getJoystick(): Joystick | null {
+    return this.joystick;
+  }
+
+  public getPlayerStatus(): PlayerStatus | null {
+    return this.playerStatus;
+  }
+
+  public getFloatingTextManager(): FloatingTextManager | null {
+    return this.floatingTextManager;
+  }
+
+  /**
+   * @deprecated Use getFloatingTextManager() instead
+   */
+  public getFloatingText(): FloatingTextManager | null {
+    return this.floatingTextManager;
+  }
+
+  public getCardSelect(): CardSelect | null {
+    return this.cardSelect;
+  }
+
+  public getBossStatus(): BossStatus | null {
+    return this.bossStatus;
+  }
+
+  public getPlayerEffects(): PlayerEffects | null {
+    return this.playerEffects;
+  }
+
+  public getEnemyHealthBarManager(): EnemyHealthBarManager | null {
+    return this.enemyHealthBarManager;
+  }
+
+  /**
+   * 清理所有 UI 组件
+   */
+
+  public setHUDVisible(visible: boolean) {
+    this.playerStatus?.setVisible(visible);
+    this.playerEffects?.setVisible(visible);
+    if (!visible) {
+      this.bossStatus?.hide();
     }
+  }
 
-    /**
-     * 初始化所有 UI 组件
-     */
-    private initialize() {
-        try {
-            console.log("[UI管理器] 初始化 UI 组件...");
+  public setJoystickVisible(visible: boolean) {
+    this.joystick?.setVisible(visible);
+  }
 
-            this.joystick = new Joystick();
-            this.playerStatus = new PlayerStatus();
-            this.cardSelect = new CardSelect();
-            this.bossStatus = new BossStatus();
-            this.playerEffects = new PlayerEffects();
-            this.floatingTextManager = new FloatingTextManager();
-            this.enemyHealthBarManager = new EnemyHealthBarManager();
-            this.lobby = new Lobby();
-            this.gameOver = new GameOver();
+  public setLobbyVisible(visible: boolean) {
+    this.lobby?.setVisible(visible);
+  }
 
-            console.log("[UI管理器] UI 组件初始化成功.");
-        } catch (error) {
-            console.error("[UI管理器] 初始化 UI 组件时发生错误:", error);
-        }
-    }
+  public setCharacterSelectVisible(visible: boolean) {
+    this.lobby?.setCharacterSelectVisible(visible);
+  }
 
-    // ==========================================
-    // Accessors for UI Modules
-    // ==========================================
+  public setLobbyActionState(
+    canEnterPortal: boolean,
+    canOpenCharacter: boolean,
+  ) {
+    this.lobby?.setActionState(canEnterPortal, canOpenCharacter);
+  }
 
-    public getJoystick(): Joystick | null {
-        return this.joystick;
-    }
+  public setLobbyHandlers(onEnter: () => void, onCharacter: () => void) {
+    this.lobby?.setHandlers(onEnter, onCharacter);
+  }
 
-    public getPlayerStatus(): PlayerStatus | null {
-        return this.playerStatus;
-    }
-
-    public getFloatingTextManager(): FloatingTextManager | null {
-        return this.floatingTextManager;
-    }
-
-    /**
-     * @deprecated Use getFloatingTextManager() instead
-     */
-    public getFloatingText(): FloatingTextManager | null {
-        return this.floatingTextManager;
-    }
-
-    public getCardSelect(): CardSelect | null {
-        return this.cardSelect;
-    }
-
-    public getBossStatus(): BossStatus | null {
-        return this.bossStatus;
-    }
-
-    public getPlayerEffects(): PlayerEffects | null {
-        return this.playerEffects;
-    }
-
-    public getEnemyHealthBarManager(): EnemyHealthBarManager | null {
-        return this.enemyHealthBarManager;
-    }
-
-    /**
-     * 清理所有 UI 组件
-     */
-
-    public setHUDVisible(visible: boolean) {
-        this.playerStatus?.setVisible(visible);
-        this.playerEffects?.setVisible(visible);
-        if (!visible) {
-            this.bossStatus?.hide();
-        }
-    }
-
-    public setJoystickVisible(visible: boolean) {
-        this.joystick?.setVisible(visible);
-    }
-
-    public setLobbyVisible(visible: boolean) {
-        this.lobby?.setVisible(visible);
-    }
-
-    public setCharacterSelectVisible(visible: boolean) {
-        this.lobby?.setCharacterSelectVisible(visible);
-    }
-
-    public setLobbyActionState(canEnterPortal: boolean, canOpenCharacter: boolean) {
-        this.lobby?.setActionState(canEnterPortal, canOpenCharacter);
-    }
-
-    public setLobbyHandlers(onEnter: () => void, onCharacter: () => void) {
-        this.lobby?.setHandlers(onEnter, onCharacter);
-    }
-
-    public destroy() {
-        this.lobby?.destroy();
-        this.lobby = null;
-        this.joystick?.destroy();
-        this.playerStatus?.destroy();
-        this.cardSelect?.destroy();
-        this.bossStatus?.destroy();
-        this.playerEffects?.destroy();
-        this.floatingTextManager?.destroy();
-        this.enemyHealthBarManager?.destroy();
-        this.gameOver?.destroy();
-    }
+  public destroy() {
+    this.lobby?.destroy();
+    this.lobby = null;
+    this.joystick?.destroy();
+    this.playerStatus?.destroy();
+    this.cardSelect?.destroy();
+    this.bossStatus?.destroy();
+    this.playerEffects?.destroy();
+    this.floatingTextManager?.destroy();
+    this.enemyHealthBarManager?.destroy();
+    this.gameOver?.destroy();
+  }
 }

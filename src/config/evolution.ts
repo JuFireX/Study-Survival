@@ -1,232 +1,232 @@
 /**
  * 进化/等级配置 (Evolution Config)
- * 
+ *
  * 职责:
  * 1. 定义玩家和世界的等级成长数值。
  * 2. 提供各等级的属性对照表。
  */
-import { LevelConfig } from './types';
+import { LevelConfig } from "./types";
 
 // 基于玩家等级的世界初始化对照表
 export const WorldLevelConfig: LevelConfig[] = [
-    {
-        level: 1,
-        expRequired: 50,
-        playerStats: {
-            maxHealth: 100,
-            currentHealth: 100,
-            defense: 10,
-            magicDefense: 10,
-            moveSpeed: 10,
-            pickupRange: 3.0,
-            expEfficiency: 1.0,
-            luck: 1.0
-        },
-        enemyStats: {
-            maxHealth: 20,
-            currentHealth: 20,
-            damage: 5,
-            defense: 0,
-            moveSpeed: 2,
-            expValue: 10
-        }
+  {
+    level: 1,
+    expRequired: 50,
+    playerStats: {
+      maxHealth: 100,
+      currentHealth: 100,
+      defense: 10,
+      magicDefense: 10,
+      moveSpeed: 10,
+      pickupRange: 3.0,
+      expEfficiency: 1.0,
+      luck: 1.0,
     },
-    {
-        level: 2,
-        expRequired: 100,
-        playerStats: {
-            maxHealth: 110,
-            currentHealth: 110,
-            defense: 11,
-            magicDefense: 11,
-            moveSpeed: 10,
-            pickupRange: 5.0,
-            expEfficiency: 1.0,
-            luck: 1.0
-        },
-        enemyStats: {
-            maxHealth: 25,
-            currentHealth: 25,
-            damage: 6,
-            defense: 0,
-            moveSpeed: 2.1,
-            expValue: 12
-        }
+    enemyStats: {
+      maxHealth: 20,
+      currentHealth: 20,
+      damage: 5,
+      defense: 0,
+      moveSpeed: 2,
+      expValue: 10,
     },
-    {
-        level: 3,
-        expRequired: 125,
-        playerStats: {
-            maxHealth: 120,
-            currentHealth: 120,
-            defense: 12,
-            magicDefense: 12,
-            moveSpeed: 10.2,
-            pickupRange: 10.0,
-            expEfficiency: 1.05,
-            luck: 1.0
-        },
-        enemyStats: {
-            maxHealth: 30,
-            currentHealth: 30,
-            damage: 7,
-            defense: 1,
-            moveSpeed: 2.2,
-            expValue: 15
-        }
+  },
+  {
+    level: 2,
+    expRequired: 100,
+    playerStats: {
+      maxHealth: 110,
+      currentHealth: 110,
+      defense: 11,
+      magicDefense: 11,
+      moveSpeed: 10,
+      pickupRange: 5.0,
+      expEfficiency: 1.0,
+      luck: 1.0,
     },
-    {
-        level: 4,
-        expRequired: 150,
-        playerStats: {
-            maxHealth: 130,
-            currentHealth: 130,
-            defense: 13,
-            magicDefense: 13,
-            moveSpeed: 10.2,
-            pickupRange: 10.0,
-            expEfficiency: 1.05,
-            luck: 1.05
-        },
-        enemyStats: {
-            maxHealth: 40,
-            currentHealth: 40,
-            damage: 8,
-            defense: 1,
-            moveSpeed: 2.3,
-            expValue: 18
-        }
+    enemyStats: {
+      maxHealth: 25,
+      currentHealth: 25,
+      damage: 6,
+      defense: 0,
+      moveSpeed: 2.1,
+      expValue: 12,
     },
-    {
-        level: 5,
-        expRequired: 150,
-        playerStats: {
-            maxHealth: 140,
-            currentHealth: 140,
-            defense: 14,
-            magicDefense: 14,
-            moveSpeed: 10.5,
-            pickupRange: 10.0,
-            expEfficiency: 1.1,
-            luck: 1.1
-        },
-        enemyStats: {
-            maxHealth: 50,
-            currentHealth: 50,
-            damage: 10,
-            defense: 2,
-            moveSpeed: 2.5,
-            expValue: 22
-        }
+  },
+  {
+    level: 3,
+    expRequired: 125,
+    playerStats: {
+      maxHealth: 120,
+      currentHealth: 120,
+      defense: 12,
+      magicDefense: 12,
+      moveSpeed: 10.2,
+      pickupRange: 10.0,
+      expEfficiency: 1.05,
+      luck: 1.0,
     },
-    {
-        level: 6,
-        expRequired: 150,
-        playerStats: {
-            maxHealth: 150,
-            currentHealth: 150,
-            defense: 15,
-            magicDefense: 15,
-            moveSpeed: 10.5,
-            pickupRange: 10.0,
-            expEfficiency: 1.15,
-            luck: 1.15
-        },
-        enemyStats: {
-            maxHealth: 65,
-            currentHealth: 65,
-            damage: 12,
-            defense: 2,
-            moveSpeed: 2.6,
-            expValue: 26
-        }
+    enemyStats: {
+      maxHealth: 30,
+      currentHealth: 30,
+      damage: 7,
+      defense: 1,
+      moveSpeed: 2.2,
+      expValue: 15,
     },
-    {
-        level: 7,
-        expRequired: 200,
-        playerStats: {
-            maxHealth: 160,
-            currentHealth: 160,
-            defense: 16,
-            magicDefense: 16,
-            moveSpeed: 10.8,
-            pickupRange: 15.0,
-            expEfficiency: 1.2,
-            luck: 1.2
-        },
-        enemyStats: {
-            maxHealth: 80,
-            currentHealth: 80,
-            damage: 14,
-            defense: 3,
-            moveSpeed: 2.8,
-            expValue: 30
-        }
+  },
+  {
+    level: 4,
+    expRequired: 150,
+    playerStats: {
+      maxHealth: 130,
+      currentHealth: 130,
+      defense: 13,
+      magicDefense: 13,
+      moveSpeed: 10.2,
+      pickupRange: 10.0,
+      expEfficiency: 1.05,
+      luck: 1.05,
     },
-    {
-        level: 8,
-        expRequired: 200,
-        playerStats: {
-            maxHealth: 175,
-            currentHealth: 175,
-            defense: 17,
-            magicDefense: 17,
-            moveSpeed: 10.8,
-            pickupRange: 15.0,
-            expEfficiency: 1.25,
-            luck: 1.25
-        },
-        enemyStats: {
-            maxHealth: 100,
-            currentHealth: 100,
-            damage: 16,
-            defense: 3,
-            moveSpeed: 3.0,
-            expValue: 35
-        }
+    enemyStats: {
+      maxHealth: 40,
+      currentHealth: 40,
+      damage: 8,
+      defense: 1,
+      moveSpeed: 2.3,
+      expValue: 18,
     },
-    {
-        level: 9,
-        expRequired: 200,
-        playerStats: {
-            maxHealth: 190,
-            currentHealth: 190,
-            defense: 18,
-            magicDefense: 18,
-            moveSpeed: 11.0,
-            pickupRange: 30.0,
-            expEfficiency: 1.3,
-            luck: 1.3
-        },
-        enemyStats: {
-            maxHealth: 120,
-            currentHealth: 120,
-            damage: 18,
-            defense: 4,
-            moveSpeed: 3.2,
-            expValue: 40
-        }
+  },
+  {
+    level: 5,
+    expRequired: 150,
+    playerStats: {
+      maxHealth: 140,
+      currentHealth: 140,
+      defense: 14,
+      magicDefense: 14,
+      moveSpeed: 10.5,
+      pickupRange: 10.0,
+      expEfficiency: 1.1,
+      luck: 1.1,
     },
-    {
-        level: 10,
-        expRequired: 200,
-        playerStats: {
-            maxHealth: 210,
-            currentHealth: 210,
-            defense: 19,
-            magicDefense: 19,
-            moveSpeed: 11.2,
-            pickupRange: 4.2,
-            expEfficiency: 1.35,
-            luck: 1.4
-        },
-        enemyStats: {
-            maxHealth: 150,
-            currentHealth: 150,
-            damage: 20,
-            defense: 5,
-            moveSpeed: 3.5,
-            expValue: 50
-        }
-    }
+    enemyStats: {
+      maxHealth: 50,
+      currentHealth: 50,
+      damage: 10,
+      defense: 2,
+      moveSpeed: 2.5,
+      expValue: 22,
+    },
+  },
+  {
+    level: 6,
+    expRequired: 150,
+    playerStats: {
+      maxHealth: 150,
+      currentHealth: 150,
+      defense: 15,
+      magicDefense: 15,
+      moveSpeed: 10.5,
+      pickupRange: 10.0,
+      expEfficiency: 1.15,
+      luck: 1.15,
+    },
+    enemyStats: {
+      maxHealth: 65,
+      currentHealth: 65,
+      damage: 12,
+      defense: 2,
+      moveSpeed: 2.6,
+      expValue: 26,
+    },
+  },
+  {
+    level: 7,
+    expRequired: 200,
+    playerStats: {
+      maxHealth: 160,
+      currentHealth: 160,
+      defense: 16,
+      magicDefense: 16,
+      moveSpeed: 10.8,
+      pickupRange: 15.0,
+      expEfficiency: 1.2,
+      luck: 1.2,
+    },
+    enemyStats: {
+      maxHealth: 80,
+      currentHealth: 80,
+      damage: 14,
+      defense: 3,
+      moveSpeed: 2.8,
+      expValue: 30,
+    },
+  },
+  {
+    level: 8,
+    expRequired: 200,
+    playerStats: {
+      maxHealth: 175,
+      currentHealth: 175,
+      defense: 17,
+      magicDefense: 17,
+      moveSpeed: 10.8,
+      pickupRange: 15.0,
+      expEfficiency: 1.25,
+      luck: 1.25,
+    },
+    enemyStats: {
+      maxHealth: 100,
+      currentHealth: 100,
+      damage: 16,
+      defense: 3,
+      moveSpeed: 3.0,
+      expValue: 35,
+    },
+  },
+  {
+    level: 9,
+    expRequired: 200,
+    playerStats: {
+      maxHealth: 190,
+      currentHealth: 190,
+      defense: 18,
+      magicDefense: 18,
+      moveSpeed: 11.0,
+      pickupRange: 30.0,
+      expEfficiency: 1.3,
+      luck: 1.3,
+    },
+    enemyStats: {
+      maxHealth: 120,
+      currentHealth: 120,
+      damage: 18,
+      defense: 4,
+      moveSpeed: 3.2,
+      expValue: 40,
+    },
+  },
+  {
+    level: 10,
+    expRequired: 200,
+    playerStats: {
+      maxHealth: 210,
+      currentHealth: 210,
+      defense: 19,
+      magicDefense: 19,
+      moveSpeed: 11.2,
+      pickupRange: 4.2,
+      expEfficiency: 1.35,
+      luck: 1.4,
+    },
+    enemyStats: {
+      maxHealth: 150,
+      currentHealth: 150,
+      damage: 20,
+      defense: 5,
+      moveSpeed: 3.5,
+      expValue: 50,
+    },
+  },
 ];

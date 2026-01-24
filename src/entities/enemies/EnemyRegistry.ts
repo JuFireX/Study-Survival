@@ -1,4 +1,4 @@
-import { BaseEnemy } from './share/BaseEnemy';
+import { BaseEnemy } from "./share/BaseEnemy";
 
 export type EnemyConstructor = new () => BaseEnemy;
 
@@ -6,32 +6,32 @@ export type EnemyConstructor = new () => BaseEnemy;
  * 敌人注册表 (EnemyRegistry)
  */
 export class EnemyRegistry {
-    private static registry = new Map<string, EnemyConstructor>();
+  private static registry = new Map<string, EnemyConstructor>();
 
-    /**
-     * 注册敌人类型
-     */
-    public static register(type: string, ctor: EnemyConstructor) {
-        if (this.registry.has(type)) {
-            console.warn(`[敌人注册表] 敌人类型 '${type}' 已注册. 覆盖.`);
-        }
-        this.registry.set(type, ctor);
-        console.log(`[敌人注册表] 注册: ${type}`);
+  /**
+   * 注册敌人类型
+   */
+  public static register(type: string, ctor: EnemyConstructor) {
+    if (this.registry.has(type)) {
+      console.warn(`[敌人注册表] 敌人类型 '${type}' 已注册. 覆盖.`);
     }
+    this.registry.set(type, ctor);
+    console.log(`[敌人注册表] 注册: ${type}`);
+  }
 
-    /**
-     * 创建敌人实例
-     */
-    public static create(type: string): BaseEnemy | null {
-        const Ctor = this.registry.get(type);
-        if (!Ctor) {
-            console.error(`[敌人注册表] 未知敌人类型: ${type}`);
-            return null;
-        }
-        return new Ctor();
+  /**
+   * 创建敌人实例
+   */
+  public static create(type: string): BaseEnemy | null {
+    const Ctor = this.registry.get(type);
+    if (!Ctor) {
+      console.error(`[敌人注册表] 未知敌人类型: ${type}`);
+      return null;
     }
+    return new Ctor();
+  }
 
-    public static getRegisteredTypes(): string[] {
-        return Array.from(this.registry.keys());
-    }
+  public static getRegisteredTypes(): string[] {
+    return Array.from(this.registry.keys());
+  }
 }
