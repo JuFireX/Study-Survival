@@ -4,17 +4,17 @@ import { PlayerStats } from '../../../config/types';
 import { CharacterRegistry } from '../CharacterRegistry';
 import { ResourceManager } from '../../../core/manager/ResourceManager';
 
-export class CharacterAAA extends BaseCharacter {
+export class CharacterBBB extends BaseCharacter {
     constructor(entity: pc.Entity, stats?: Partial<PlayerStats>) {
         const defaultStats: PlayerStats = {
-            currentHealth: 100,
-            maxHealth: 100,
-            defense: 5,
-            magicDefense: 0,
-            moveSpeed: 8,
-            pickupRange: 3,
-            expEfficiency: 1.0,
-            luck: 0
+            currentHealth: 90,
+            maxHealth: 90,
+            defense: 3,
+            magicDefense: 8,
+            moveSpeed: 8.2,
+            pickupRange: 3.5,
+            expEfficiency: 1.15,
+            luck: 2
         };
         super(entity, { ...defaultStats, ...stats });
         this.initializeVisuals();
@@ -22,39 +22,38 @@ export class CharacterAAA extends BaseCharacter {
 
     private initializeVisuals() {
         const resourceManager = ResourceManager.getInstance();
-        const modelAsset = resourceManager.getAsset('barbarian');
+        const modelAsset = resourceManager.getAsset('druid');
 
         if (modelAsset && modelAsset.resource) {
             const container = modelAsset.resource as pc.ContainerResource;
             const modelEntity = container.instantiateRenderEntity();
-            modelEntity.setLocalScale(1.5, 1.5, 1.5);
+            modelEntity.setLocalScale(1.35, 1.35, 1.35);
             modelEntity.setLocalEulerAngles(0, 0, 0);
             this.entity.addChild(modelEntity);
             return;
         }
 
-        this.entity.addComponent('model', {
-            type: 'capsule'
-        });
+        this.entity.addComponent('model', { type: 'capsule' });
 
         const material = new pc.StandardMaterial();
-        material.diffuse = new pc.Color(60 / 255, 90 / 255, 250 / 255);
+        material.diffuse = new pc.Color(0.18, 0.55, 0.32);
         material.update();
         if (this.entity.model) {
             this.entity.model.material = material;
         }
 
-        const eye = new pc.Entity('Eye');
-        eye.addComponent('model', { type: 'box' });
-        eye.setLocalScale(0.5, 0.2, 0.5);
-        eye.setLocalPosition(0, 0.5, 0.3);
-        const eyeMat = new pc.StandardMaterial();
-        eyeMat.diffuse = new pc.Color(200 / 255, 200 / 255, 200 / 255);
-        eyeMat.update();
-        if (eye.model) eye.model.material = eyeMat;
-        this.entity.addChild(eye);
+        const orb = new pc.Entity('NatureOrb');
+        orb.addComponent('model', { type: 'sphere' });
+        orb.setLocalScale(0.25, 0.25, 0.25);
+        orb.setLocalPosition(0.35, 0.6, 0.25);
+        const orbMat = new pc.StandardMaterial();
+        orbMat.diffuse = new pc.Color(0.65, 0.9, 0.65);
+        orbMat.update();
+        if (orb.model) {
+            orb.model.material = orbMat;
+        }
+        this.entity.addChild(orb);
     }
 }
 
-// 自动注册
-CharacterRegistry.register('c_AAA', CharacterAAA);
+CharacterRegistry.register('c_BBB', CharacterBBB);

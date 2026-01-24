@@ -7,6 +7,8 @@ import { CharacterRegistry } from '../../entities/characters/CharacterRegistry';
 
 // 确保引用被加载，从而触发自注册
 import '../../entities/characters/c_AAA';
+import '../../entities/characters/c_BBB';
+import '../../entities/characters/c_CCC';
 
 /**
  * 角色系统 (CharacterSystem)
