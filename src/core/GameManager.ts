@@ -214,7 +214,9 @@ export class GameManager {
 
     private getCharacterModelConfig(type: string) {
         const configs = {
-            c_AAA: { asset: 'barbarian', scale: 1.2, rotationX: -90, rotationY: 0, rotationZ: 0 }
+            c_AAA: { asset: 'barbarian', scale: 1.2, rotationX: 0, rotationY: 0, rotationZ: 0 },
+            c_BBB: { asset: 'druid', scale: 1.15, rotationX: 0, rotationY: 0, rotationZ: 0 },
+            c_CCC: { asset: 'engineer', scale: 1.1, rotationX: 0, rotationY: 0, rotationZ: 0 }
         } as Record<string, { asset: string; scale: number; rotationX: number; rotationY: number; rotationZ: number }>;
         return configs[type] ?? null;
     }

@@ -10,7 +10,9 @@ export class CharacterHandler {
     private previewLabel: HTMLDivElement | null = null;
     private selectedType = 'c_AAA';
     private options = [
-        { type: 'c_AAA', label: 'Barbarian', asset: 'barbarian', scale: 1.5, rotationX: 0, rotationY: 0, rotationZ: 0 }
+        { type: 'c_AAA', label: 'Barbarian', asset: 'barbarian', scale: 1.5, rotationX: 0, rotationY: 0, rotationZ: 0 },
+        { type: 'c_BBB', label: 'Druid', asset: 'druid', scale: 1.4, rotationX: 0, rotationY: 0, rotationZ: 0 },
+        { type: 'c_CCC', label: 'Engineer', asset: 'engineer', scale: 1.3, rotationX: 0, rotationY: 0, rotationZ: 0 }
     ];
 
     constructor() {
